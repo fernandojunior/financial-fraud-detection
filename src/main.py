@@ -1,5 +1,6 @@
 import parameters as param
 import preprocessing as preprocess
+import visualization as vis
 import os
 
 # This param when defined as True will execute
@@ -64,6 +65,7 @@ train_data = preprocess.get_features_augmentation(train_data)
 columns_to_remove = ['CurrencyCode', 'CountryCode', 'BatchId', 'AccountId', 'SubscriptionId', 'CustomerId', 'TransactionStartTime', 'Amount']
 train_data = train_data.drop(*columns_to_remove)
 
+vis.plot_transactions_proportions(train_data)
 
 print(train_data.show())
 print('Finish with success')

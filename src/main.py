@@ -4,6 +4,7 @@ import visualization as vis
 import statistics as stats
 import os
 import sys
+
 sys.path.insert(0, 'models/')
 import isolation_forest
 
@@ -21,8 +22,10 @@ os.environ["JAVA_HOME"] = param.get_java_home()
 os.environ["SPARK_HOME"] = param.get_spark_home()
 
 import findspark
+
 findspark.init()
 from pyspark.sql import SparkSession
+
 spark = SparkSession.builder.appName('xente').getOrCreate()
 spark
 
@@ -34,30 +37,31 @@ import pyspark.sql.functions as F
 import shap
 import catboost
 from catboost import Pool, CatBoostClassifier, cv
-
+from sklearn.ensemble import IsolationForest
 from pyspark.sql.types import IntegerType, DoubleType
 from pyspark.sql.functions import mean, udf, array, col
 from pyspark.ml.feature import StringIndexer, VectorAssembler
 from pyspark.ml.linalg import Vectors
 from imblearn.over_sampling import RandomOverSampler, SMOTE, SMOTENC, ADASYN
-from sklearn.ensemble import IsolationForest
 from sklearn.model_selection import train_test_split, learning_curve, ShuffleSplit
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
-                              f1_score, precision_score, recall_score, roc_auc_score)
+                             f1_score, precision_score, recall_score, roc_auc_score)
 
-
-all_features = ['ProductId', 'ProductCategory', 'ChannelId', 'Value', 'PricingStrategy', 'Operation', 'PositiveAmount', 'avg_ps_ChannelId', 'rt_avg_ps_ChannelId', 'avg_ps_ProductCategory', 'rt_avg_ps_ProductCategory', 'avg_ps_ProductId', 'rt_avg_ps_ProductId']
+all_features = ['ProductId', 'ProductCategory', 'ChannelId', 'Value', 'PricingStrategy', 'Operation', 'PositiveAmount',
+                'avg_ps_ChannelId', 'rt_avg_ps_ChannelId', 'avg_ps_ProductCategory', 'rt_avg_ps_ProductCategory',
+                'avg_ps_ProductId', 'rt_avg_ps_ProductId']
 feature_cols = ['PositiveAmount', 'Operation', 'Value', 'PricingStrategy']
 columns_to_remove = ['CurrencyCode', 'CountryCode', 'BatchId', 'AccountId', 'SubscriptionId',
                      'CustomerId', 'TransactionStartTime', 'Amount']
 categorical_features = ['ProductId', 'ProductCategory', 'ChannelId']
 numerical_features_augmented = ['Value', 'PricingStrategy', 'Operation', 'PositiveAmount', 'avg_ps_ChannelId',
-                      'rt_avg_ps_ChannelId', 'avg_ps_ProductCategory', 'rt_avg_ps_ProductCategory',
-                      'avg_ps_ProductId', 'rt_avg_ps_ProductId']
+                                'rt_avg_ps_ChannelId', 'avg_ps_ProductCategory', 'rt_avg_ps_ProductCategory',
+                                'avg_ps_ProductId', 'rt_avg_ps_ProductId']
 label = ['FraudResult']
 outliers_label = 'FraudResult==1'
+
 
 def read_spark_data_frame(file_name):
     data = pd.read_csv(file_name)
@@ -90,12 +94,16 @@ if full_execution:
     vis.plot_heatmap(train_data, numerical_features_augmented, True)
     vis.plot_heatmap(train_data, numerical_features_augmented, False)
 
-# Finishing execution
-print(train_data.show())
+    model = isolation_forest.IsolationForest(train_data, numerical_features_augmented, label, outliers_label)
+    max_sample_list = [100, 200, 800, 1600, 3200, 6400]
+    contamination_list = [0.003, 0.01, 0.05, 0.1]
+    _, _, _, _, score = model.fit_grid_search(max_sample_list, contamination_list, metric='f1score')
+    vis.plot_performance_comparison(score)
 
-model = isolation_forest.IsolationForest(numerical_features_augmented, label, outliers_label)
-model.fit_cross_validation(train_data, )
-model.fit(train_data)
+# TO DO: Oversampling models (RandomOverSampler, SMOTENC, ADASYN, etc)
 
-print(model)
+# TO DO: Feature importance using SHAP
+
+# TO DO: Catboost
+
 print('Finish with success')

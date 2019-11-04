@@ -39,17 +39,6 @@ def get_fpr(fp, tn):
     return fp / (fp+tn)
 
 
-def get_f1score(ppv, tpr):
-    '''
-    :param ppv: precision or positive predictive value (PPV)
-    :param tpr: sensitivity, recall, hit rate, or true positive rate (TPR)
-    :return: F1-score: is the harmonic mean of precision and sensitivity
-                F1 = 2 * (PPV * TPR) / (PPV + TPR)
-    '''
-    f1score = 2 * (ppv * tpr) / (ppv + tpr)
-    return f1score
-
-
 def get_f1score(tp, fp, fn):
     '''
     :param tp: True Positive
@@ -60,7 +49,7 @@ def get_f1score(tp, fp, fn):
     '''
     ppv = get_ppv(tp, fp)
     tpr = get_tpr(fp, fn)
-    f1score = get_f1score(ppv, tpr)
+    f1score = 2 * (ppv * tpr) / (ppv + tpr)
     return f1score
 
 
@@ -85,13 +74,14 @@ def compute_score(confusion_matrix, metric='f1score'):
     tn = confusion_matrix[1][1]
 
     score = 0.0
+    metric = metric.lower()
     if metric == 'sensitivity' or metric == 'recall' or metric == 'tpr':
         score = get_tpr(tp, fn)
     elif metric == 'precision' or metric == 'ppv':
         score = get_ppv(tp, fp)
     elif metric == 'fpr':
         score = get_fpr(fp, tn)
-    elif metric == 'f1score':
+    elif metric == 'f1score' or metric == 'f1' or metric == 'f1-score':
         score = get_f1score(tp, fp, fn)
     return score
 

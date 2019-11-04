@@ -23,6 +23,19 @@ def plot_transactions_proportions(data):
     plt.show()
 
 
+def plot_performance_comparison(data, x='max', y='score', hue='contamination'):
+    sns.set(style='darkgrid')
+    sns.lineplot(x=x, y=y, hue=hue, data=data)
+    better_performance = data[data.score == data.score.max()].iloc[0]
+    print(data)
+    print(better_performance)
+    title = 'Better score: {0:.1f}\nMax sample: {1}\nContamination level: {2}'.format(
+        better_performance[y], better_performance[x], better_performance[hue]
+    )
+    plt.title(title)
+    plt.show()
+
+
 def plot_hist(data, feature_columns, label_type):
     column = 'FraudResult == {0}'.format('1' if label_type else '0')
     data.filter(column).toPandas().hist(column=feature_columns, figsize=(5, 5))

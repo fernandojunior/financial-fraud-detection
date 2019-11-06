@@ -56,3 +56,6 @@ def plot_heatmap(data, numerical_features, label_type, method='spearman'):
     plt.show()
 
 
+def plot_bar(data, title):
+    pd.Series(data).value_counts().plot.bar(title=title)
+    plt.show()

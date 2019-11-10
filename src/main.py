@@ -1,10 +1,10 @@
-from catboost import CatBoostClassifier, Pool, cv
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 
 import sys
 sys.path.insert(0, 'models/')
 
 import balance as bal
+import cat_boost as cat
 import isolation_forest
 import parameters as param
 import preprocessing as preprocess
@@ -77,27 +77,12 @@ if full_execution:
         graph_performance = model.fit_grid_search(x_data, y_data, max_sample_list, contamination_list, 'accuracy')
         vis.plot_performance_comparison(graph_performance)
 
-
-
-
 x_data, y_data = bal.balance_using_only_numerical_features(train_data, numerical_features, label, 'random')
 X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.3)
-params = {'depth': [3, 4, 5],
-                  'loss_function': ['Logloss'],
-                  'eval_metric': ['AUC', 'F1'],
-                  'iterations': [30, 50, 100, 150]}
 
-model = CatBoostClassifier(eval_metric='AUC')
-grid = GridSearchCV(estimator=model, param_grid=params, cv=3)
-grid.fit(X_train, y_train)
-
-print("\n The best score across ALL searched params:\n",
-      grid.best_score_)
-
-print("\n The best parameters across ALL searched params:\n",
-      grid.best_params_)
-
-
+model = cat.CatBoost(8, 300, 'Logloss', 'AUC')
+model.fit(x_data)
+model.predict(X_test)
 
 
 

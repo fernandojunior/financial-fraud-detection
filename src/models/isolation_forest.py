@@ -1,22 +1,9 @@
 import pandas as pd
 import sklearn.ensemble as ens
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
 import sys
 sys.path.insert(0, '../')
 import statistics as stat
-
-
-def norm_pred(data):
-    '''
-    :param data: Pandas DataFrame or Numpy array with labels
-        classified as -1 and 1, and you want to convert into
-        1 and 0, respectively.
-            [-1, 1]
-    :return: [1, 0]
-    '''
-    data = ((data * -1) + 1) / 2
-    return data
 
 
 class IsolationForest:
@@ -43,23 +30,8 @@ class IsolationForest:
         self.max_sample = max_sample
         self.contamination = contamination
         self.random_value = random_value
-        self.clf = ens.IsolationForest(behaviour='new', max_samples=self.max_sample,
-                                       random_state=self.random_value, contamination=self.contamination)
-
-    def evaluate_model(self, model, x_test, y_test, metric='f1score'):
-        '''
-        :param model: The model trained used to be evaluated.
-        :param x_test:
-        :param y_test:
-        :param metric: Could be any metric implemented in statistic module, such as
-        PPV, TPR, FPR, or F1score.
-        :return:
-        '''
-        y_predictions_test = model.predict(x_test)
-        y_predictions_test = norm_pred(y_predictions_test)
-        cm = confusion_matrix(y_test, y_predictions_test)
-        score = stat.compute_score(cm, metric)
-        return score
+        self.model = ens.IsolationForest(behaviour='new', max_samples=self.max_sample,
+                                         random_state=self.random_value, contamination=self.contamination)
 
     def fit_grid_search(self, training_data, testing_data, max_sample_list, contamination_list, metric='f1score'):
         '''
@@ -80,21 +52,27 @@ class IsolationForest:
                              test_size=self.test_proportion, random_state=self.random_value)
 
         baseline = 0.0
-        self.graph_performance = pd.DataFrame([], columns=['score', 'max', 'contamination'])
+        self.graph_performance = pd.DataFrame([], columns=['max', 'contamination', 'tp', 'fp', 'fn', 'tn'])
         for max_sample in max_sample_list:
             for contamination_level in contamination_list:
                 model = ens.IsolationForest(behaviour='new', max_samples=max_sample,
                                             random_state=self.random_value, contamination=contamination_level)
                 model.fit(x_train)
-                score = self.evaluate_model(model, x_test, y_test, metric)
+                cm = stat.compute_confusion_matrix(model, x_test, y_test)
+                score = stat.compute_score(cm, metric)
                 if score > baseline:
                     baseline = score
-                    self.clf = model
                     self.max_sample = max_sample
                     self.contamination = contamination_level
-                performance = pd.DataFrame({'score': [score], 'max': [max_sample], 'contamination': [contamination_level]})
+                    self.model = model
+                performance = pd.DataFrame({'max': [max_sample], 'contamination': [contamination_level],
+                                            'tp': [stat.get_tp(cm)], 'fp': [stat.get_fp(cm)],
+                                            'fn': [stat.get_fn(cm)], 'tn': [stat.get_tn(cm)],
+                                            'ppv': [stat.compute_score(cm, 'ppv')],
+                                            'tpr': [stat.compute_score(cm, 'tpr')],
+                                            'score': [score]})
                 self.graph_performance = self.graph_performance.append(performance)
-        return self.clf, baseline, self.max_sample, self.contamination, self.graph_performance
+        return self.graph_performance
 
     def fit(self, x_train):
         '''
@@ -103,5 +81,11 @@ class IsolationForest:
         :return: Trained model
         '''
         if x_train:
-            self.clf.fit(x_train)
-        return self.clf
+            self.model.fit(x_train)
+        return self.model
+
+    def predict(self, data):
+        predictions = None
+        if data:
+            predictions = self.model.predict(data)
+        return predictions

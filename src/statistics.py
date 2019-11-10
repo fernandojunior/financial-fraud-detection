@@ -1,4 +1,5 @@
 from pyspark.sql.functions import mean
+from sklearn.metrics import confusion_matrix
 
 
 def get_fraud_proportion(data, verbose_mode=True):
@@ -7,6 +8,64 @@ def get_fraud_proportion(data, verbose_mode=True):
     if verbose_mode:
         print('The data set are composed by {0:.3f}% of fraud data.'.format(outlier_fraction*100))
     return outlier_fraction
+
+
+def norm_pred_inverse(data):
+    '''
+    :param data: Pandas DataFrame or Numpy array with labels
+        classified as -1 and 1, and you want to convert into
+        1 and 0, respectively.
+            [-1, 1]
+    :return: [1, 0]
+    '''
+    data = ((data * -1) + 1) / 2
+    return data
+
+
+def norm_pred(data):
+    '''
+    :param data: Pandas DataFrame or Numpy array with labels
+        classified as -1 and 1, and you want to convert into
+        0 and 1, respectively.
+            [-1, 1]
+    :return: [0, 1]
+    '''
+    data = (data+1)/2
+    return data
+
+
+def compute_confusion_matrix(model, x_test, y_test):
+    '''
+    :param model: The model trained used to be evaluated.
+    :param x_test:
+    :param y_test:
+    :param metric: Could be any metric implemented in statistic module, such as
+    PPV, TPR, FPR, or F1score.
+    :return:
+    '''
+    y_predictions_test = model.predict(x_test)
+    y_predictions_test = norm_pred_inverse(y_predictions_test)
+    cm = confusion_matrix(y_test, y_predictions_test)
+    return cm
+
+
+#    TP | FP
+#    -------
+#    FN | TN
+def get_tp(confusion_matrix):
+    return confusion_matrix[0][0]
+
+
+def get_fp(confusion_matrix):
+    return confusion_matrix[0][1]
+
+
+def get_fn(confusion_matrix):
+    return confusion_matrix[1][0]
+
+
+def get_tn(confusion_matrix):
+    return confusion_matrix[1][1]
 
 
 def get_tpr(tp, fn):
@@ -48,9 +107,22 @@ def get_f1score(tp, fp, fn):
                 F1 = 2 * (PPV * TPR) / (PPV + TPR)
     '''
     ppv = get_ppv(tp, fp)
-    tpr = get_tpr(fp, fn)
-    f1score = 2 * (ppv * tpr) / (ppv + tpr)
+    tpr = get_tpr(tp, fn)
+    f1score = (2 * (ppv * tpr)) / (ppv + tpr)
     return f1score
+
+
+def get_accuracy(tp, fp, fn, tn):
+    """
+    :param tp: True Positive
+    :param fp: False Positive
+    :param fn: False Negative
+    :param tn: True Negative
+    :return:      TP + TN
+            ------------------
+            TP + FP + FN + TN
+    """
+    return (tp+tn)/(tp+fp+fn+tn)
 
 
 def compute_score(confusion_matrix, metric='f1score'):
@@ -68,10 +140,10 @@ def compute_score(confusion_matrix, metric='f1score'):
     :return:
         The follow metric choose for matrix confusion passed by param.
     '''
-    tp = confusion_matrix[0][0]
-    fp = confusion_matrix[0][1]
-    fn = confusion_matrix[1][0]
-    tn = confusion_matrix[1][1]
+    tp = get_tp(confusion_matrix)
+    fp = get_fp(confusion_matrix)
+    fn = get_fn(confusion_matrix)
+    tn = get_tn(confusion_matrix)
 
     score = 0.0
     metric = metric.lower()
@@ -83,7 +155,70 @@ def compute_score(confusion_matrix, metric='f1score'):
         score = get_fpr(fp, tn)
     elif metric == 'f1score' or metric == 'f1' or metric == 'f1-score':
         score = get_f1score(tp, fp, fn)
+    elif metric == 'accuracy' or metric == 'acc':
+        score = get_accuracy(tp, fp, fn, tn)
     return score
+
+
+def compute_pandas_f1score(data):
+    """
+    :param data:
+    :return:
+    F1-score:  2 * PPV * TPR           2 * TP
+              ---------------  =  --------------
+                PPV + TPR         2*TP + FP + FN
+    """
+    f1score = None
+    if 'ppv' in data and 'tpr' in data:
+        f1score = (2*data['ppv']*data['tpr'])/(data['ppv']+data['tpr'])
+    else:
+        ppv = compute_pandas_ppv(data)
+        tpr = compute_pandas_tpr(data)
+        if ppv and tpr:
+            f1score = (2*ppv*tpr)/(ppv+tpr)
+    return f1score
+
+
+def compute_pandas_accuracy(data):
+    """
+        :param data:
+        :return:
+        Accuracy:         TP + TN
+                    -------------------
+                     TP + FP + FN + TN
+        """
+    accuracy = None
+    if 'tp' in data and 'fp' in data and 'fn' in data and 'tn' in data:
+        accuracy = (data['tp'] + data['tn']) / (data['tp'] + data['fp'] + data['fn'] + data['tn'])
+    return accuracy
+
+
+def compute_pandas_ppv(data):
+    """
+    :param data:
+    :return:
+    PPV:    TP
+         --------
+         TP + FP
+    """
+    ppv = None
+    if 'tp' in data and 'fp' in data:
+        ppv = data['tp'] / (data['tp'] + data['fp'])
+    return ppv
+
+
+def compute_pandas_tpr(data):
+    """
+    :param data:
+    :return:
+    TPR:    TP
+         --------
+         TP + FN
+    """
+    tpr = None
+    if 'tp' in data and 'fn' in data:
+        tpr = data['tp'] / (data['tp'] + data['fn'])
+    return tpr
 
 
 def print_description(data, feature_cols):

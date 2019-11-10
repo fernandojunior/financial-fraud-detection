@@ -12,6 +12,21 @@ def there_is_duplicate_lines(data):
     print('There is duplicated lines? {0}'.format(ans))
 
 
+def get_specific_statistical_info(data, stat):
+    """
+    :param data: PySpark data frame.
+    :param stat: could be "avg", "max", or "min".
+    :return: The respective statistics over input data.
+    """
+    if stat == "avg":
+        data = data.mean()
+    elif stat == "max":
+        data = data.max()
+    elif stat == "min":
+        data = data.min()
+    return data
+
+
 def get_features_augmentation(data):
     '''
     This function was create to make features augmentation in the data to improve
@@ -45,13 +60,15 @@ def get_features_augmentation(data):
     items_list = ['ChannelId', 'ProductCategory', 'ProductId']
 
     for item in items_list:
-        mean_column_name = 'avg_ps_{0}'.format(item)
-        ratio_column_name = 'rt_avg_ps_{0}'.format(item)
-        aux = gen_train_data.select([item, 'PositiveAmount']).groupBy(item).mean()
-        aux = aux.select(col(item), col('avg(PositiveAmount)').alias(mean_column_name))
-        data = data.join(aux, on=item)
-        data = data.withColumn(ratio_column_name,
-                               (F.col('PositiveAmount') - F.col(mean_column_name)) / F.col(
-                                               mean_column_name))
+        for statistical_type in ["avg", "min", "max"]:
+            column_name = "{0}_ps_{1}".format(statistical_type, item)
+            aux = get_specific_statistical_info(
+                gen_train_data.select([item, 'PositiveAmount']).groupBy(item), statistical_type)
+            aux = aux.select(col(item), col("{0}(PositiveAmount)".format(statistical_type)).alias(column_name))
+            data = data.join(aux, on=item)
+            if statistical_type == "avg":
+                ratio_column_name = 'rt_avg_ps_{0}'.format(item)
+                data = data.withColumn(ratio_column_name,
+                                       (F.col('PositiveAmount') - F.col(column_name)) / F.col(column_name))
     return data
 

@@ -1,1 +1,4 @@
+.idea
+src/catboost_info
 src/__pycache__
+*~

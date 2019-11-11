@@ -27,7 +27,7 @@ def get_specific_statistical_info(data, stat):
     return data
 
 
-def get_features_augmentation(data):
+def get_features_augmentation(data, gen_train_data=[]):
     '''
     This function was create to make features augmentation in the data to improve
     the performance model.
@@ -56,9 +56,8 @@ def get_features_augmentation(data):
                            F.when(data.Amount > 0, 1).when(data.Amount < 0, -1).otherwise(0))
     data = data.withColumn('PositiveAmount', F.abs(data['Amount']))
 
-    gen_train_data = data.filter('FraudResult == 0')
+    gen_train_data = gen_train_data if gen_train_data else data.filter('FraudResult == 0')
     items_list = ['ChannelId', 'ProductCategory', 'ProductId']
-
     for item in items_list:
         for statistical_type in ["avg", "min", "max"]:
             column_name = "{0}_ps_{1}".format(statistical_type, item)
@@ -72,3 +71,6 @@ def get_features_augmentation(data):
                                        (F.col('PositiveAmount') - F.col(column_name)) / F.col(column_name))
     return data
 
+
+def get_transactions_list(data):
+    return [item[1][0] for item in data.select('TransactionId').toPandas().iterrows()]

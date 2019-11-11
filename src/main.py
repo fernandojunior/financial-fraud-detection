@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split
+import numpy as np
 
 import sys
 sys.path.insert(0, 'models/')
@@ -6,11 +6,11 @@ sys.path.insert(0, 'models/')
 import balance as bal
 import cat_boost as cat
 import isolation_forest
+import io_module as io
 import parameters as param
 import preprocessing as preprocess
 import visualization as vis
 import statistics as stats
-import io_module
 
 
 # This param when defined as True will execute the complete code, so slowly processing time
@@ -38,7 +38,7 @@ categorical_positions = [0, 1, 2, 4]
 
 
 # Read Fraud Detection Challenge data
-train_data = io_module.read_spark_data_frame(param.get_file_name('training_data'))
+train_data = io.read_spark_data_frame(param.get_file_name('training_data'))
 
 # Create new features and remove the non used features
 train_data = preprocess.get_features_augmentation(train_data)
@@ -77,21 +77,25 @@ if full_execution:
         graph_performance = model.fit_grid_search(x_data, y_data, max_sample_list, contamination_list, 'accuracy')
         vis.plot_performance_comparison(graph_performance)
 
-x_data, y_data = bal.balance_using_only_numerical_features(train_data, numerical_features, label, 'random')
-X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.3)
 
-model = cat.CatBoost(8, 300, 'Logloss', 'AUC')
-model.fit(x_data)
-model.predict(X_test)
+x_data, y_data = bal.balance_using_only_numerical_features(train_data, numerical_features_augmented, label, 'random')
+model = cat.CatBoost(8, 400)
+model.fit(x_data, y_data)
 
-
+# Making Grid-Search
+"""
+model = cat.CatBoost()
+model.fit_grid_search(x_data, y_data)
+print(model.performance_model)
+"""
 
 
 # Evaluating with test data
-"""
-test_data = io_module.read_spark_data_frame(param.get_file_name('testing_data'))
+test_data = io.read_spark_data_frame(param.get_file_name('testing_data'))
+transactions_list = [item for item in test_data.toPandas()['TransactionId']]
 test_data = preprocess.get_features_augmentation(test_data)
-test_data = train_data.drop(*columns_to_remove)
-"""
+predictions = model.predict(np.array(test_data[numerical_features_augmented].toPandas()))
+predictions = stats.norm_pred_inverse(predictions)
+io.save_predictions_xente('../data/predictions_000.txt', transactions_list, predictions)
 
 print('Finish with success')

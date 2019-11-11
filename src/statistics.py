@@ -10,27 +10,27 @@ def get_fraud_proportion(data, verbose_mode=True):
     return outlier_fraction
 
 
-def norm_pred_inverse(data):
-    '''
+def norm_pred(data, norm_type='inverse'):
+    """
     :param data: Pandas DataFrame or Numpy array with labels
-        classified as -1 and 1, and you want to convert into
-        1 and 0, respectively.
-            [-1, 1]
-    :return: [1, 0]
-    '''
-    data = ((data * -1) + 1) / 2
-    return data
-
-
-def norm_pred(data):
-    '''
-    :param data: Pandas DataFrame or Numpy array with labels
-        classified as -1 and 1, and you want to convert into
-        0 and 1, respectively.
-            [-1, 1]
-    :return: [0, 1]
-    '''
-    data = (data+1)/2
+        classified as something as defined in Input, and you
+        want to convert into Output definition.
+    :param norm_type: [neg_norm_inverse, neg_and_norm, inverse]
+    :return: data normalized.
+    """
+    # Input: [-1, 1]
+    # Ouput: [1, 0]
+    if norm_type == 'neg_norm_inverse':
+        data = ((data * -1) + 1) / 2
+    # Input: [-1, 1]
+    # Output: [0, 1]
+    elif norm_type == 'neg_and_norm':
+        data = (data + 1) / 2
+    # Input: [0, 1]
+    # Output: [1, 0]
+    # This option work better!
+    elif norm_type == 'inverse':
+        data = (data + 1) % 2
     return data
 
 
@@ -44,7 +44,7 @@ def compute_confusion_matrix(model, x_test, y_test):
     :return:
     '''
     y_predictions_test = model.predict(x_test)
-    y_predictions_test = norm_pred_inverse(y_predictions_test)
+    y_predictions_test = norm_pred(y_predictions_test)
     cm = confusion_matrix(y_test, y_predictions_test)
     return cm
 

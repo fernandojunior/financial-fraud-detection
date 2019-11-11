@@ -1,6 +1,7 @@
 from catboost import CatBoostClassifier, Pool, cv
 from sklearn.model_selection import train_test_split, GridSearchCV
 
+import statistics as stats
 
 class CatBoost:
     def __init__(self, depth=0.0, iterations=0.0, loss_function='Logloss', eval_metric='AUC'):
@@ -18,7 +19,7 @@ class CatBoost:
         self.loss_function = params_dict['loss_function']
 
     def fit_grid_search(self, x_data, y_data, num_folds=3, depth_list=[4, 8, 16], iterations_list=[100, 200, 300],
-                        loss_function=['Logloss'], eval_metric_list='AUC'):
+                        loss_function=['Logloss'], eval_metric_list=['AUC']):
         params = {'depth': depth_list,
                   'loss_function': loss_function,
                   'eval_metric': eval_metric_list,
@@ -31,3 +32,7 @@ class CatBoost:
 
     def fit(self, x_data, y_data, verbose=False, plot=False, categorical_features=[]):
         self.model.fit(x_data, y_data, verbose=verbose, plot=plot, cat_features=categorical_features)
+
+    def predict(self, x_test):
+        data = self.model.predict(x_test)
+        return stats.norm_pred(data, 'inverse')

@@ -1,6 +1,8 @@
 from pyspark.sql.functions import col
 import pyspark.sql.functions as F
-
+from pyspark.sql.functions import (mean, dayofmonth, hour, dayofweek,
+                                                                   month, weekofyear, dayofyear,
+                                                                   format_number)
 
 def there_is_missing_data(data):
     ans = data.count() != data.na.drop(how='any').count()
@@ -27,7 +29,7 @@ def get_specific_statistical_info(data, stat):
     return data
 
 
-def get_features_augmentation(data, gen_train_data=[]):
+def get_features_augmentation(data):
     '''
     This function was create to make features augmentation in the data to improve
     the performance model.
@@ -56,13 +58,22 @@ def get_features_augmentation(data, gen_train_data=[]):
                            F.when(data.Amount > 0, 1).when(data.Amount < 0, -1).otherwise(0))
     data = data.withColumn('PositiveAmount', F.abs(data['Amount']))
 
-    gen_train_data = gen_train_data if gen_train_data else data.filter('FraudResult == 0')
+    data = data.withColumn('Hour', hour(data['TransactionStartTime']))
+    data = data.withColumn('DayOfWeek', dayofweek(data['TransactionStartTime']))
+    data = data.withColumn('DayOfYear', dayofyear(data['TransactionStartTime']))
+    data = data.withColumn('WeekOfYear', weekofyear(data['TransactionStartTime']))
+    data = data.withColumn('Month', month(data['TransactionStartTime']))
+
+    data = data.withColumn('Ps_per_dayWk', (data['PositiveAmount'] / data['DayOfWeek']))
+    data = data.withColumn('Ps_per_dayYr', (data['PositiveAmount'] / data['DayOfYear']))
+    data = data.withColumn('Op_x_value', (data['Operation'] * data['Value']))
+
     items_list = ['ChannelId', 'ProductCategory', 'ProductId']
     for item in items_list:
         for statistical_type in ["avg", "min", "max"]:
             column_name = "{0}_ps_{1}".format(statistical_type, item)
             aux = get_specific_statistical_info(
-                gen_train_data.select([item, 'PositiveAmount']).groupBy(item), statistical_type)
+                data.select([item, 'PositiveAmount']).groupBy(item), statistical_type)
             aux = aux.select(col(item), col("{0}(PositiveAmount)".format(statistical_type)).alias(column_name))
             data = data.join(aux, on=item)
             if statistical_type == "avg":

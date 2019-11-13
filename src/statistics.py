@@ -31,6 +31,10 @@ def norm_pred(data, norm_type='inverse'):
     # This option work better!
     elif norm_type == 'inverse':
         data = (data + 1) % 2
+    # Input: [0, 1]
+    # Output: [-1, 1]
+    elif norm_type == 'sigmoid_based':
+        data = (data*2)-1
     return data
 
 

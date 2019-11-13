@@ -33,10 +33,10 @@ class IsolationForest:
         self.model = ens.IsolationForest(behaviour='new', max_samples=self.max_sample,
                                          random_state=self.random_value, contamination=self.contamination)
 
-    def fit_grid_search(self, training_data, testing_data, max_sample_list, contamination_list, metric='f1score'):
+    def fit_grid_search(self, x_training_data, y_training_data, max_sample_list, contamination_list, metric='f1score'):
         '''
-        :param training_data:
-        :param testing_data:
+        :param x_training_data:
+        :param y_training_data:
         :param max_sample_list: A list with the number of samples to draw from X to train each base estimator.
         :param contamination_list: A list with the amount of contamination of the data set, i.e. the proportion
         of outliers in the data set. Used when fitting to define the threshold on the decision
@@ -48,11 +48,11 @@ class IsolationForest:
         and graph_performance which contains the performance model for each tuple hyperparameter combination.
         '''
         x_train, x_test, y_train, y_test = \
-            train_test_split(training_data, testing_data,
+            train_test_split(x_training_data, y_training_data,
                              test_size=self.test_proportion, random_state=self.random_value)
 
         baseline = 0.0
-        self.graph_performance = pd.DataFrame([], columns=['max', 'contamination', 'tp', 'fp', 'fn', 'tn'])
+        self.graph_performance = pd.DataFrame([], columns=['max', 'contamination', 'acc', 'tp', 'fp', 'fn', 'tn'])
         for max_sample in max_sample_list:
             for contamination_level in contamination_list:
                 model = ens.IsolationForest(behaviour='new', max_samples=max_sample,
@@ -66,6 +66,7 @@ class IsolationForest:
                     self.contamination = contamination_level
                     self.model = model
                 performance = pd.DataFrame({'max': [max_sample], 'contamination': [contamination_level],
+                                            'acc': [stat.compute_score(cm, 'acc')],
                                             'tp': [stat.get_tp(cm)], 'fp': [stat.get_fp(cm)],
                                             'fn': [stat.get_fn(cm)], 'tn': [stat.get_tn(cm)],
                                             'ppv': [stat.compute_score(cm, 'ppv')],

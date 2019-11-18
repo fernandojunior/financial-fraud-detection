@@ -125,6 +125,23 @@ def plot_hist(data, feature_columns, label_type):
     plt.show()
 
 
+def plot_correlation(data, label='FraudResult', k=15):
+    '''
+    :param data:
+    :param label:
+    :param k: number of variables for heatmap.
+    :return:
+    '''
+    data_pd = data.toPandas()
+    corr_matrix = data_pd.corr()
+    cols = corr_matrix.nlargest(k, label)[label].index
+    cm = np.corrcoef(data_pd[cols].values.T)
+    sns.set(font_scale=1.25)
+    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.1f', annot_kws={'size': 8}, yticklabels=cols.values,
+                     xticklabels=cols.values)
+    plt.show()
+
+
 def plot_heatmap(data, numerical_features, label_type, method='spearman'):
     column = 'FraudResult == {0}'.format('1' if label_type else '0')
     data = data.filter(column).select(numerical_features).toPandas()

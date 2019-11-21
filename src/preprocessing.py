@@ -83,5 +83,21 @@ def get_features_augmentation(data):
     return data
 
 
+def create_new_features(data):
+    data = data.withColumn("Operation", F.when(data.Amount > 0, 1).when(data.Amount < 0, -1).otherwise(0))
+    data = data.withColumn('PositiveAmount', F.abs(data['Amount']))
+
+    data = data.withColumn('Hour', hour(data['TransactionStartTime']))
+    data = data.withColumn('DayOfWeek', dayofweek(data['TransactionStartTime']))
+    data = data.withColumn('DayOfYear', dayofyear(data['TransactionStartTime']))
+    data = data.withColumn('WeekOfYear', weekofyear(data['TransactionStartTime']))
+    data = data.withColumn('Month', month(data['TransactionStartTime']))
+
+    data = data.withColumn('Vl_per_dayWk', (data['Value'] / data['DayOfWeek']))
+    data = data.withColumn('Vl_per_dayYr', (data['Value'] / data['DayOfYear']))
+    data = data.withColumn('Op_x_value', (data['Operation'] * data['Value']))
+    return data
+
+
 def get_transactions_list(data):
     return [item[1][0] for item in data.select('TransactionId').toPandas().iterrows()]

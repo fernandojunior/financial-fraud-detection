@@ -1,0 +1,506 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Project specification - [fraud_detection] &mdash; Model Name latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API" href="../apidoc/modules.html" />
+    <link rel="prev" title="Model report - [fraud_detection]" href="model_report.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Model Name
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="model_report.html">Model report - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project specification - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#checklist">Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#objective">Objective</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#target-population">Target population</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#subsetting">Subsetting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#output-specification">Output specification</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#metadata">Metadata</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#problem-type">Problem type</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#solution-architecture-should-this-be-here-shouldn-t-we-define-a-common-archtecture">Solution architecture [Should this be here? Shouldn’t we define a common archtecture?]</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#limitations-and-risks">Limitations and risks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#indexing-optional-fill-this-up-if-it-does-not-follow-conventional-pipeline">Indexing [OPTIONAL - fill this up if it does not follow conventional pipeline]</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#related-resources-optional">Related resources [OPTIONAL]</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#related-and-observed-datasets-optional-may-not-apply">Related and observed datasets [OPTIONAL - may not apply]</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-partners-optional-may-not-apply">Data partners [OPTIONAL - may not apply]</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-resources-optional">Additional resources [OPTIONAL]</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/modules.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Model Name</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Project specification - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/md/project_specification.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="project-specification-fraud-detection">
+<h1>Project specification - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]<a class="headerlink" href="#project-specification-fraud-detection" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>This document contains a data-science oriented description of the project. It orients the data science project towards data and technology. It serves the purposes of</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>outlining a solution,</p></li>
+<li><p>defining the scope of the project,</p></li>
+<li><p>defining measurable success metrics,</p></li>
+<li><p>defining interfaces to the production environment,</p></li>
+<li><p>gathering information regarding relevant datasets and features to the problem,</p></li>
+<li><p>upstream communication and agreement on requisites.</p></li>
+</ul>
+<div class="section" id="checklist">
+<h2>Checklist<a class="headerlink" href="#checklist" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Mark which tasks have been performed.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>[ ] <strong>Summary</strong>: all major specs are defined including success criteria, scope, etc.</p></li>
+<li><p>[ ] <strong>Output specification</strong>: the output format, metadata and indexation have been defined and agreed upon.</p></li>
+<li><p>[ ] <strong>Solution architecture</strong>: a viable and minimal architecture for the final solution has been provided and agreed upon.</p></li>
+<li><p>[ ] <strong>Limitations and risks</strong>: a list with the main limitations and risks associated to the project has been provided.</p></li>
+<li><p>[ ] <strong>Related resources</strong>: lists with related datasets, features and past projects have been given.</p></li>
+<li><p>[ ] <strong>Peer-review</strong>: you discussed and brainstormed with colleagues the outlined specifications.</p></li>
+<li><p>[ ] <strong>Acceptance</strong>: these specifications have been accepted by the Data and Product directors. State names and date.</p></li>
+</ul>
+</div>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>The table below summarizes the key requirements for the project.</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>problem type</th>
+<th>target population</th>
+<th>entity</th>
+<th>N_target</th>
+<th>min_coverage</th>
+<th>N_labeled</th>
+<th>sucess_metrics</th>
+<th>updt_freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>multilabel classification</td>
+<td>restaurants</td>
+<td>CNPJ</td>
+<td>30M</td>
+<td>80%</td>
+<td>NA</td>
+<td>NA</td>
+<td>monthly</td>
+</tr>
+</tbody>
+</table><div class="section" id="objective">
+<h3>Objective<a class="headerlink" href="#objective" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Provide a short (max 3-line) description  of the project’s objective.</p>
+</div></blockquote>
+<p>“This project aims at developing a model to automatically determine the type of cuisine of a establishment.”</p>
+</div>
+<div class="section" id="target-population">
+<h3>Target population<a class="headerlink" href="#target-population" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>More detailed description of the population to which the model should apply. Include any relevant characteristics.</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Entity</th>
+<th>Region</th>
+<th>Type</th>
+<th>Size</th>
+<th>Status</th>
+<th>Sector</th>
+<th>N_target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CNPJ</td>
+<td>Brasil</td>
+<td>restaurants</td>
+<td>any</td>
+<td>active</td>
+<td>services</td>
+<td>30M</td>
+</tr>
+</tbody>
+</table><div class="section" id="subsetting">
+<h4>Subsetting<a class="headerlink" href="#subsetting" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Also provide a list of sub-setting variables and how they related to the target population.</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Subsetting variable</th>
+<th>Selection rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cd_ramo_atividade</code></td>
+<td>belongs to ['5611201', '5611202', '5611202']</td>
+</tr>
+<tr>
+<td><code>situacao_cadastral</code></td>
+<td>'Ativa'</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section" id="output-specification">
+<h3>Output specification<a class="headerlink" href="#output-specification" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Describe how the output of the model will be delivered, including its domain and metadata.</p>
+</div></blockquote>
+<p>The model outputs a list of strings from the list <code class="docutils literal notranslate"><span class="pre">output_set</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;pizza&#39;</span><span class="p">,</span><span class="s1">&#39;mexicano&#39;</span><span class="p">,</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span><span class="s1">&#39;churrascaria&#39;</span><span class="p">]</span>
+<span class="n">output_example1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="c1"># none</span>
+<span class="n">output_example2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pizza&#39;</span><span class="p">,</span><span class="s1">&#39;churrascaria&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="metadata">
+<h4>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Your model’s metada should be provided in a machine-readable format (e.g. a json file) and include the following items:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>a brief description: this model predicts the type of a restaurant cuisine</p></li>
+<li><p>a measure of accuracy applicable for use of the model in other setups (if applicable): standard deviation, accuracy, error matrix.</p></li>
+<li><p>model version</p></li>
+<li><p>author</p></li>
+<li><p>date created</p></li>
+<li><p>link to training data</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="problem-type">
+<h3>Problem type<a class="headerlink" href="#problem-type" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Describe to which Data Science problem type(s) this project relates to with a brief motivation.</p>
+</div></blockquote>
+<p>“Since the objective is to assign one or more labels to an entity, this problem is a multi-label classification. It is also unsupervised since no observed data is available.”</p>
+</div>
+</div>
+<div class="section" id="solution-architecture-should-this-be-here-shouldn-t-we-define-a-common-archtecture">
+<h2>Solution architecture [Should this be here? Shouldn’t we define a common archtecture?]<a class="headerlink" href="#solution-architecture-should-this-be-here-shouldn-t-we-define-a-common-archtecture" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>This section describes the architecture of your solution. It should clarify:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>how and where from your model will consume data,</p></li>
+<li><p>how and where to your model will generate predictions,</p></li>
+<li><p>interaction with a scheduler, API or application,</p></li>
+<li><p>interaction with a model managing system.</p></li>
+</ul>
+<p>Provide a schematic describing how your model will consume data, evaluate the model’s output and deliver it to the application. You can use <a class="reference external" href="https://www.lucidchart.com">Lucidchart</a> for the drawings.</p>
+<div class="section" id="limitations-and-risks">
+<h3>Limitations and risks<a class="headerlink" href="#limitations-and-risks" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Provide a list with the main limitations and the associated risks for this project. (lile are supposed to be a well-educated guess)</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Limitation</th>
+<th>Likelihood</th>
+<th>Loss</th>
+<th>Contingency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nonexistence of observed data</td>
+<td>100%</td>
+<td>not possible to validate the model</td>
+<td>Create a data partnership with VR.</td>
+</tr>
+<tr>
+<td>High false positives rate for <code>m_regex</code></td>
+<td>30%</td>
+<td>lack of quality and trust</td>
+<td>Fine tuning of filters.</td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="indexing-optional-fill-this-up-if-it-does-not-follow-conventional-pipeline">
+<h3>Indexing [OPTIONAL - fill this up if it does not follow conventional pipeline]<a class="headerlink" href="#indexing-optional-fill-this-up-if-it-does-not-follow-conventional-pipeline" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Describe how your model’s outputs will be indexed in the application. Provide any details that affect how the model should produce its outputs.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="related-resources-optional">
+<h2>Related resources [OPTIONAL]<a class="headerlink" href="#related-resources-optional" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Short listing of related datasets and some specifications.</p>
+</div></blockquote>
+<div class="section" id="related-and-observed-datasets-optional-may-not-apply">
+<h3>Related and observed datasets [OPTIONAL - may not apply]<a class="headerlink" href="#related-and-observed-datasets-optional-may-not-apply" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>List any related and observed datasets that can be used for your project.</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>table name</th>
+<th>observed?</th>
+<th>description</th>
+<th>Why relevant</th>
+<th>Update frequency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data_science_sp.vr_ticket</td>
+<td>yes</td>
+<td>contains 8M payouts made at VR-accepting establishments</td>
+<td>Can be used to validate model</td>
+<td>once</td>
+</tr>
+<tr>
+<td>data_science.geo</td>
+<td>no</td>
+<td>contains features of a given region</td>
+<td>can help create geolocalization features to the problem</td>
+<td>yearly</td>
+</tr>
+</tbody>
+</table></div>
+<div class="section" id="data-partners-optional-may-not-apply">
+<h3>Data partners [OPTIONAL - may not apply]<a class="headerlink" href="#data-partners-optional-may-not-apply" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>State the datasets available from data partnerships, including a description of restrictions that may apply.</p>
+</div></blockquote>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>partner</th>
+<th>N</th>
+<th>label?</th>
+<th>schema</th>
+<th>restrictions</th>
+<th>terms</th>
+<th>responsible</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VR</td>
+<td>1M</td>
+<td>yes</td>
+<td><code>data_science_sp.vr_transacoes_consumo</code></td>
+<td>none</td>
+<td>link</td>
+<td>@luana.grandino</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section" id="additional-resources-optional">
+<h2>Additional resources [OPTIONAL]<a class="headerlink" href="#additional-resources-optional" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Provide links to additional documentation and presentations regarding your project specification.</p>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../apidoc/modules.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="model_report.html" class="btn btn-neutral float-left" title="Model report - [fraud_detection]" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Neoway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

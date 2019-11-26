@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Model report - [fraud_detection] &mdash; Model Name latest documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Project specification - [fraud_detection]" href="project_specification.html" />
+    <link rel="prev" title="Welcome to fraud_detection’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Model Name
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Model report - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#checklist">Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#metadata">Metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#coverage">Coverage</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-metrics">Performance Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pre-processing">Pre-processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-selection">Feature selection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#features-used">Features used</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#modeling">Modeling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-selection">Model selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-validation">Model validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-optimization">Model optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional resources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="project_specification.html">Project specification - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apidoc/modules.html">API</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Model Name</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Model report - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/md/model_report.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="model-report-fraud-detection">
+<h1>Model report - [<code class="docutils literal notranslate"><span class="pre">fraud_detection</span></code>]<a class="headerlink" href="#model-report-fraud-detection" title="Permalink to this headline">¶</a></h1>
+<p>This report should contain all relevant information regarding your model. Someone reading this document should be able to easily understand and reproducible your findings.</p>
+<div class="section" id="checklist">
+<h2>Checklist<a class="headerlink" href="#checklist" title="Permalink to this headline">¶</a></h2>
+<p>Mark which tasks have been performed</p>
+<ul class="simple">
+<li><p>[ ] <strong>Summary</strong>: you have included a description, usage, output,  accuracy and metadata of your model.</p></li>
+<li><p>[ ] <strong>Pre-processing</strong>: you have applied pre-processing to your data and this function is reproducible to new datasets.</p></li>
+<li><p>[ ] <strong>Feature selection</strong>: you have performed feature selection while modeling.</p></li>
+<li><p>[ ] <strong>Modeling dataset creation</strong>: you have well-defined and reproducible code to generate a modeling dataset that reproduces the behavior of the target dataset. This pipeline is also applicable to generate the deploy dataset.</p></li>
+<li><p>[ ] <strong>Model selection</strong>: you have chosen a suitable model according to the project specification.</p></li>
+<li><p>[ ] <strong>Model validation</strong>: you have validated your model according to the project specification.</p></li>
+<li><p>[ ] <strong>Model optimization</strong>: you have defined functions to optimize hyper-parameters and they are reproducible.</p></li>
+<li><p>[ ] <strong>Peer-review</strong>: your code and results have been verified by your colleagues and pre-approved by them.</p></li>
+<li><p>[ ] <strong>Acceptance</strong>: this model report has been accepted by the Data Science Manager. State name and date.</p></li>
+</ul>
+</div>
+<div class="section" id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Provide a description of your model, max 3 lines.</p>
+</div></blockquote>
+<p>The model classifies the type of cuisine of a restaurant. It is based on regular expressions and rules.</p>
+<div class="section" id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Provide a reproducible pipeline to run your model</p>
+</div></blockquote>
+<ol class="simple">
+<li><p>clone the repository</p></li>
+<li><p>download test dataset from cloud storage (ex.: AWS S3)</p></li>
+<li><p>run the following code on command line</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">fraud_detection</span> <span class="n">on_my_data</span><span class="o">.</span><span class="n">csv</span> <span class="n">save_to_my_file</span><span class="o">.</span><span class="n">csv</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="output">
+<h3>Output<a class="headerlink" href="#output" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Provide a technical description of your model’s output, including its domain.</p>
+</div></blockquote>
+<p>The model outputs a list of strings from the list <code class="docutils literal notranslate"><span class="pre">output_set</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output_set</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;pizza&#39;</span><span class="p">,</span><span class="s1">&#39;mexicano&#39;</span><span class="p">,</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span><span class="s1">&#39;churrascaria&#39;</span><span class="p">]</span>
+<span class="n">output_example1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="c1">#none</span>
+<span class="n">output_example2</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pizza&#39;</span><span class="p">,</span><span class="s1">&#39;churrascaria&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="metadata">
+<h4>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Your model’s metada should be provided in a machine-readable
+format (e.g. a json file) and include the following items:</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>a brief description: this model predicts the type of a restaurant
+cuisine</p></li>
+<li><p>a measure of accuracy applicable for use of the model in other
+setups (if applicable): standard deviation, accuracy, error matrix.</p></li>
+<li><p>model version</p></li>
+<li><p>author</p></li>
+<li><p>date created</p></li>
+<li><p>link to training data</p></li>
+</ul>
+<p>Make sure that the final consumer of your model can make use of your metadata.</p>
+</div>
+<div class="section" id="coverage">
+<h4>Coverage<a class="headerlink" href="#coverage" title="Permalink to this headline">¶</a></h4>
+<blockquote>
+<div><p>Describe the population covered by your model in comparison to the
+target population.</p>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="performance-metrics">
+<h3>Performance Metrics<a class="headerlink" href="#performance-metrics" title="Permalink to this headline">¶</a></h3>
+<p>Provide any metrics used and their value in tables.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>metric</th>
+<th><code>''</code></th>
+<th><code>'pizza'</code></th>
+<th><code>'mexicano'</code></th>
+<th><code>'bar'</code></th>
+<th><code>'churrascaria'</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>precision</td>
+<td>.98</td>
+<td>.8</td>
+<td>.9</td>
+<td>.95</td>
+<td>.99</td>
+</tr>
+<tr>
+<td>recall</td>
+<td>.98</td>
+<td>.8</td>
+<td>.9</td>
+<td>.95</td>
+<td>.99</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="section" id="pre-processing">
+<h2>Pre-processing<a class="headerlink" href="#pre-processing" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Motivate each pre-processing used in one line.</p>
+</div></blockquote>
+<ol class="simple">
+<li><p>applied log-transform to ‘variable’: it presented a skewed behavior.</p></li>
+<li><p>normalized output variable: relative order was more relevant for the model.</p></li>
+</ol>
+</div>
+<div class="section" id="feature-selection">
+<h2>Feature selection<a class="headerlink" href="#feature-selection" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Motivate any feature selection method that has been used and list/link
+the features used in the model.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>feature importance on a boosted tree: out of the 1000 features, 100 were selected.</p></li>
+</ul>
+<div class="section" id="features-used">
+<h3>Features used<a class="headerlink" href="#features-used" title="Permalink to this headline">¶</a></h3>
+<p>Provide a list or link with a list to all features and raw data that
+have been used. Please make notice in case some of these features are
+not readily available in the features store</p>
+</div>
+</div>
+<div class="section" id="modeling">
+<h2>Modeling<a class="headerlink" href="#modeling" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Describe the type of model used.</p>
+</div></blockquote>
+<p>A <code class="docutils literal notranslate"><span class="pre">RandomForestClassifier</span></code> from <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> was used. This model serves our purpose to perform multi-label classification and has shown satisfactory performance.</p>
+<div class="section" id="model-selection">
+<h3>Model selection<a class="headerlink" href="#model-selection" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Describe any model selection that has been performed.</p>
+</div></blockquote>
+<p>Both a <code class="docutils literal notranslate"><span class="pre">DecisionTreeClassifier</span></code> and <code class="docutils literal notranslate"><span class="pre">RadomForestClassifier</span></code> have been used. The <code class="docutils literal notranslate"><span class="pre">DecisionTree</span></code> model was not able to achieve satisfactory predictions for the class <code class="docutils literal notranslate"><span class="pre">churrascaria</span></code>. Therefore we kept the <code class="docutils literal notranslate"><span class="pre">RandomForestClassifer</span></code>. The chosen model is more complex to train and execute but for our application this is not critical.</p>
+</div>
+<div class="section" id="model-validation">
+<h3>Model validation<a class="headerlink" href="#model-validation" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Motivate your model validation strategy.</p>
+</div></blockquote>
+<ol class="simple">
+<li><p>The dataset was divided into training and validation (80/20)</p></li>
+<li><p>A stratified sampling was used to reproduce the characteristics of the deploy dataset.</p></li>
+<li><p>A 10-fold strategy was used</p></li>
+<li><p>See the Accuracy section of the model description for the achieved accuracy.</p></li>
+</ol>
+</div>
+<div class="section" id="model-optimization">
+<h3>Model optimization<a class="headerlink" href="#model-optimization" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><p>Motivate your choice of hyperparameters and report the training results.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>The hyper-parameters <code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">omega</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code> were optimized using PSO.</p></li>
+</ul>
+<p>Provide a figure with the training decades if applicable.</p>
+</div>
+</div>
+<div class="section" id="additional-resources">
+<h2>Additional resources<a class="headerlink" href="#additional-resources" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>Provide links to additional documentation and presentations regarding your model.</p>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="project_specification.html" class="btn btn-neutral float-right" title="Project specification - [fraud_detection]" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to fraud_detection’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Neoway
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

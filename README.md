@@ -10,7 +10,7 @@ This model is a `type_of_modeling` that `do_something` to solve `this_problem` a
 
 | Role                 | Responsibility         | Full name                | e-mail       |
 | -----                | ----------------       | -----------              | ---------    |
-| Data Scientist       | Scrum Master           | Fernando Félix | fernandofelix@copin.ufcg.edu.br   |
+| Data Scientist       | Scrum Master           | Fernando Felix | fernandofelix@copin.ufcg.edu.br   |
 | Data Scientist       | Author                 | Dunfrey P. Aragão | dunfrey@gmail.com   |
 | Data Scientist       | Author                 | Ítalo de Pontes Oliveira           | italodepontesoliveira93@gmail.com |
 

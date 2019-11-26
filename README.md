@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.com/italoPontes/fraud_detection.svg?token=xCXQ5y8dztyVs3aHPJLA&branch=master)](https://travis-ci.com/italoPontes/fraud_detection)
 
-# [`fraud_detection`]
+# Fraud Detection
 > Simple project description.
 
-This model is a `type_of_modeling` that `do_something` to solve `this_problem` aimed to the clients of the `some_vertical`.
+The objective of this machine learning model is detect fraudulent transactions in the financial services sector.
 
 ## Stakeholders
 > Describe the people involved in this project

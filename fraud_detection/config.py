@@ -26,10 +26,15 @@ NUMERICAL_FEATURES = ['ValueStrategy', 'Value', 'Operation', 'Hour', 'DayOfWeek'
                       'Vl_per_weekYr', 'Vl_per_dayWk', 'Vl_per_dayYr',
                       'Rt_avg_vl_ProductId', 'Rt_avg_vl_ProviderId']
 
+LEARNING_RATE_LIST = [0.00135, 0.01, 0.03, 0.1]
+DEPTH_LIST = [4, 5, 6, 7, 8, 9, 10]
+LEAF_REG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
 IF_COLUMN_NAME = 'IsolationForest'
 LSCP_COLUMN_NAME = 'LSCP'
 KNN_COLUMN_NAME = 'KNN'
 COUNT_COLUMN_NAME = 'CountDetection'
+EVAL_METRIC = 'F1'
 
 NUM_NEIGHBORS = 2
 RANDOM_NUMBER = 42
@@ -39,12 +44,21 @@ contamination_level = 0
 categorical_features_dims = 0
 numerical_features_dims = 0
 
+data_train = []
 x_train = []
 y_train = []
 x_outliers = []
 x_train_numerical = []
 x_outliers_numerical = []
+x_train_balanced = []
+y_train_balanced = []
 
+data_test = []
+
+model_cat_boost = []
+model_isolation_forest = []
+model_lscp = []
+model_knn = []
 
 base_path = path.dirname(path.dirname(fraud_detection.__file__))
 workspace_path = path.join(base_path, 'workspace')

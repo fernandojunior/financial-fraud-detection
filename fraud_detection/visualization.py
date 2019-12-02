@@ -1,13 +1,28 @@
 import config as cfg
 import matplotlib.pyplot as plt
 import seaborn as sns
+from catboost import Pool
 from sklearn.model_selection import learning_curve
 import numpy as np
 import pandas as pd
+import shap
 
 
-def plot_heatmap(data):
-    data_pd = data.toPandas()
+def generate_explanations():
+    shap_values = cfg.model.get_feature_importance(
+        Pool(cfg.x_train_balanced,
+             cfg.y_train_balanced,
+             cat_features=cfg.categorical_features_dims),
+        type='ShapValues')
+
+    expected_value = shap_values[0, -1]
+    shap_values = shap_values[:, :-1]
+    # visualize the first prediction's explanation
+    shap.force_plot(expected_value, shap_values[200, :], cfg.x_train_balanced.iloc[200, :])
+
+
+def plot_heatmap():
+    data_pd = cfg.data.toPandas()
     corr_matrix = data_pd.corr()
     k = 15  # number of variables for heatmap
     cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
@@ -16,6 +31,11 @@ def plot_heatmap(data):
     hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.3f', annot_kws={'size': 8}, yticklabels=cols.values,
                      xticklabels=cols.values)
     plt.show()
+
+
+def plot_distribution():
+    sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
+    pd.Series(cfg.y_train_balanced[cfg.LABEL]).value_counts().plot.bar(title='SMOTENC : Count - Fraud Result')
 
 
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
@@ -150,7 +170,13 @@ def plot_correlation(data, label='FraudResult', k=15):
     cols = corr_matrix.nlargest(k, label)[label].index
     cm = np.corrcoef(data_pd[cols].values.T)
     sns.set(font_scale=1.25)
-    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.1f', annot_kws={'size': 8}, yticklabels=cols.values,
+    hm = sns.heatmap(cm,
+                     cbar=True,
+                     annot=True,
+                     square=True,
+                     fmt='.1f',
+                     annot_kws={'size': 8},
+                     yticklabels=cols.values,
                      xticklabels=cols.values)
     plt.show()
 

@@ -1,8 +1,10 @@
 import fire
 import config as cfg
 import models
+import pandas as pd
 import preprocessing as proc
 import visualization as vis
+import sys
 from fraud_detection import config  # noqa
 
 
@@ -13,110 +15,86 @@ def features(**kwargs):
 
     NOTE
     ----
-    config.data_path: workspace/data
-
-    You should use workspace/data to put data to working on.  Let's say
-    you have workspace/data/iris.csv, which you downloaded from:
-    https://archive.ics.uci.edu/ml/datasets/iris. You will generate
-    the following:
-
-    + workspace/data/test.csv
-    + workspace/data/train.csv
-    + workspace/data/validation.csv
-    + other files
-
-    With these files you can train your model!
     """
     print("==> GENERATING DATASETS FOR TRAINING YOUR MODEL")
-    data = proc.read_data(kwargs['input'])
-    data = proc.generate_new_features(data)
-    data = proc.clean_data(data)
-    return data
+    cfg.data_train = proc.read_data(kwargs['train_file_name'])
+    cfg.contamination_level = (cfg.data_train.filter('FraudResult==1').count()) / (cfg.data_train.count())
+    cfg.data_train = proc.generate_new_features(cfg.data_train)
+    cfg.data_train = proc.clean_data(cfg.data_train)
+
+    proc.separate_variables(cfg.data_train)  # split data in train and test
+
+    models.train_isolation_forest()
+    models.train_LSCP()
+    models.train_KNN()
+    cfg.x_train[cfg.COUNT_COLUMN_NAME] = (cfg.x_train.IsolationForest + cfg.x_train.LSCP + cfg.x_train.KNN)
+
+    proc.add_features()
+    proc.balance_data()
+
+    cfg.x_train_balanced.to_csv(kwargs['output_x_file_name'], index=False)
+    cfg.y_train_balanced.to_csv(kwargs['output_y_file_name'], index=False)
+
+    vis.plot_distribution()
+    vis.plot_heatmap()
 
 
-def visualizations(data):
-    """
-    :param data:
-    :return:
-    """
-    print("==> GENERATING VISUALIZATIONS FOR TRAINING YOUR MODEL")
-    vis.plot_heatmap(data)
-
-
-def train(data):
-    """Function that will run your model, be it a NN, Composite indicator
-    or a Decision tree, you name it.
-
-    NOTE
+def train(**kwargs):
+    """ Train a new model with data created.
     ----
-    config.models_path: workspace/models
-    config.data_path: workspace/data
+    NOTE
+    x_file_name
 
-    As convention you should use workspace/data to read your dataset,
-    which was build from generate() step. You should save your model
-    binary into workspace/models directory.
-
-    source-code example:
-    https://github.com/davified/clean-code-ml/blob/master/docs/functions.md
-    how to call different models in the same function.
     """
     print("==> TRAINING YOUR MODEL!")
-    proc.separate_variables(data)  # split data in train and test
-    x_train = models.train_isolation_forest()
-    x_train = models.train_LSCP(x_train)
-    x_train = models.train_KNN(x_train)
-    x_train = proc.add_features(x_train)
-    x_train_bal, y_train_bal = proc.balance_data(x_train)
-    return x_train
+    cfg.x_train_balanced = pd.read_csv(kwargs['x_file_name'])
+    cfg.y_train_balanced = pd.read_csv(kwargs['y_file_name'])
+    models.train_cat_boost()
+    vis.generate_explanations()
 
 
-def metadata(**kwargs):
-    """Generate metadata for model governance using testing!
+def validate(**kwargs):
+    """Validate:
 
     NOTE
     ----
-    workspace_path: config.workspace_path
 
-    In this section you should save your performance model,
-    like metrics, maybe confusion matrix, source of the data,
-    the date of training and other useful stuff.
-
-    You can save like as workspace/performance.json:
-
-    {
-       'name': 'My Super Nifty Model',
-       'metrics': {
-           'accuracy': 0.99,
-           'f1': 0.99,
-           'recall': 0.99,
-        },
-       'source': 'https://archive.ics.uci.edu/ml/datasets/iris'
-    }
     """
-    print("==> TESTING MODEL PERFORMANCE AND GENERATING METADATA")
+    print("==> PREDICT MODEL PERFORMANCE")
+    cfg.data_test = proc.read_data(kwargs['test_file_name'])
+    cfg.data_test = proc.generate_new_features(cfg.data_test)
+    cfg.data_test = proc.clean_data(cfg.data_test)
+    ### Make predictions
+    ### Save in csv format
 
 
-def predict(input_data):
-    """Predict: load the trained model and score input_data
-
-    NOTE
-    ----
-    As convention you should use predict/ directory
-    to do experiments, like predict/input.csv.
+def test(**kwargs):
+    """Load previously trained models and run.
+    test
+    --x_file_name ../data/x_balanced_data.csv
+    --y_file_name ../data/y_balanced_data.csv
+    --test_file_name ../data/xente_fraud_detection_test.csv
     """
-    print("==> PREDICT DATASET {}".format(input_data))
+    print("Args: {}".format(kwargs))
+    cfg.x_train_balanced = pd.read_csv(kwargs['x_file_name'])
+    cfg.y_train_balanced = pd.read_csv(kwargs['y_file_name'])
+    proc.add_features(cfg.x_train_balanced)
+    train()
 
 
 # Run all pipeline sequentially
 def run(**kwargs):
     """Run the complete pipeline of the model.
+    run
+    --train_file_name ../data/xente_fraud_detection_train.csv
+    --test_file_name ../data/xente_fraud_detection_test.csv
+    --output_x_file_name ../data/x_balanced_data.csv
+    --output_y_file_name ../data/y_balanced_data.csv
     """
     print("Args: {}".format(kwargs))
-
-    data = features(**kwargs)  # read dataset and generate new features
-    visualizations(data)  # generate visualization above the data
-    train(data)  # training model and save to filesystem
-    #metadata(**kwargs)  # performance report
+    features(**kwargs)  # read data set and generate new features
+    train()  # training model and save to filesystem
+    validate(**kwargs)
     print("Everything is ok.")
 
 
@@ -127,3 +105,4 @@ def cli():
 
 if __name__ == '__main__':
     cli()
+

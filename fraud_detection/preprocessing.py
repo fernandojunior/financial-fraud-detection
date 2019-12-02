@@ -8,6 +8,7 @@ from pyspark.sql.functions import (mean, dayofmonth, hour, dayofweek,
 from imblearn.over_sampling import SMOTENC
 import seaborn as sns
 
+
 def read_data(file_name):
     """
     Return data in spark dataframe format.
@@ -16,8 +17,7 @@ def read_data(file_name):
     :return: spark dataframe.
     """
     data = pd.read_csv(file_name)
-    spark_data = cfg.spark.createDataFrame(data)
-    return spark_data
+    return cfg.spark.createDataFrame(data)
 
 
 def there_is_missing_data(data):
@@ -158,7 +158,6 @@ def generate_new_features(data):
     :param data:
     :return:
     """
-    cfg.contamination_level = (data.filter('FraudResult==1').count()) / (data.count())
     data = get_amount_based_features(data)
     data = get_operation_based_features(data)
     data = get_time_based_features(data)
@@ -174,10 +173,9 @@ def get_transactions_list(data):
     return [item[1][0] for item in data.select('TransactionId').toPandas().iterrows()]
 
 
-def add_features(data):
-    data[cfg.COUNT_COLUMN_NAME] = (data.IsolationForest + data.LSCP + data.KNN)
+def add_features(data=cfg.x_train):
     new_features_list = [cfg.IF_COLUMN_NAME, cfg.LSCP_COLUMN_NAME, cfg.KNN_COLUMN_NAME, cfg.COUNT_COLUMN_NAME]
-    cfg.categorical_features += new_features_list
+    cfg.CATEGORICAL_FEATURES += new_features_list
     cfg.ALL_FEATURES += new_features_list
     cfg.categorical_features_dims = [data.columns.get_loc(i) for i in cfg.CATEGORICAL_FEATURES[:]]
     cfg.numerical_features_dims = [data.columns.get_loc(i) for i in cfg.NUMERICAL_FEATURES[:]]
@@ -192,14 +190,12 @@ def separate_variables(data):
     cfg.x_outliers_numerical = cfg.x_outliers[cfg.NUMERICAL_FEATURES]
 
 
-def balance_data(data):
-    data = data[cfg.ALL_FEATURES]
-    sm = SMOTENC(categorical_features=cfg.categorical_features_dims, random_state=42, n_jobs=10)
-    x_smotenc, y_smotenc = sm.fit_sample(data, cfg.y_train)
-    x_smotenc = pd.DataFrame(x_smotenc, columns=cfg.ALL_FEATURES)
-    y_smotenc = pd.DataFrame(y_smotenc, columns=[cfg.LABEL])
-    sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
-    pd.Series(y_smotenc[cfg.LABEL]).value_counts().plot.bar(title='SMOTENC : Count - Fraud Result')
+def balance_data():
+    sm = SMOTENC(categorical_features=cfg.categorical_features_dims,
+                 random_state=cfg.RANDOM_NUMBER, n_jobs=cfg.N_JOBS)
+    x_smotenc, y_smotenc = sm.fit_sample(cfg.x_train[cfg.ALL_FEATURES], cfg.y_train)
+    cfg.x_train_balanced = pd.DataFrame(x_smotenc, columns=cfg.ALL_FEATURES)
+    cfg.y_train_balanced = pd.DataFrame(y_smotenc, columns=[cfg.LABEL])
 
 
 def save_predictions_xente(file_name, transactions_list, test_pred):

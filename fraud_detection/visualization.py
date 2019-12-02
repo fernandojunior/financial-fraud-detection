@@ -1,8 +1,21 @@
+import config as cfg
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import learning_curve
 import numpy as np
 import pandas as pd
+
+
+def plot_heatmap(data):
+    data_pd = data.toPandas()
+    corr_matrix = data_pd.corr()
+    k = 15  # number of variables for heatmap
+    cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
+    cm = np.corrcoef(data_pd[cols].values.T)
+    sns.set(font_scale=1.25, rc={'figure.figsize': (8, 8)})
+    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.3f', annot_kws={'size': 8}, yticklabels=cols.values,
+                     xticklabels=cols.values)
+    plt.show()
 
 
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
@@ -139,20 +152,6 @@ def plot_correlation(data, label='FraudResult', k=15):
     sns.set(font_scale=1.25)
     hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.1f', annot_kws={'size': 8}, yticklabels=cols.values,
                      xticklabels=cols.values)
-    plt.show()
-
-
-def plot_heatmap(data, numerical_features, label_type, method='spearman'):
-    column = 'FraudResult == {0}'.format('1' if label_type else '0')
-    data = data.filter(column).select(numerical_features).toPandas()
-    corr = data.corr(method)
-    ax = sns.heatmap(
-        corr, vmin=-1, vmax=1, center=0,
-        cmap=sns.diverging_palette(20, 220, n=200),
-        square=True)
-    ax.set_xticklabels(
-        ax.get_xticklabels(),
-        rotation=45, horizontalalignment='right')
     plt.show()
 
 

@@ -1,4 +1,8 @@
 import fire
+import config as cfg
+import models
+import preprocessing as proc
+import visualization as vis
 from fraud_detection import config  # noqa
 
 
@@ -24,9 +28,22 @@ def features(**kwargs):
     With these files you can train your model!
     """
     print("==> GENERATING DATASETS FOR TRAINING YOUR MODEL")
+    data = proc.read_data(kwargs['input'])
+    data = proc.generate_new_features(data)
+    data = proc.clean_data(data)
+    return data
 
 
-def train(**kwargs):
+def visualizations(data):
+    """
+    :param data:
+    :return:
+    """
+    print("==> GENERATING VISUALIZATIONS FOR TRAINING YOUR MODEL")
+    vis.plot_heatmap(data)
+
+
+def train(data):
     """Function that will run your model, be it a NN, Composite indicator
     or a Decision tree, you name it.
 
@@ -38,8 +55,19 @@ def train(**kwargs):
     As convention you should use workspace/data to read your dataset,
     which was build from generate() step. You should save your model
     binary into workspace/models directory.
+
+    source-code example:
+    https://github.com/davified/clean-code-ml/blob/master/docs/functions.md
+    how to call different models in the same function.
     """
     print("==> TRAINING YOUR MODEL!")
+    proc.separate_variables(data)  # split data in train and test
+    x_train = models.train_isolation_forest()
+    x_train = models.train_LSCP(x_train)
+    x_train = models.train_KNN(x_train)
+    x_train = proc.add_features(x_train)
+    x_train_bal, y_train_bal = proc.balance_data(x_train)
+    return x_train
 
 
 def metadata(**kwargs):
@@ -84,10 +112,12 @@ def run(**kwargs):
     """Run the complete pipeline of the model.
     """
     print("Args: {}".format(kwargs))
-    print("Running fraud_detection by ItaloPontes")
-    features(**kwargs)  # generate dataset for training
-    train(**kwargs)     # training model and save to filesystem
-    metadata(**kwargs)  # performance report
+
+    data = features(**kwargs)  # read dataset and generate new features
+    visualizations(data)  # generate visualization above the data
+    train(data)  # training model and save to filesystem
+    #metadata(**kwargs)  # performance report
+    print("Everything is ok.")
 
 
 def cli():

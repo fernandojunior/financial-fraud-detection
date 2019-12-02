@@ -1,7 +1,5 @@
 # base-image declaration & credentials
 FROM python:3.6-slim
-## For PySpark projects use this image below instead:
-# FROM neowaylabs/docker-spark:2.3.1-hadoop-2.9.1
 
 # Show Python version on build step
 RUN python -V

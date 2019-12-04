@@ -3,7 +3,6 @@ import findspark
 findspark.init()
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('Xente').getOrCreate()
-import fraud_detection
 
 ITEMS_LIST = ['ProductId', 'ProviderId']
 COLUMN_NAME = "VALUE"
@@ -11,7 +10,7 @@ LABEL = 'FraudResult'
 
 ITEMS_TO_BE_REMOVED_LIST = ['CurrencyCode', 'CountryCode', 'AccountId',
                             'SubscriptionId', 'CustomerId', 'TransactionStartTime',
-                            'Amount', 'DayOfYear', 'avg_vl_ProductId', 'avg_vl_ProviderId']
+                            'Amount', 'DayOfYear', 'Avg_vl_ProductId', 'Avg_vl_ProviderId']
 
 ALL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId', 'BatchId',
                 'ProductCategory', 'ChannelId', 'PricingStrategy', 'ValueStrategy',
@@ -26,9 +25,9 @@ NUMERICAL_FEATURES = ['ValueStrategy', 'Value', 'Operation', 'Hour', 'DayOfWeek'
                       'Vl_per_weekYr', 'Vl_per_dayWk', 'Vl_per_dayYr',
                       'Rt_avg_vl_ProductId', 'Rt_avg_vl_ProviderId']
 
-LEARNING_RATE_LIST = [0.00135, 0.01, 0.03, 0.1]
-DEPTH_LIST = [4, 5, 6, 7, 8, 9, 10]
-LEAF_REG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+LEARNING_RATE_LIST = [0.0001, 0.001, 0.005, 0.01, 0.1]
+DEPTH_LIST = [4, 5, 6, 7, 8]
+LEAF_REG = [4, 5, 6, 7, 8]
 
 IF_COLUMN_NAME = 'IsolationForest'
 LSCP_COLUMN_NAME = 'LSCP'
@@ -59,9 +58,3 @@ model_cat_boost = []
 model_isolation_forest = []
 model_lscp = []
 model_knn = []
-
-base_path = path.dirname(path.dirname(fraud_detection.__file__))
-workspace_path = path.join(base_path, 'workspace')
-data_path = path.join(workspace_path, 'data')
-models_path = path.join(workspace_path, 'models')
-

@@ -6,7 +6,31 @@ from sklearn.model_selection import learning_curve
 import numpy as np
 import pandas as pd
 import shap
+import handler as hdl
 
+def plot_target_distribution():
+    hdl.outside_log(plot_target_distribution.__module__,
+                    plot_target_distribution.__name__)
+    sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
+    fg = pd.Series(cfg.y_train_balanced[cfg.LABEL])\
+                        .value_counts()\
+                        .plot\
+                        .bar(title='SMOTENC Output')
+    fg.plot() 
+    plt.show()
+
+def plot_heatmap():
+    hdl.outside_log(plot_heatmap.__module__,
+                    plot_heatmap.__name__)
+    data_pd = cfg.data_train.toPandas()
+    corr_matrix = data_pd.corr()
+    k = 70  # number of variables for heatmap
+    cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
+    cm = np.corrcoef(data_pd[cols].values.T)
+    sns.set(font_scale=1.25, rc={'figure.figsize': (15, 15)})
+    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.3f', annot_kws={'size': 8}, yticklabels=cols.values,
+                     xticklabels=cols.values)
+    plt.show()
 
 def generate_explanations():
     shap_values = cfg.model.get_feature_importance(
@@ -21,21 +45,10 @@ def generate_explanations():
     shap.force_plot(expected_value, shap_values[200, :], cfg.x_train_balanced.iloc[200, :])
 
 
-def plot_heatmap():
-    data_pd = cfg.data.toPandas()
-    corr_matrix = data_pd.corr()
-    k = 15  # number of variables for heatmap
-    cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
-    cm = np.corrcoef(data_pd[cols].values.T)
-    sns.set(font_scale=1.25, rc={'figure.figsize': (8, 8)})
-    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.3f', annot_kws={'size': 8}, yticklabels=cols.values,
-                     xticklabels=cols.values)
-    plt.show()
 
 
-def plot_distribution():
-    sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
-    pd.Series(cfg.y_train_balanced[cfg.LABEL]).value_counts().plot.bar(title='SMOTENC : Count - Fraud Result')
+
+
 
 
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,

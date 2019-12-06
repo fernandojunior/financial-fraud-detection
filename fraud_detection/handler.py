@@ -1,4 +1,6 @@
+import models
 import config as cfg
+import visualization as vis
 import pandas as pd
 import pyspark.sql.functions as F
 from pyspark.sql.functions import (when, col, mean, 
@@ -9,9 +11,35 @@ import seaborn as sns
 import logging
 logging.basicConfig(filename='log_file.log', 
                     level=logging.INFO, 
-                    format='%(asctime)s :: %(filename)s :: %(funcName)s ::\n\t%(message)s')
+                    filemode='w',
+                    format='%(asctime)s :: %(filename)s :: %(funcName)s\n\t%(message)s')
 def outside_log(s1, s2):
     logging.info(s1 + '.py :: ' + s2)
+
+#-----------------------------HANDLING TRAIN DATASET
+
+def handle_data_train(**kwargs):
+    logging.info('Handling Data')
+
+    get_contamination(**kwargs)
+    create_features(**kwargs)
+    remove_features(**kwargs)
+
+    vis.plot_heatmap('INIT')
+
+    split_dataset_train(**kwargs)
+
+    #outliers--
+    models.train_isolation_forest()
+    models.predict_isolation_forest()
+    models.train_LSCP()
+    models.predict_LSCP()
+    models.train_KNN()
+    models.predict_KNN()
+    createOutlierFeatures(**kwargs)
+    #----------
+
+    vis.plot_heatmap('OUTLIER')
 
 #-----------------------------EXTRACT DATASET
 
@@ -32,7 +60,25 @@ def read_data(file_name):
 #-----------------------------CHECK MISSING DATA
 
 def is_missing_data(data):
+    logging.info('Finding Dataset')
     ans = (cfg.data_train.count() != cfg.data_train.na.drop(how='any').count())
+    return ans
+
+#-----------------------------CHECK MISSING FILE TRAIN
+
+def is_missing_file_train(**kwargs):
+    logging.info('Finding Data Balanced to Train')
+    import os.path
+    ans = ( os.path.exists(kwargs['output_x_file_name']) and 
+            os.path.exists(kwargs['output_y_file_name']) )
+    return ans
+
+#-----------------------------CHECK MISSING FILE VALIDATION
+
+def is_missing_file_validation(**kwargs):
+    logging.info('Finding Data Balanced to Valid')
+    import os.path
+    ans = os.path.exists(kwargs['test_file_name'])
     return ans
 
 #-----------------------------GET CONTAMINATION
@@ -62,11 +108,11 @@ def get_typeOfOperation(data):
     return data
 
 def get_valueStrategy(data):
-    avg_value = data.agg({cfg.COLUMN_NAME: 'avg'}).collect()[0][0]
+    avg_value = data.agg({cfg.COLUMN_VALUE: 'avg'}).collect()[0][0]
     data = data.withColumn('ValueStrategy',
-          when(col(cfg.COLUMN_NAME) > avg_value * 1000, 3)
-         .when(col(cfg.COLUMN_NAME) > avg_value * 100, 2)
-         .when(col(cfg.COLUMN_NAME) > avg_value * 10, 1)
+          when(col(cfg.COLUMN_VALUE) > avg_value * 1000, 3)
+         .when(col(cfg.COLUMN_VALUE) > avg_value * 100, 2)
+         .when(col(cfg.COLUMN_VALUE) > avg_value * 10, 1)
          .otherwise(0))
     return data
 
@@ -123,12 +169,13 @@ def clean_data(data, items_to_removed=cfg.ITEMS_TO_BE_REMOVED_LIST):
 #-----------------------------SPLIT DATASET INTO TRAIN/VALID
 
 def split_dataset_train(**kwargs):
-    logging.info('Converting data to pandas and spliting it')
     data_pd = df_toPandas(**kwargs)
+
+    logging.info('Splitting data')
     separate_variables(data_pd, **kwargs)
 
 def df_toPandas(**kwargs):
-    logging.info(df_toPandas.__name__)
+    logging.info('Converting Spark dataframe to Pandas dataframe')
     return cfg.data_train.toPandas()
 
 def separate_variables(data, **kwargs):
@@ -166,13 +213,33 @@ def balance_oversampling(**kwargs):
     cfg.x_train_balanced = pd.DataFrame(x, columns=cfg.ALL_FEATURES)
     cfg.y_train_balanced = pd.DataFrame(y, columns=[cfg.LABEL])
     export_data_balanced(**kwargs)
+    vis.plot_target_distribution()
 
 def export_data_balanced(**kwargs):
     logging.info(export_data_balanced.__name__)
     cfg.x_train_balanced.to_csv(kwargs['output_x_file_name'], index=False)
     cfg.y_train_balanced.to_csv(kwargs['output_y_file_name'], index=False)
 
-#-----------------------------
+def extract_data_balanced(**kwargs):
+    logging.info(extract_data_balanced.__name__)
+    cfg.x_train_balanced = pd.read_csv(kwargs['output_x_file_name'])
+    cfg.y_train_balanced = pd.read_csv(kwargs['output_y_file_name'])
+
+#-----------------------------TRAIN THE MODEL WITH TRAIN DATASET
+
+def train_model(**kwargs):
+    logging.info(train_model.__name__)
+    models.train_catboost()
+    vis.plot_feature_importance()
+
+#-----------------------------BALANCE DATA TO VALIDATION
+
+def extract_data_to_validation(**kwargs):
+    logging.info(extract_data_balanced.__name__)
+    cfg.data_valid = pd.read_csv(kwargs['valid_file_name'])
+
+#-----------------------------BALANCE DATA TO VALIDATION
+
 
 def there_is_duplicate_lines(data):
     ans = data.count() != data.distinct().count()

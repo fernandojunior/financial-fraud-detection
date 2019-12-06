@@ -1,0 +1,41 @@
+2019-12-05 22:21:03,300 :: handler.py :: outside_log
+	run.py :: ...Init...
+2019-12-05 22:21:03,300 :: handler.py :: outside_log
+	run.py :: args: {'train_file_name': '../data/xente_fraud_detection_train.csv', 'test_file_name': '../data/xente_fraud_detection_test.csv', 'output_x_file_name': '../data/x_balanced_data.csv', 'output_y_file_name': '../data/y_balanced_data.csv'}
+
+2019-12-05 22:21:03,300 :: handler.py :: extract_data
+	Extracting Data
+2019-12-05 22:21:12,126 :: handler.py :: handle_data_train
+	Handling Data
+2019-12-05 22:21:12,127 :: handler.py :: get_contamination
+	Get contamination into the data
+2019-12-05 22:21:15,104 :: handler.py :: create_features
+	Creating pre-defined features
+2019-12-05 22:21:16,454 :: handler.py :: remove_features
+	Removing features pre-defined
+2019-12-05 22:21:16,466 :: handler.py :: outside_log
+	visualization.py :: plot_heatmap
+2019-12-05 22:21:43,213 :: handler.py :: df_toPandas
+	Converting Spark dataframe to Pandas dataframe
+2019-12-05 22:21:45,507 :: handler.py :: split_dataset_train
+	Splitting data
+2019-12-05 22:21:45,530 :: handler.py :: outside_log
+	models.py :: train_isolation_forest
+2019-12-05 22:21:47,463 :: handler.py :: outside_log
+	models.py :: predict_isolation_forest
+2019-12-05 22:21:49,015 :: handler.py :: outside_log
+	models.py :: train_LSCP
+2019-12-05 22:23:06,957 :: handler.py :: outside_log
+	models.py :: predict_LSCP
+2019-12-05 22:24:19,085 :: handler.py :: outside_log
+	models.py :: train_KNN
+2019-12-05 22:24:21,388 :: handler.py :: outside_log
+	models.py :: predict_KNN
+2019-12-05 22:24:31,153 :: handler.py :: createOutlierFeatures
+	Creating outliers detections features
+2019-12-05 22:24:31,155 :: handler.py :: outside_log
+	visualization.py :: plot_heatmap
+2019-12-05 22:25:07,785 :: handler.py :: balance_oversampling
+	Balancing the train data
+2019-12-05 22:25:07,786 :: handler.py :: outside_log
+	models.py :: smotenc_oversampling

@@ -1,12 +1,12 @@
-import config as cfg
 import matplotlib.pyplot as plt
 import seaborn as sns
-from catboost import Pool
-from sklearn.model_selection import learning_curve
 import numpy as np
 import pandas as pd
-import shap
+
+import config as cfg
 import handler as hdl
+
+#-------------------SMOTENC OUPTPUT OF DATA['FRAUDRESULT'] 
 
 def plot_target_distribution():
     hdl.outside_log(plot_target_distribution.__module__,
@@ -19,10 +19,18 @@ def plot_target_distribution():
     fg.plot() 
     plt.show()
 
-def plot_heatmap():
+#-------------------FEATURE CORRELATION
+
+def plot_heatmap(flag):
     hdl.outside_log(plot_heatmap.__module__,
                     plot_heatmap.__name__)
-    data_pd = cfg.data_train.toPandas()
+
+    if flag == 'INIT':
+        data_pd = cfg.data_train.toPandas()
+    if flag == 'OUTLIER':
+        data_pd = cfg.x_train
+        data_pd['FraudResult'] = cfg.y_train
+
     corr_matrix = data_pd.corr()
     k = 70  # number of variables for heatmap
     cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
@@ -32,8 +40,14 @@ def plot_heatmap():
                      xticklabels=cols.values)
     plt.show()
 
-def generate_explanations():
-    shap_values = cfg.model.get_feature_importance(
+#-------------------FEATURE IMPORTANCE
+
+def plot_feature_importance():
+    from catboost import Pool
+    import shap
+
+    shap.initjs()
+    shap_values = (cfg.model_cat_boost).get_feature_importance(
         Pool(cfg.x_train_balanced,
              cfg.y_train_balanced,
              cat_features=cfg.categorical_features_dims),
@@ -43,12 +57,7 @@ def generate_explanations():
     shap_values = shap_values[:, :-1]
     # visualize the first prediction's explanation
     shap.force_plot(expected_value, shap_values[200, :], cfg.x_train_balanced.iloc[200, :])
-
-
-
-
-
-
+    plt.show()
 
 
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
@@ -83,6 +92,8 @@ def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
         be big enough to contain at least one sample from each class.
         (default: np.linspace(0.1, 1.0, 5))
     '''
+    from sklearn.model_selection import learning_curve
+
     plt.figure()
     plt.title(title)
     if ylim is not None:

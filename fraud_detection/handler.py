@@ -39,7 +39,7 @@ def is_missing_data(data):
 
 def get_contamination(**kwargs):
     logging.info('Get contamination into the data')
-    cfg.contamination_level = \
+    cfg.CONTAMINATION = \
         (cfg.data_train.filter('FraudResult==1').count())/(cfg.data_train.count())
 
 #-----------------------------CREATE NEW FEATURES

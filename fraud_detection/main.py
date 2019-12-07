@@ -6,38 +6,51 @@ import config as cfg
 import handler as hdl
 
 def train(**kwargs):
-    if hdl.extract_data(**kwargs):
+    '''Load Dataframe, handle features and train model.
+    $ python main.py train \
+    --input_train_file ../data/xente_fraud_detection_train.csv \
+    --input_test_file ../data/xente_fraud_detection_test.csv \
+    --output_balanced_train_x_file ../data/balanced_train_x.csv \
+    --output_balanced_train_y_file ../data/balanced_train_y.csv \
+    --output_valid_x_file ../data/valid_x.csv \
+    --output_valid_y_file ../data/valid_y.csv
+    '''
+    hdl.outside_log(train.__name__, '...Init...')
+    if hdl.extract_data_train(**kwargs):
         print('------------ No Data Found ------------')
         sys.exit()
 
     hdl.handle_data_train(**kwargs)
+    hdl.split_train_val(**kwargs)
     hdl.balance_oversampling(**kwargs)
     hdl.train_model(**kwargs)
+    print('------------ Finish Train ------------')
 
 def validate(**kwargs):
+    '''Load previously trained model and validate the results.
+    Execute:
+    $ python main.py validate \
+    --output_valid_result_file ../data/valid_result.csv
+    '''
+    hdl.outside_log(validate.__name__, '...Init...')
     if not hdl.is_missing_file_validation:
         print('------------ No Model Trained Found ------------')
         sys.exit()    
 
-    hdl.extract_data_to_validation(**kwargs)
-    cfg.data_test = hdl.generate_new_features(cfg.data_test)
-    cfg.data_test = hdl.clean_data(cfg.data_test)
-    ### Make predictions
-    ### Save in csv format
-
+    hdl.extract_data_validation(**kwargs)
+    hdl.evaluate_model()
+    hdl.export_data_valid_result(**kwargs)
+    print('------------ Finish Validation ------------')
 
 def test(**kwargs):
-    """Load previously trained models and run.
-    test
-    --x_file_name ../data/x_balanced_data.csv
-    --y_file_name ../data/y_balanced_data.csv
-    --test_file_name ../data/xente_fraud_detection_test.csv
-    """
-    print("Args: {}".format(kwargs))
-    cfg.x_train_balanced = pd.read_csv(kwargs['x_file_name'])
-    cfg.y_train_balanced = pd.read_csv(kwargs['y_file_name'])
-    hdl.add_features(cfg.x_train_balanced)
-    train()
+    '''Load previously trained models and test it.
+    Execute:
+    $ python main.py test \
+    --input_test_file ../data/xente_fraud_detection_test.csv
+    '''
+    # to do
+    # MODULARIZAR AS FUNCOES FEITAS ANTERIORMENTE EM TRAIN
+    
 
 
 # Run all pipeline sequentially
@@ -45,16 +58,20 @@ def run(**kwargs):
     '''To run the complete pipeline of the model.
     Execute:
     $ python main.py run \
-    --train_file_name ../data/xente_fraud_detection_train.csv \
-    --test_file_name ../data/xente_fraud_detection_test.csv \
-    --output_x_file_name ../data/x_balanced_data.csv \
-    --output_y_file_name ../data/y_balanced_data.csv
+    --input_train_file ../data/xente_fraud_detection_train.csv \
+    --input_test_file ../data/xente_fraud_detection_test.csv \
+    --output_balanced_train_x_file ../data/balanced_train_x.csv \
+    --output_balanced_train_y_file ../data/balanced_train_y.csv \
+    --output_valid_x_file ../data/valid_x.csv \
+    --output_valid_y_file ../data/valid_y.csv \
+    --output_valid_result_file ../data/valid_result.csv
     '''
     
-    hdl.outside_log(run.__name__, '...Init...')
     hdl.outside_log(run.__name__, 'args: {}\n'.format(kwargs))
 
     train(**kwargs) # train catboost model
+    validate(**kwargs) # validate catboost model
+    #test(**kwargs) # test catboost model in real scenario
 
     hdl.outside_log(run.__name__, '...Finish...')
 

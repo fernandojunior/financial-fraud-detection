@@ -7,10 +7,10 @@ def train_isolation_forest():
     cfg.model_isolation_forest = cfg.if_outlier
     cfg.model_isolation_forest.fit(cfg.x_train_numerical, cfg.y_train)
     
-def predict_isolation_forest():
+def predict_isolation_forest(**kwargs):
     hdl.outside_log(predict_isolation_forest.__module__,
                     predict_isolation_forest.__name__)
-    predictions = cfg.model_isolation_forest.predict(cfg.x_train_numerical)
+    predictions = cfg.model_isolation_forest.predict(cfg.x_train[cfg.NUMERICAL_FEATURES])
     cfg.x_train[cfg.IF_COLUMN_NAME] = predictions
     cfg.x_train = cfg.x_train.replace({cfg.IF_COLUMN_NAME: 1}, 0)
     cfg.x_train = cfg.x_train.replace({cfg.IF_COLUMN_NAME: -1}, 1)
@@ -21,10 +21,10 @@ def train_LSCP():
     cfg.model_lscp = cfg.lscp_outlier
     cfg.model_lscp.fit(cfg.x_train_numerical)
 
-def predict_LSCP():
+def predict_LSCP(**kwargs):
     hdl.outside_log(predict_LSCP.__module__,
                     predict_LSCP.__name__)
-    predictions = cfg.model_lscp.predict(cfg.x_train_numerical)
+    predictions = cfg.model_lscp.predict(cfg.x_train[cfg.NUMERICAL_FEATURES])
     cfg.x_train[cfg.LSCP_COLUMN_NAME] = predictions
 
 def train_KNN():
@@ -33,18 +33,17 @@ def train_KNN():
     cfg.model_knn = cfg.knn_outlier
     cfg.model_knn.fit(cfg.x_train_numerical, cfg.y_train)
 
-def predict_KNN():
+def predict_KNN(**kwargs):
     hdl.outside_log(predict_KNN.__module__,
                     predict_KNN.__name__)
-    predictions = cfg.model_knn.predict(cfg.x_train_numerical)
+    predictions = cfg.model_knn.predict(cfg.x_train[cfg.NUMERICAL_FEATURES])
     cfg.x_train[cfg.KNN_COLUMN_NAME] = predictions
 
-def smotenc_oversampling():
-    hdl.outside_log(smotenc_oversampling.__module__,
-                    smotenc_oversampling.__name__)
-    sm = cfg.smotenc_oversampler
-    x_smotenc, y_smotenc = sm.fit_sample(cfg.x_train[cfg.ALL_FEATURES], 
-                                         cfg.y_train)
+def smotenc_oversampler():
+    hdl.outside_log(smotenc_oversampler.__module__,
+                    smotenc_oversampler.__name__)
+    sm = cfg.set_smotenc_model()
+    x_smotenc, y_smotenc = sm.fit_resample(cfg.x_train, cfg.y_train)
     return x_smotenc, y_smotenc
 
 def make_gridSearch_catBoost():
@@ -59,7 +58,7 @@ def make_gridSearch_catBoost():
             'l2_leaf_reg': cfg.LEAF_REG_LIST}
 
     grid_search_result = model.grid_search(grid,
-                                           X=cfg.x_train_balanced[cfg.NUMERICAL_FEATURES],
+                                           X=cfg.x_train_balanced[cfg.get_catFeat()],
                                            y=cfg.y_train_balanced,
                                            plot=True)
     return grid_search_result
@@ -67,10 +66,19 @@ def make_gridSearch_catBoost():
 def train_catboost():
     hdl.outside_log(train_catboost.__module__,
                     train_catboost.__name__)
-    cfg.model_cat_boost = cfg.catboost_classifier
+    cfg.model_cat_boost = cfg.set_catboost_model()
     cfg.model_cat_boost.fit(cfg.x_train_balanced,
                             cfg.y_train_balanced,
                             verbose=False,
                             plot=True,
-                            cat_features=cfg.CATEGORICAL_FEATURES)
-    cfg.model_cat_boost.save_model(fname=cfg.model_catboost_saved)
+                            cat_features=cfg.get_catFeat() )
+    cfg.model_cat_boost.save_model(fname=cfg.model_catboost_file)
+
+def predict_catboost():
+    hdl.outside_log(predict_catboost.__module__,
+                    predict_catboost.__name__)
+    cfg.model_cat_boost = cfg.set_catboost_model()
+    cfg.model_cat_boost.load_model(fname=cfg.model_catboost_file)
+    cfg.predictions = cfg.model_cat_boost.predict(cfg.x_valid)
+    cfg.x_valid['CatBoost'] = cfg.predictions
+    cfg.x_valid['FraudResult'] = cfg.y_valid

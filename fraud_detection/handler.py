@@ -21,21 +21,19 @@ def outside_log(s1, s2):
 def handle_data_train(**kwargs):
     logging.info('Handling Data')
 
-    get_contamination(**kwargs)
+    set_contamination()
     create_features(**kwargs)
-    remove_features(**kwargs)
-
     vis.plot_heatmap('INIT')
 
     split_dataset_train(**kwargs)
 
     #outliers--
     models.train_isolation_forest()
-    models.predict_isolation_forest()
+    models.predict_isolation_forest(**kwargs)
     models.train_LSCP()
-    models.predict_LSCP()
+    models.predict_LSCP(**kwargs)
     models.train_KNN()
-    models.predict_KNN()
+    models.predict_KNN(**kwargs)
     createOutlierFeatures(**kwargs)
     #----------
 
@@ -43,9 +41,9 @@ def handle_data_train(**kwargs):
 
 #-----------------------------EXTRACT DATASET
 
-def extract_data(**kwargs):
+def extract_data_train(**kwargs):
     logging.info('Extracting Data')
-    cfg.data_train = read_data(kwargs['train_file_name'])
+    cfg.data_train = read_data(kwargs['input_train_file'])
 
 def read_data(file_name):
     """
@@ -78,17 +76,20 @@ def is_missing_file_train(**kwargs):
 def is_missing_file_validation(**kwargs):
     logging.info('Finding Data Balanced to Valid')
     import os.path
-    ans = os.path.exists(kwargs['test_file_name'])
+    ans = os.path.exists(kwargs['output_valid_result_file'])
     return ans
 
 #-----------------------------GET CONTAMINATION
 
-def get_contamination(**kwargs):
+def set_contamination():
     logging.info('Get contamination into the data')
-    cfg.CONTAMINATION = \
+    cfg.percent_contamination = \
         (cfg.data_train.filter('FraudResult==1').count())/(cfg.data_train.count())
 
 #-----------------------------CREATE NEW FEATURES
+
+### to do
+# modularizar melhor esta parte e verificar
 
 def create_features(**kwargs):
     logging.info('Creating pre-defined features')
@@ -103,16 +104,16 @@ def generate_new_features(data):
     return data
 
 def get_typeOfOperation(data):
-    data = data.withColumn("Operation", F.when(data.Amount > 0, 1)\
-                                         .when(data.Amount < 0, -1).otherwise(0))
+    data = data.withColumn("Operation", when(data.Amount > 0, 1)\
+                                        .when(data.Amount < 0, -1).otherwise(0))
     return data
 
 def get_valueStrategy(data):
     avg_value = data.agg({cfg.COLUMN_VALUE: 'avg'}).collect()[0][0]
     data = data.withColumn('ValueStrategy',
-          when(col(cfg.COLUMN_VALUE) > avg_value * 1000, 3)
-         .when(col(cfg.COLUMN_VALUE) > avg_value * 100, 2)
-         .when(col(cfg.COLUMN_VALUE) > avg_value * 10, 1)
+          when(col(cfg.COLUMN_VALUE) > avg_value * 100, 3)
+         .when(col(cfg.COLUMN_VALUE) > avg_value * 10, 2)
+         .when(col(cfg.COLUMN_VALUE) > avg_value * 2, 1)
          .otherwise(0))
     return data
 
@@ -143,7 +144,7 @@ def get_featuresPerValue(data):
     return data
 
 def get_value_average(data, item):
-    type_column = 'Avg'
+    type_column = 'avg'
     column_name = '{0}_vl_{1}'.format(type_column,item)
     aux = data.select([item,'Value']).groupBy(item).mean()
     aux = aux.select(col(item),col(type_column+'(Value)').alias(column_name))
@@ -151,34 +152,20 @@ def get_value_average(data, item):
     return data
 
 def get_value_ratio(data, item):
-    column_name = 'Avg_vl_{0}'.format(item)
-    ratio_column_name = 'Rt_avg_vl_{0}'.format(item)
+    column_name = 'avg_vl_{0}'.format(item)
+    ratio_column_name = 'rt_avg_vl_{0}'.format(item)
     data = data.withColumn(ratio_column_name,
                            (col('Value') - col(column_name)) / col(column_name))
     return data
 
-#-----------------------------REMOVE FEATURES
-
-def remove_features(**kwargs):
-    logging.info('Removing features pre-defined')
-    cfg.data_train = clean_data(cfg.data_train)
-
-def clean_data(data, items_to_removed=cfg.ITEMS_TO_BE_REMOVED_LIST):
-    return data.drop(*items_to_removed)
-
 #-----------------------------SPLIT DATASET INTO TRAIN/VALID
 
 def split_dataset_train(**kwargs):
-    data_pd = df_toPandas(**kwargs)
-
     logging.info('Splitting data')
-    separate_variables(data_pd, **kwargs)
+    separate_variables(**kwargs)
 
-def df_toPandas(**kwargs):
-    logging.info('Converting Spark dataframe to Pandas dataframe')
-    return cfg.data_train.toPandas()
-
-def separate_variables(data, **kwargs):
+def separate_variables(**kwargs):
+    data = cfg.data_train.toPandas()
     cfg.x_train = data[cfg.ALL_FEATURES]
     cfg.y_train = data[cfg.LABEL]
     cfg.x_outliers = data[data[cfg.LABEL].isin([1])]
@@ -189,9 +176,10 @@ def separate_variables(data, **kwargs):
 
 def createOutlierFeatures(**kwargs):
     logging.info('Creating outliers detections features')
+    
     cfg.x_train[cfg.COUNT_COLUMN_NAME] = (cfg.x_train.IsolationForest + 
-                                          cfg.x_train.LSCP + 
-                                          cfg.x_train.KNN)
+                                        cfg.x_train.LSCP + 
+                                        cfg.x_train.KNN)
     add_OutlierFeatures_toList(**kwargs)
 
 def add_OutlierFeatures_toList(**kwargs):
@@ -201,15 +189,37 @@ def add_OutlierFeatures_toList(**kwargs):
                          cfg.COUNT_COLUMN_NAME]
     cfg.CATEGORICAL_FEATURES += new_features_list
     cfg.ALL_FEATURES += new_features_list
-    cfg.categorical_features_dims = [cfg.x_train.columns.get_loc(i) for i in cfg.CATEGORICAL_FEATURES[:]]
-    cfg.numerical_features_dims = [cfg.x_train.columns.get_loc(i) for i in cfg.NUMERICAL_FEATURES[:]]
+    cfg.categorical_features_dims = \
+        [cfg.x_train.columns.get_loc(i) \
+            for i in cfg.CATEGORICAL_FEATURES[:]]
+
+#-----------------------------SPLIT DATA TRAIN/VALIDATION
+
+def split_train_val(**kwargs):
+    logging.info('Splitting data Train/Validation')
+    from sklearn.model_selection import train_test_split
+    cfg.x_train, cfg.x_valid, cfg.y_train, cfg.y_valid = \
+        train_test_split(cfg.x_train[cfg.ALL_FEATURES], 
+                         cfg.y_train, 
+                         test_size=cfg.TEST_SPLIT_SIZE, 
+        random_state=cfg.RANDOM_NUMBER)
+    export_csv_to_validation(**kwargs)
+
+def export_csv_to_validation(**kwargs):
+    logging.info('Exporting data Validation')
+    cfg.x_valid.to_csv(kwargs['output_valid_x_file'], 
+                                index = None, 
+                                header=True)
+    cfg.y_valid.to_csv(kwargs['output_valid_y_file'], 
+                                index = None, 
+                                header=True)
 
 #-----------------------------BALANCE DATA
 
 def balance_oversampling(**kwargs):
     logging.info('Balancing the train data')
-    from models import smotenc_oversampling
-    x, y = smotenc_oversampling()
+    from models import smotenc_oversampler
+    x, y = smotenc_oversampler()
     cfg.x_train_balanced = pd.DataFrame(x, columns=cfg.ALL_FEATURES)
     cfg.y_train_balanced = pd.DataFrame(y, columns=[cfg.LABEL])
     export_data_balanced(**kwargs)
@@ -217,13 +227,15 @@ def balance_oversampling(**kwargs):
 
 def export_data_balanced(**kwargs):
     logging.info(export_data_balanced.__name__)
-    cfg.x_train_balanced.to_csv(kwargs['output_x_file_name'], index=False)
-    cfg.y_train_balanced.to_csv(kwargs['output_y_file_name'], index=False)
+    cfg.x_train_balanced.to_csv(kwargs['output_balanced_train_x_file'], 
+                                index=False)
+    cfg.y_train_balanced.to_csv(kwargs['output_balanced_train_y_file'], 
+                                index=False)
 
 def extract_data_balanced(**kwargs):
     logging.info(extract_data_balanced.__name__)
-    cfg.x_train_balanced = pd.read_csv(kwargs['output_x_file_name'])
-    cfg.y_train_balanced = pd.read_csv(kwargs['output_y_file_name'])
+    cfg.x_train_balanced = pd.read_csv(kwargs['output_balanced_train_x_file'])
+    cfg.y_train_balanced = pd.read_csv(kwargs['output_balanced_train_y_file'])
 
 #-----------------------------TRAIN THE MODEL WITH TRAIN DATASET
 
@@ -234,11 +246,58 @@ def train_model(**kwargs):
 
 #-----------------------------BALANCE DATA TO VALIDATION
 
-def extract_data_to_validation(**kwargs):
+def extract_data_validation(**kwargs):
     logging.info(extract_data_balanced.__name__)
-    cfg.data_valid = pd.read_csv(kwargs['valid_file_name'])
+    cfg.x_valid = pd.read_csv(kwargs['output_valid_x_file'])
+    cfg.y_valid = pd.read_csv(kwargs['output_valid_y_file'])
 
-#-----------------------------BALANCE DATA TO VALIDATION
+#-----------------------------EVALUATE DATA VALIDATION
+
+def evaluate_model(**kwargs):
+    logging.info(evaluate_model.__name__)
+    models.predict_catboost()
+    export_catboost_validate()
+
+#-----------------------------WRITE DOWN SCORE USING DATA VALIDATION
+
+def export_catboost_validate():
+    logging.info(export_catboost_validate.__name__)
+    from sklearn.metrics import precision_recall_fscore_support as score
+    precision, recall, fscore, support = score(cfg.x_valid['FraudResult'], 
+                                      cfg.x_valid['CatBoost'])
+
+    out_catb_file = open('../data/catBoost_model_result.txt', 'w')
+    out_catb_file.write('LABELS\t\tFraudResult\t\t\t\t | \tCatBoost\n')
+    out_catb_file.write('------------------------------------------\n')
+    out_catb_file.write('precision: \t{}\t\t | \t{}\n'.format(precision[0], 
+                                                            precision[1] ))
+    out_catb_file.write('recall: \t\t{}\t\t | \t{}\n'.format(recall[0], 
+                                                            recall[1] ))
+    out_catb_file.write('fscore: \t\t{}\t\t | \t{}\n'.format(fscore[0], 
+                                                            fscore[1] ))
+    out_catb_file.write('------------------------------------------\n')
+    out_catb_file.write('CATBOOST CONFIGURATION--------------------\n')
+    out_catb_file.write('depth: {} - LR {} - L2: {}\n'.format(cfg.DEPTH_CATBOOST, 
+                                                            cfg.LEARNING_RATE_CATBOOST,
+                                                            cfg.L2_CATBOOST ))
+    out_catb_file.close()
+
+#-----------------------------EXPORT VALID RESULT
+
+def export_data_valid_result(**kwargs):
+    logging.info(export_data_valid_result.__name__)
+    print('{}'.format(kwargs['output_valid_result_file']))
+    cfg.x_valid.to_csv(kwargs['output_valid_result_file'], 
+                        index = None, 
+                        header=True)
+
+#-----------------------------CHECK MISSING FILE TEST
+
+def is_missing_file_test(**kwargs):
+    logging.info('Finding Data Balanced to Valid')
+    import os.path
+    ans = os.path.exists(kwargs['input_test_file'])
+    return ans
 
 
 def there_is_duplicate_lines(data):

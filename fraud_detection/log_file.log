@@ -1,41 +1,63 @@
-2019-12-05 22:21:03,300 :: handler.py :: outside_log
-	run.py :: ...Init...
-2019-12-05 22:21:03,300 :: handler.py :: outside_log
-	run.py :: args: {'train_file_name': '../data/xente_fraud_detection_train.csv', 'test_file_name': '../data/xente_fraud_detection_test.csv', 'output_x_file_name': '../data/x_balanced_data.csv', 'output_y_file_name': '../data/y_balanced_data.csv'}
+2019-12-07 11:39:39,008 :: handler.py :: outside_log
+	run.py :: args: {'input_train_file': '../data/xente_fraud_detection_train.csv', 'input_test_file': '../data/xente_fraud_detection_test.csv', 'output_balanced_train_x_file': '../data/balanced_train_x.csv', 'output_balanced_train_y_file': '../data/balanced_train_y.csv', 'output_valid_x_file': '../data/valid_x.csv', 'output_valid_y_file': '../data/valid_y.csv', 'output_valid_result_file': '../data/valid_result.csv'}
 
-2019-12-05 22:21:03,300 :: handler.py :: extract_data
+2019-12-07 11:39:39,008 :: handler.py :: outside_log
+	train.py :: ...Init...
+2019-12-07 11:39:39,008 :: handler.py :: extract_data_train
 	Extracting Data
-2019-12-05 22:21:12,126 :: handler.py :: handle_data_train
+2019-12-07 11:39:47,886 :: handler.py :: handle_data_train
 	Handling Data
-2019-12-05 22:21:12,127 :: handler.py :: get_contamination
+2019-12-07 11:39:47,887 :: handler.py :: set_contamination
 	Get contamination into the data
-2019-12-05 22:21:15,104 :: handler.py :: create_features
+2019-12-07 11:39:50,417 :: handler.py :: create_features
 	Creating pre-defined features
-2019-12-05 22:21:16,454 :: handler.py :: remove_features
-	Removing features pre-defined
-2019-12-05 22:21:16,466 :: handler.py :: outside_log
+2019-12-07 11:39:51,598 :: handler.py :: outside_log
 	visualization.py :: plot_heatmap
-2019-12-05 22:21:43,213 :: handler.py :: df_toPandas
-	Converting Spark dataframe to Pandas dataframe
-2019-12-05 22:21:45,507 :: handler.py :: split_dataset_train
+2019-12-07 11:40:00,563 :: handler.py :: split_dataset_train
 	Splitting data
-2019-12-05 22:21:45,530 :: handler.py :: outside_log
+2019-12-07 11:40:02,692 :: handler.py :: outside_log
 	models.py :: train_isolation_forest
-2019-12-05 22:21:47,463 :: handler.py :: outside_log
+2019-12-07 11:40:05,128 :: handler.py :: outside_log
 	models.py :: predict_isolation_forest
-2019-12-05 22:21:49,015 :: handler.py :: outside_log
+2019-12-07 11:40:07,180 :: handler.py :: outside_log
 	models.py :: train_LSCP
-2019-12-05 22:23:06,957 :: handler.py :: outside_log
+2019-12-07 11:41:51,732 :: handler.py :: outside_log
 	models.py :: predict_LSCP
-2019-12-05 22:24:19,085 :: handler.py :: outside_log
+2019-12-07 11:43:21,824 :: handler.py :: outside_log
 	models.py :: train_KNN
-2019-12-05 22:24:21,388 :: handler.py :: outside_log
+2019-12-07 11:43:24,814 :: handler.py :: outside_log
 	models.py :: predict_KNN
-2019-12-05 22:24:31,153 :: handler.py :: createOutlierFeatures
+2019-12-07 11:43:35,880 :: handler.py :: createOutlierFeatures
 	Creating outliers detections features
-2019-12-05 22:24:31,155 :: handler.py :: outside_log
+2019-12-07 11:43:35,883 :: handler.py :: outside_log
 	visualization.py :: plot_heatmap
-2019-12-05 22:25:07,785 :: handler.py :: balance_oversampling
+2019-12-07 11:43:39,042 :: handler.py :: split_train_val
+	Splitting data Train/Validation
+2019-12-07 11:43:39,135 :: handler.py :: export_csv_to_validation
+	Exporting data Validation
+2019-12-07 11:43:39,778 :: handler.py :: balance_oversampling
 	Balancing the train data
-2019-12-05 22:25:07,786 :: handler.py :: outside_log
-	models.py :: smotenc_oversampling
+2019-12-07 11:43:39,778 :: handler.py :: outside_log
+	models.py :: smotenc_oversampler
+2019-12-07 11:48:05,326 :: handler.py :: export_data_balanced
+	export_data_balanced
+2019-12-07 11:48:06,754 :: handler.py :: outside_log
+	visualization.py :: plot_target_distribution
+2019-12-07 11:48:10,005 :: handler.py :: train_model
+	train_model
+2019-12-07 11:48:10,005 :: handler.py :: outside_log
+	models.py :: train_catboost
+2019-12-07 11:48:36,785 :: handler.py :: outside_log
+	validate.py :: ...Init...
+2019-12-07 11:48:36,785 :: handler.py :: extract_data_validation
+	extract_data_balanced
+2019-12-07 11:48:36,888 :: handler.py :: evaluate_model
+	evaluate_model
+2019-12-07 11:48:36,888 :: handler.py :: outside_log
+	models.py :: predict_catboost
+2019-12-07 11:48:37,161 :: handler.py :: export_catboost_validate
+	export_catboost_validate
+2019-12-07 11:48:37,170 :: handler.py :: export_data_valid_result
+	export_data_valid_result
+2019-12-07 11:48:37,574 :: handler.py :: outside_log
+	run.py :: ...Finish...

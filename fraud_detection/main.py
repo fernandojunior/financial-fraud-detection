@@ -59,6 +59,7 @@ def test(**kwargs):
     hdl.handle_data_test()
     hdl.evaluate_model('TEST')
     hdl.export_data_test_result(**kwargs)
+    print('------------ Finish Test ------------')
 
 
 # Run all pipeline sequentially

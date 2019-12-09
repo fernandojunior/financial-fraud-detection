@@ -6,7 +6,6 @@ import pandas as pd
 import config as cfg
 import handler as hdl
 
-#-------------------SMOTENC OUPTPUT OF DATA['FRAUDRESULT'] 
 
 def plot_target_distribution():
     hdl.outside_log(plot_target_distribution.__module__,
@@ -19,7 +18,6 @@ def plot_target_distribution():
     fg.plot() 
     plt.show()
 
-#-------------------FEATURE CORRELATION
 
 def plot_heatmap(flag):
     hdl.outside_log(plot_heatmap.__module__,
@@ -32,22 +30,28 @@ def plot_heatmap(flag):
         data_pd['FraudResult'] = cfg.y_train
 
     corr_matrix = data_pd.corr()
-    k = 70  # number of variables for heatmap
+    k = 70  # number of variables for heat-map
     cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
     cm = np.corrcoef(data_pd[cols].values.T)
-    sns.set(font_scale=1.25, rc={'figure.figsize': (15, 15)})
-    hm = sns.heatmap(cm, cbar=True, annot=True, square=True, fmt='.3f', annot_kws={'size': 8}, yticklabels=cols.values,
+    sns.set(font_scale=1.25,
+            rc={'figure.figsize': (15, 15)})
+    hm = sns.heatmap(cm,
+                     cbar=True,
+                     annot=True,
+                     square=True,
+                     fmt='.3f',
+                     annot_kws={'size': 8},
+                     yticklabels=cols.values,
                      xticklabels=cols.values)
     plt.show()
 
-#-------------------FEATURE IMPORTANCE
 
 def plot_feature_importance():
     from catboost import Pool
     import shap
 
     shap.initjs()
-    shap_values = (cfg.model_cat_boost).get_feature_importance(
+    shap_values = cfg.model_cat_boost.get_feature_importance(
         Pool(cfg.x_train_balanced,
              cfg.y_train_balanced,
              cat_features=cfg.categorical_features_dims),
@@ -63,7 +67,7 @@ def plot_feature_importance():
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 10),
                         x_label="Training examples", y_label="Score"):
-    '''
+    """
     ylim : tuple, shape (ymin, ymax), optional
         Defines minimum and maximum yvalues plotted.
 
@@ -91,7 +95,7 @@ def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
         Note that for classification the number of samples usually have to
         be big enough to contain at least one sample from each class.
         (default: np.linspace(0.1, 1.0, 5))
-    '''
+    """
     from sklearn.model_selection import learning_curve
 
     plt.figure()
@@ -183,12 +187,12 @@ def plot_hist(data, feature_columns, label_type):
 
 
 def plot_correlation(data, label='FraudResult', k=15):
-    '''
+    """
     :param data:
     :param label:
     :param k: number of variables for heatmap.
     :return:
-    '''
+    """
     data_pd = data.toPandas()
     corr_matrix = data_pd.corr()
     cols = corr_matrix.nlargest(k, label)[label].index

@@ -1,4 +1,3 @@
-from os import path
 import findspark
 findspark.init()
 from pyspark.sql import SparkSession
@@ -13,7 +12,16 @@ ALL_FEATURES = ['ProviderId','ProductId','TransactionId',
                 'DayOfWeek','WeekOfYear',
                 'Vl_per_weekYr','Vl_per_dayWk',
                 'rt_avg_vl_ProductId','rt_avg_vl_ProviderId']
+ALL_FEATURES_TEST = ['ProviderId','ProductId','TransactionId',
+                'BatchId','ProductCategory','ChannelId',
+                'PricingStrategy','Value','Operation','Hour',
+                'DayOfWeek','WeekOfYear',
+                'Vl_per_weekYr','Vl_per_dayWk',
+                'rt_avg_vl_ProductId','rt_avg_vl_ProviderId']
 CATEGORICAL_FEATURES = ['ProviderId','ProductId','TransactionId',
+                        'BatchId','ProductCategory','ChannelId',
+                        'PricingStrategy']
+CATEGORICAL_FEATURES_TEST = ['ProviderId','ProductId','TransactionId',
                         'BatchId','ProductCategory','ChannelId',
                         'PricingStrategy']
 NUMERICAL_FEATURES = ['Value','Operation','Hour',

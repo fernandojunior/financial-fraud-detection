@@ -1,8 +1,6 @@
 import sys
 import fire
-import pandas as pd
 
-import config as cfg
 import handler as hdl
 
 
@@ -50,7 +48,8 @@ def test(**kwargs):
     """Load previously trained models and test it.
     Execute:
     $ python main.py test \
-    --input_test_file ../data/xente_fraud_detection_test.csv
+    --input_test_file ../data/xente_fraud_detection_test.csv \
+    --output_test_result_file ../data/xente_output_final.txt
     """
     hdl.outside_log(test.__name__, '...Init Test...')
     if hdl.extract_data_test(**kwargs):
@@ -58,8 +57,8 @@ def test(**kwargs):
         sys.exit()
 
     hdl.handle_data_test()
-    # hdl.evaluate_model('TEST')
-    # hdl.export_data_test_result(**kwargs)
+    hdl.evaluate_model('TEST')
+    hdl.export_data_test_result(**kwargs)
 
 
 # Run all pipeline sequentially
@@ -73,13 +72,17 @@ def run(**kwargs):
     --output_balanced_train_y_file ../data/balanced_train_y.csv \
     --output_valid_x_file ../data/valid_x.csv \
     --output_valid_y_file ../data/valid_y.csv \
-    --output_valid_result_file ../data/valid_result.csv
+    --output_valid_result_file ../data/valid_result.csv \
+    --output_test_result_file ../data/xente_output_final.txt
     """
     hdl.outside_log(run.__name__, 'args: {}\n'.format(kwargs))
 
-    train(**kwargs) # train catboost model
-    validate(**kwargs) # validate catboost model
-    test(**kwargs) # test catboost model in real scenario
+    # train catboost model
+    train(**kwargs)
+    # validate catboost model
+    validate(**kwargs)
+    # test catboost model in real scenario
+    test(**kwargs)
 
     hdl.outside_log(run.__name__, '...Finish...')
 

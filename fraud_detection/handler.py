@@ -34,8 +34,8 @@ def read_data(file_name):
     a path to a local file.
     :return: spark dataframe.
     """
-    data = pd.read_csv(file_name)
-    return cfg.spark.createDataFrame(data)
+    data = cfg.spark.read.csv(file_name, header=True, inferSchema=True)
+    return data
 
 
 def handle_data_train(**kwargs):
@@ -65,6 +65,8 @@ def handle_data_test():
     logging.info('Handling Data Test')
     # create new features
     create_features(cfg.data_test)
+    cfg.ALL_FEATURES = cfg.ALL_FEATURES_TEST
+    cfg.CATEGORICAL_FEATURES = cfg.CATEGORICAL_FEATURES
     models.predict_isolation_forest()
     models.predict_lscp()
     models.predict_knn()
@@ -79,7 +81,9 @@ def set_contamination():
 
 def create_features(df):
     logging.info('Creating pre-defined features')
-    cfg.x_data_temp = generate_new_features(df)
+    cfg.x_data_temp = df
+    cfg.x_data_temp = generate_new_features(cfg.x_data_temp)
+    cfg.x_data_temp = cfg.x_data_temp.toPandas()
 
 
 def generate_new_features(data):
@@ -98,10 +102,9 @@ def get_type_operation(data):
 
 def get_value_strategy(data):
     avg_value = data.agg({cfg.COLUMN_VALUE: 'avg'}).collect()[0][0]
-    data = data.withColumn('ValueStrategy', when(col(cfg.COLUMN_VALUE) > avg_value * 100, 3).when(col(cfg.COLUMN_VALUE)
-                                                                                                  > avg_value * 10, 2)
-                           .when(col(cfg.COLUMN_VALUE)
-                                 > avg_value * 2, 1)
+    data = data.withColumn('ValueStrategy', when(col(cfg.COLUMN_VALUE) > avg_value * 100, 3)
+                                            .when(col(cfg.COLUMN_VALUE) > avg_value * 10, 2)
+                                            .when(col(cfg.COLUMN_VALUE) > avg_value * 2, 1)
                            .otherwise(0))
     return data
 
@@ -148,7 +151,7 @@ def get_value_ratio(data, item):
 def set_df_from_data_train(**kwargs):
     logging.info('Splitting data')
     # converting to pandas
-    data = cfg.x_data_temp.toPandas()
+    data = cfg.x_data_temp
     # get back the data
     cfg.x_data_temp = data[cfg.ALL_FEATURES]
     if 'test' not in kwargs:
@@ -233,7 +236,8 @@ def extract_data_validation(**kwargs):
 def evaluate_model(mode):
     logging.info(evaluate_model.__name__)
     models.predict_cat_boost(mode)
-    export_cat_boost_validate()
+    if mode is 'VALID':
+        export_cat_boost_validate()
 
 
 def export_cat_boost_validate():
@@ -264,7 +268,7 @@ def export_data_valid_result(**kwargs):
 
 def export_data_test_result(**kwargs):
     logging.info(export_data_test_result.__name__)
-    save_predictions_xente(kwargs['output_valid_result_file'],
+    save_predictions_xente(kwargs['output_test_result_file'],
                            cfg.x_to_predict_catboost['TransactionId'],
                            cfg.x_to_predict_catboost['CatBoost'])
 
@@ -344,7 +348,7 @@ def get_features_augmentation(data):
             data = data.join(aux, on=item)
             if statistical_type == "avg":
                 ratio_column_name = 'rt_avg_ps_{0}'.format(item)
-                data = data.withColumn(ratio_column_name,(col('PositiveAmount') - col(column_name)) / col(column_name))
+                data = data.withColumn(ratio_column_name, (col('PositiveAmount') - col(column_name)) / col(column_name))
     return data
 
 

@@ -1,5 +1,6 @@
 import config as cfg
 import handler as hdl
+import pickle
 
 
 def train_isolation_forest():
@@ -8,6 +9,8 @@ def train_isolation_forest():
     set_model_if()
     cfg.model_if = get_model_if()
     cfg.model_if.fit(cfg.x_train_numerical, cfg.y_train)
+    with open('../data/model_if', 'wb') as f:
+        pickle.dump(cfg.model_if, f)
 
 
 def set_model_if():
@@ -25,7 +28,9 @@ def get_model_if():
 def predict_isolation_forest():
     hdl.outside_log(predict_isolation_forest.__module__,
                     predict_isolation_forest.__name__)
-    cfg.model_if = get_model_if()
+    if not cfg.model_if:
+        with open('../data/model_if', 'rb') as pickle_file:
+            cfg.model_if = pickle.load(pickle_file)
     predictions = cfg.model_if.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
     cfg.x_data_temp[cfg.IF_COLUMN_NAME] = predictions
     cfg.x_data_temp = cfg.x_data_temp.replace({cfg.IF_COLUMN_NAME: 1}, 0)
@@ -38,6 +43,8 @@ def train_lscp():
     set_model_lscp()
     cfg.model_lscp = get_model_lscp()
     cfg.model_lscp.fit(cfg.x_train_numerical, cfg.y_train)
+    with open('../data/model_lscp', 'wb') as f:
+        pickle.dump(cfg.model_lscp, f)
 
 
 def set_model_lscp():
@@ -56,6 +63,9 @@ def get_model_lscp():
 def predict_lscp():
     hdl.outside_log(predict_lscp.__module__,
                     predict_lscp.__name__)
+    if not cfg.model_lscp:
+        with open('../data/model_lscp', 'rb') as pickle_file:
+            cfg.model_lscp = pickle.load(pickle_file)
     predictions = cfg.model_lscp.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
     cfg.x_data_temp[cfg.LSCP_COLUMN_NAME] = predictions
 
@@ -66,6 +76,8 @@ def train_knn():
     set_model_knn()
     cfg.model_knn = get_model_knn()
     cfg.model_knn.fit(cfg.x_train_numerical, cfg.y_train)
+    with open('../data/model_knn', 'wb') as f:
+        pickle.dump(cfg.model_knn, f)
 
 
 def set_model_knn():
@@ -83,6 +95,9 @@ def get_model_knn():
 def predict_knn():
     hdl.outside_log(predict_knn.__module__,
                     predict_knn.__name__)
+    if not cfg.model_knn:
+        with open('../data/model_knn', 'rb') as pickle_file:
+            cfg.model_knn = pickle.load(pickle_file)
     predictions = cfg.model_knn.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
     cfg.x_data_temp[cfg.KNN_COLUMN_NAME] = predictions
 
@@ -131,11 +146,21 @@ def predict_cat_boost(mode):
                     predict_cat_boost.__name__)
     cfg.model_cat_boost = set_model_cat_boost()
     cfg.model_cat_boost.load_model(fname=cfg.model_catboost_file)
-    cfg.predictions = cfg.model_cat_boost.predict(cfg.x_to_predict_catboost)
+    cfg.predictions = cfg.model_cat_boost.predict(cfg.x_to_predict_catboost[cfg.ALL_FEATURES])
     cfg.x_to_predict_catboost['CatBoost'] = cfg.predictions
     if mode is 'VALID':
         cfg.x_to_predict_catboost['FraudResult'] = cfg.y_valid
 
+
+def set_model_cat_boost():
+    from catboost import CatBoostClassifier
+    clf_cat_boost = CatBoostClassifier(depth=cfg.DEPTH_CATBOOST,
+                                       learning_rate=cfg.LEARNING_RATE_CATBOOST,
+                                       l2_leaf_reg=cfg.L2_CATBOOST,
+                                       eval_metric=cfg.EVAL_METRIC,
+                                       task_type=cfg.TYPE_DEVICE_CATBOOST,
+                                       random_seed=cfg.RANDOM_NUMBER)
+    return clf_cat_boost
 
 
 def set_model_bagging():
@@ -185,13 +210,3 @@ def set_model_smotenc():
 def get_model_smotenc():
     return cfg.model_smotenc
 
-
-def set_model_cat_boost():
-    from catboost import CatBoostClassifier
-    clf_cat_boost = CatBoostClassifier(depth=cfg.DEPTH_CATBOOST,
-                                       learning_rate=cfg.LEARNING_RATE_CATBOOST,
-                                       l2_leaf_reg=cfg.L2_CATBOOST,
-                                       eval_metric=cfg.EVAL_METRIC,
-                                       task_type=cfg.TYPE_DEVICE_CATBOOST,
-                                       random_seed=cfg.RANDOM_NUMBER)
-    return clf_cat_boost

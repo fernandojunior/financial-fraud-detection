@@ -11,11 +11,9 @@ def plot_target_distribution():
     hdl.outside_log(plot_target_distribution.__module__,
                     plot_target_distribution.__name__)
     sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
-    fg = pd.Series(cfg.y_train_balanced[cfg.LABEL])\
-                        .value_counts()\
-                        .plot\
-                        .bar(title='SMOTENC Output')
-    fg.plot() 
+    fg = pd.Series(cfg.y_train_balanced[cfg.LABEL]).\
+        value_counts().plot.bar(title='SMOTENC Output')
+    fg.plot()
     plt.show()
 
 
@@ -35,14 +33,14 @@ def plot_heatmap(flag):
     cm = np.corrcoef(data_pd[cols].values.T)
     sns.set(font_scale=1.25,
             rc={'figure.figsize': (15, 15)})
-    hm = sns.heatmap(cm,
-                     cbar=True,
-                     annot=True,
-                     square=True,
-                     fmt='.3f',
-                     annot_kws={'size': 8},
-                     yticklabels=cols.values,
-                     xticklabels=cols.values)
+    sns.heatmap(cm,
+                cbar=True,
+                annot=True,
+                square=True,
+                fmt='.3f',
+                annot_kws={'size': 8},
+                yticklabels=cols.values,
+                xticklabels=cols.values)
     plt.show()
 
 
@@ -60,7 +58,9 @@ def plot_feature_importance():
     expected_value = shap_values[0, -1]
     shap_values = shap_values[:, :-1]
     # visualize the first prediction's explanation
-    shap.force_plot(expected_value, shap_values[200, :], cfg.x_train_balanced.iloc[200, :])
+    shap.force_plot(expected_value,
+                    shap_values[200, :],
+                    cfg.x_train_balanced.iloc[200, :])
     plt.show()
 
 
@@ -104,19 +104,29 @@ def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
         plt.ylim(*ylim)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    train_sizes, train_scores, test_scores = learning_curve(
-        estimator, x_data, y_data, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
+    train_sizes, train_scores, test_scores = \
+        learning_curve(estimator,
+                       x_data,
+                       y_data,
+                       cv=cv,
+                       n_jobs=n_jobs,
+                       train_sizes=train_sizes)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
     plt.grid()
 
-    plt.fill_between(train_sizes, train_scores_mean - train_scores_std,
-                     train_scores_mean + train_scores_std, alpha=0.1,
+    plt.fill_between(train_sizes,
+                     train_scores_mean - train_scores_std,
+                     train_scores_mean + train_scores_std,
+                     alpha=0.1,
                      color="r")
-    plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
-                     test_scores_mean + test_scores_std, alpha=0.1, color="g")
+    plt.fill_between(train_sizes,
+                     test_scores_mean - test_scores_std,
+                     test_scores_mean + test_scores_std,
+                     alpha=0.1,
+                     color="g")
     plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
              label="Training score")
     plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
@@ -135,21 +145,37 @@ def plot_transactions_proportions(data, column="ProductCategory"):
     x_var = "value"
 
     genuine_data = data.filter(genuine_condition).groupBy(column).count()
-    genuine_data = genuine_data.withColumnRenamed(default_column_name, gen_column_name)
+    genuine_data = genuine_data.withColumnRenamed(default_column_name,
+                                                  gen_column_name)
 
     fraudulent_data = data.filter(fraud_condition).groupBy(column).count()
-    fraudulent_data = fraudulent_data.withColumnRenamed(default_column_name, fraud_column_name)
+    fraudulent_data = fraudulent_data.withColumnRenamed(default_column_name,
+                                                        fraud_column_name)
 
-    aggregated_data_spark = genuine_data.join(fraudulent_data, on=[column], how='left_outer')
-    aggregated_data_spark = aggregated_data_spark.fillna({fraud_column_name: '0'})
+    aggregated_data_spark = genuine_data.join(fraudulent_data,
+                                              on=[column],
+                                              how='left_outer')
+    aggregated_data_spark = \
+        aggregated_data_spark.fillna({fraud_column_name: '0'})
 
     aggregate_data_pd = aggregated_data_spark.toPandas()
-    aggregate_data_pd[gen_column_name] = aggregate_data_pd[gen_column_name]/sum(aggregate_data_pd[gen_column_name])
-    aggregate_data_pd[fraud_column_name] = aggregate_data_pd[fraud_column_name]/sum(aggregate_data_pd[fraud_column_name])
-    aggregate_data_pd = pd.melt(aggregate_data_pd, id_vars=column,
-                                value_vars=[fraud_column_name, gen_column_name], value_name=x_var)
+    aggregate_data_pd[gen_column_name] = \
+        aggregate_data_pd[gen_column_name] /\
+        sum(aggregate_data_pd[gen_column_name])
+    aggregate_data_pd[fraud_column_name] = \
+        aggregate_data_pd[fraud_column_name] /\
+        sum(aggregate_data_pd[fraud_column_name])
+    aggregate_data_pd = pd.melt(aggregate_data_pd,
+                                id_vars=column,
+                                value_vars=[fraud_column_name,
+                                            gen_column_name],
+                                value_name=x_var)
 
-    sns.catplot(y=column, hue='variable', x=x_var, kind='bar', data=aggregate_data_pd)
+    sns.catplot(y=column,
+                hue='variable',
+                x=x_var,
+                kind='bar',
+                data=aggregate_data_pd)
     plt.show()
 
 
@@ -173,16 +199,19 @@ def plot_performance_comparison(data, x='max', y='score', hue='contamination'):
     sns.set(style='darkgrid')
     sns.lineplot(x=x, y=y, hue=hue, data=data)
     better_performance = data[data.score == data.score.max()].iloc[0]
-    title = 'Better score: {0:.1f}\nMax sample: {1}\nContamination level: {2}'.format(
-        better_performance[y], better_performance[x], better_performance[hue]
-    )
+    title = 'Better score: {0:.1f}\n' \
+            'Max sample: {1}\n' \
+            'Contamination level: {2}'.format(better_performance[y],
+                                              better_performance[x],
+                                              better_performance[hue])
     plt.title(title)
     plt.show()
 
 
 def plot_hist(data, feature_columns, label_type):
     column = 'FraudResult == {0}'.format('1' if label_type else '0')
-    data.filter(column).toPandas().hist(column=feature_columns, figsize=(15, 15))
+    data.filter(column).toPandas().hist(column=feature_columns,
+                                        figsize=(15, 15))
     plt.show()
 
 
@@ -198,14 +227,14 @@ def plot_correlation(data, label='FraudResult', k=15):
     cols = corr_matrix.nlargest(k, label)[label].index
     cm = np.corrcoef(data_pd[cols].values.T)
     sns.set(font_scale=1.25)
-    hm = sns.heatmap(cm,
-                     cbar=True,
-                     annot=True,
-                     square=True,
-                     fmt='.1f',
-                     annot_kws={'size': 8},
-                     yticklabels=cols.values,
-                     xticklabels=cols.values)
+    sns.heatmap(cm,
+                cbar=True,
+                annot=True,
+                square=True,
+                fmt='.1f',
+                annot_kws={'size': 8},
+                yticklabels=cols.values,
+                xticklabels=cols.values)
     plt.show()
 
 

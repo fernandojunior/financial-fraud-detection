@@ -1,33 +1,34 @@
+from pyspark.sql import SparkSession
 import findspark
 findspark.init()
-from pyspark.sql import SparkSession
+
 spark = SparkSession.builder.appName('Xente').getOrCreate()
 
 ITEMS_LIST = ['ProductId', 'ProviderId']
 COLUMN_VALUE = 'Value'
 LABEL = 'FraudResult'
-ALL_FEATURES = ['ProviderId','ProductId','TransactionId',
-                'BatchId','ProductCategory','ChannelId',
-                'PricingStrategy','Value','Operation','Hour',
-                'DayOfWeek','WeekOfYear',
-                'Vl_per_weekYr','Vl_per_dayWk',
-                'rt_avg_vl_ProductId','rt_avg_vl_ProviderId']
-ALL_FEATURES_TEST = ['ProviderId','ProductId','TransactionId',
-                'BatchId','ProductCategory','ChannelId',
-                'PricingStrategy','Value','Operation','Hour',
-                'DayOfWeek','WeekOfYear',
-                'Vl_per_weekYr','Vl_per_dayWk',
-                'rt_avg_vl_ProductId','rt_avg_vl_ProviderId']
-CATEGORICAL_FEATURES = ['ProviderId','ProductId','TransactionId',
-                        'BatchId','ProductCategory','ChannelId',
+ALL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
+                'BatchId', 'ProductCategory', 'ChannelId',
+                'PricingStrategy', 'Value', 'Operation', 'Hour',
+                'DayOfWeek', 'WeekOfYear',
+                'Vl_per_weekYr', 'Vl_per_dayWk',
+                'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+ALL_FEATURES_TEST = ['ProviderId', 'ProductId', 'TransactionId',
+                     'BatchId', 'ProductCategory', 'ChannelId',
+                     'PricingStrategy', 'Value', 'Operation', 'Hour',
+                     'DayOfWeek', 'WeekOfYear',
+                     'Vl_per_weekYr', 'Vl_per_dayWk',
+                     'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+CATEGORICAL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
+                        'BatchId', 'ProductCategory', 'ChannelId',
                         'PricingStrategy']
-CATEGORICAL_FEATURES_TEST = ['ProviderId','ProductId','TransactionId',
-                        'BatchId','ProductCategory','ChannelId',
-                        'PricingStrategy']
-NUMERICAL_FEATURES = ['Value','Operation','Hour',
-                      'DayOfWeek','WeekOfYear',
-                      'Vl_per_weekYr','Vl_per_dayWk',
-                      'rt_avg_vl_ProductId','rt_avg_vl_ProviderId']
+CATEGORICAL_FEATURES_TEST = ['ProviderId', 'ProductId', 'TransactionId',
+                             'BatchId', 'ProductCategory', 'ChannelId',
+                             'PricingStrategy']
+NUMERICAL_FEATURES = ['Value', 'Operation', 'Hour',
+                      'DayOfWeek', 'WeekOfYear',
+                      'Vl_per_weekYr', 'Vl_per_dayWk',
+                      'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
 
 categorical_features_dims = 0
 all_features_dims = 0
@@ -79,4 +80,3 @@ IF_COLUMN_NAME = 'IsolationForest'
 LSCP_COLUMN_NAME = 'LSCP'
 KNN_COLUMN_NAME = 'KNN'
 COUNT_COLUMN_NAME = 'CountDetection'
-

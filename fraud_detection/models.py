@@ -66,7 +66,8 @@ def predict_lscp():
     if not cfg.model_lscp:
         with open('../data/model_lscp', 'rb') as pickle_file:
             cfg.model_lscp = pickle.load(pickle_file)
-    predictions = cfg.model_lscp.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
+    predictions = cfg.model_lscp.predict(
+        cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
     cfg.x_data_temp[cfg.LSCP_COLUMN_NAME] = predictions
 
 
@@ -98,7 +99,8 @@ def predict_knn():
     if not cfg.model_knn:
         with open('../data/model_knn', 'rb') as pickle_file:
             cfg.model_knn = pickle.load(pickle_file)
-    predictions = cfg.model_knn.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
+    predictions = cfg.model_knn.predict(
+        cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
     cfg.x_data_temp[cfg.KNN_COLUMN_NAME] = predictions
 
 
@@ -122,10 +124,12 @@ def make_grid_search_cat_boost():
             'depth': cfg.DEPTH_LIST,
             'l2_leaf_reg': cfg.LEAF_REG_LIST}
 
-    grid_search_result = model_cat_boost.grid_search(grid,
-                                                     X=cfg.x_train_balanced[hdl.get_categorical_features()],
-                                                     y=cfg.y_train_balanced,
-                                                     plot=True)
+    grid_search_result = \
+        model_cat_boost.grid_search(grid,
+                                    X=cfg.x_train_balanced[
+                                        hdl.get_categorical_features()],
+                                    y=cfg.y_train_balanced,
+                                    plot=True)
     return grid_search_result
 
 
@@ -146,31 +150,23 @@ def predict_cat_boost(mode):
                     predict_cat_boost.__name__)
     cfg.model_cat_boost = set_model_cat_boost()
     cfg.model_cat_boost.load_model(fname=cfg.model_catboost_file)
-    cfg.predictions = cfg.model_cat_boost.predict(cfg.x_to_predict_catboost[cfg.ALL_FEATURES])
+    cfg.predictions = cfg.model_cat_boost.predict(
+        cfg.x_to_predict_catboost[cfg.ALL_FEATURES])
     cfg.x_to_predict_catboost['CatBoost'] = cfg.predictions
-    if mode is 'VALID':
+    if mode == 'VALID':
         cfg.x_to_predict_catboost['FraudResult'] = cfg.y_valid
 
 
 def set_model_cat_boost():
     from catboost import CatBoostClassifier
-    clf_cat_boost = CatBoostClassifier(depth=cfg.DEPTH_CATBOOST,
-                                       learning_rate=cfg.LEARNING_RATE_CATBOOST,
-                                       l2_leaf_reg=cfg.L2_CATBOOST,
-                                       eval_metric=cfg.EVAL_METRIC,
-                                       task_type=cfg.TYPE_DEVICE_CATBOOST,
-                                       random_seed=cfg.RANDOM_NUMBER)
+    clf_cat_boost = CatBoostClassifier(
+        depth=cfg.DEPTH_CATBOOST,
+        learning_rate=cfg.LEARNING_RATE_CATBOOST,
+        l2_leaf_reg=cfg.L2_CATBOOST,
+        eval_metric=cfg.EVAL_METRIC,
+        task_type=cfg.TYPE_DEVICE_CATBOOST,
+        random_seed=cfg.RANDOM_NUMBER)
     return clf_cat_boost
-
-
-def set_model_bagging():
-    from pyod.models.feature_bagging import FeatureBagging
-    clf_feat_bag = FeatureBagging(contamination=cfg.percent_contamination,
-                                  combination='max',
-                                  n_estimators=cfg.NUM_ESTIMATORS,
-                                  random_state=cfg.RANDOM_NUMBER,
-                                  n_jobs=cfg.N_JOBS)
-    return clf_feat_bag
 
 
 def set_model_bagging():
@@ -202,11 +198,11 @@ def set_model_cblof():
 
 def set_model_smotenc():
     from imblearn.over_sampling import SMOTENC
-    cfg.model_smotenc = SMOTENC(categorical_features=cfg.categorical_features_dims,
-                                random_state=cfg.RANDOM_NUMBER,
-                                n_jobs=cfg.N_JOBS)
+    cfg.model_smotenc = SMOTENC(
+        categorical_features=cfg.categorical_features_dims,
+        random_state=cfg.RANDOM_NUMBER,
+        n_jobs=cfg.N_JOBS)
 
 
 def get_model_smotenc():
     return cfg.model_smotenc
-

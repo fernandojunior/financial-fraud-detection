@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 import findspark
 findspark.init()
 
-spark = SparkSession.builder.appName('Xente').getOrCreate()
+SPARK = SparkSession.builder.appName('Xente').getOrCreate()
 
 ITEMS_LIST = ['ProductId', 'ProviderId']
 COLUMN_VALUE = 'Value'

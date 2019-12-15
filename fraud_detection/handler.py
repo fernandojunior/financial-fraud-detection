@@ -1,12 +1,16 @@
 import logging
+import os.path
 
 import pandas as pd
+import sklearn.model_selection as sk_ml
+from sklearn.metrics import precision_recall_fscore_support as score
 from pyspark.sql.functions import (when, col, hour, dayofweek,
                                    weekofyear, dayofyear)
 
 import config as cfg
 import models
 import visualization as vis
+
 
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,
@@ -15,8 +19,8 @@ logging.basicConfig(filename='log_file.log',
                            '%(funcName)s\n\t%(message)s')
 
 
-def outside_log(s1, s2):
-    logging.info(s1 + '.py :: ' + s2)
+def outside_log(string_1, string_2):
+    logging.info(string_1 + '.py :: ' + string_2)
 
 
 def extract_data_train(**kwargs):
@@ -36,7 +40,7 @@ def read_data(file_name):
     a path to a local file.
     :return: spark dataframe.
     """
-    data = cfg.spark.read.csv(file_name, header=True, inferSchema=True)
+    data = cfg.SPARK.read.csv(file_name, header=True, inferSchema=True)
     return data
 
 
@@ -83,9 +87,9 @@ def set_contamination():
         (cfg.data_train.count())
 
 
-def create_features(df):
+def create_features(input_data):
     logging.info('Creating pre-defined features')
-    cfg.x_data_temp = df
+    cfg.x_data_temp = input_data
     cfg.x_data_temp = generate_new_features(cfg.x_data_temp)
     cfg.x_data_temp = cfg.x_data_temp.toPandas()
 
@@ -205,7 +209,6 @@ def add_outlier_features_to_list():
 
 def split_train_val(**kwargs):
     logging.info('Splitting data Train/Validation')
-    import sklearn.model_selection as sk_ml
     cfg.x_train, cfg.x_valid, cfg.y_train, cfg.y_valid = \
         sk_ml.train_test_split(cfg.x_train[cfg.ALL_FEATURES],
                                cfg.y_train,
@@ -224,10 +227,9 @@ def export_csv_to_validation(**kwargs):
 
 def balance_oversampling(**kwargs):
     logging.info('Balancing the train data')
-    from models import smotenc_over_sampler
-    x, y = smotenc_over_sampler()
-    cfg.x_train_balanced = pd.DataFrame(x, columns=cfg.ALL_FEATURES)
-    cfg.y_train_balanced = pd.DataFrame(y, columns=[cfg.LABEL])
+    x_train, y_train = models.smotenc_over_sampler()
+    cfg.x_train_balanced = pd.DataFrame(x_train, columns=cfg.ALL_FEATURES)
+    cfg.y_train_balanced = pd.DataFrame(y_train, columns=[cfg.LABEL])
     export_data_balanced(**kwargs)
     vis.plot_target_distribution()
 
@@ -268,8 +270,7 @@ def evaluate_model(mode):
 
 def export_cat_boost_validate():
     logging.info(export_cat_boost_validate.__name__)
-    from sklearn.metrics import precision_recall_fscore_support as score
-    precision, recall, f_score, support = \
+    precision, recall, f_score, _ = \
         score(cfg.x_to_predict_catboost['FraudResult'],
               cfg.x_to_predict_catboost['CatBoost'])
 
@@ -307,7 +308,6 @@ def export_data_test_result(**kwargs):
 
 def is_missing_file_test(**kwargs):
     logging.info('Finding Data Balanced to Valid')
-    import os.path
     ans = os.path.exists(kwargs['input_test_file'])
     return ans
 

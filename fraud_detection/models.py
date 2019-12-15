@@ -1,6 +1,16 @@
+import pickle
+
+from pyod.models.knn import KNN
+from pyod.models.lof import LOF
+from pyod.models.lscp import LSCP
+from pyod.models.cblof import CBLOF
+from pyod.models.feature_bagging import FeatureBagging
+from sklearn.ensemble import IsolationForest
+from imblearn.over_sampling import SMOTENC
+from catboost import CatBoostClassifier
+
 import config as cfg
 import handler as hdl
-import pickle
 
 
 def train_isolation_forest():
@@ -9,12 +19,11 @@ def train_isolation_forest():
     set_model_if()
     cfg.model_if = get_model_if()
     cfg.model_if.fit(cfg.x_train_numerical, cfg.y_train)
-    with open('../data/model_if', 'wb') as f:
-        pickle.dump(cfg.model_if, f)
+    with open('../data/model_if', 'wb') as file_model:
+        pickle.dump(cfg.model_if, file_model)
 
 
 def set_model_if():
-    from sklearn.ensemble import IsolationForest
     cfg.model_if = IsolationForest(behaviour='new',
                                    random_state=cfg.RANDOM_NUMBER,
                                    contamination=cfg.percent_contamination,
@@ -43,12 +52,11 @@ def train_lscp():
     set_model_lscp()
     cfg.model_lscp = get_model_lscp()
     cfg.model_lscp.fit(cfg.x_train_numerical, cfg.y_train)
-    with open('../data/model_lscp', 'wb') as f:
-        pickle.dump(cfg.model_lscp, f)
+    with open('../data/model_lscp', 'wb') as file_model:
+        pickle.dump(cfg.model_lscp, file_model)
 
 
 def set_model_lscp():
-    from pyod.models.lscp import LSCP
     cfg.model_lscp = LSCP(detector_list=[set_model_bagging(),
                                          set_model_lof(),
                                          set_model_cblof()],
@@ -77,12 +85,11 @@ def train_knn():
     set_model_knn()
     cfg.model_knn = get_model_knn()
     cfg.model_knn.fit(cfg.x_train_numerical, cfg.y_train)
-    with open('../data/model_knn', 'wb') as f:
-        pickle.dump(cfg.model_knn, f)
+    with open('../data/model_knn', 'wb') as file_model:
+        pickle.dump(cfg.model_knn, file_model)
 
 
 def set_model_knn():
-    from pyod.models.knn import KNN
     cfg.model_knn = KNN(contamination=cfg.percent_contamination,
                         n_neighbors=cfg.NUM_NEIGHBORS,
                         method='mean',
@@ -108,15 +115,16 @@ def smotenc_over_sampler():
     hdl.outside_log(smotenc_over_sampler.__module__,
                     smotenc_over_sampler.__name__)
     set_model_smotenc()
-    sm = get_model_smotenc()
-    x, y = sm.fit_resample(cfg.x_train, cfg.y_train)
-    return x, y
+    clf_smotenc = get_model_smotenc()
+    x_balanced, y_balanced = clf_smotenc.fit_resample(cfg.x_train, cfg.y_train)
+    return x_balanced, y_balanced
 
 
 def make_grid_search_cat_boost():
     hdl.outside_log(make_grid_search_cat_boost.__module__,
                     make_grid_search_cat_boost.__name__)
 
+    model_cat_boost = []
     if not cfg.model_cat_boost:
         model_cat_boost = cfg.model_cat_boost
 
@@ -158,7 +166,6 @@ def predict_cat_boost(mode):
 
 
 def set_model_cat_boost():
-    from catboost import CatBoostClassifier
     clf_cat_boost = CatBoostClassifier(
         depth=cfg.DEPTH_CATBOOST,
         learning_rate=cfg.LEARNING_RATE_CATBOOST,
@@ -170,7 +177,6 @@ def set_model_cat_boost():
 
 
 def set_model_bagging():
-    from pyod.models.feature_bagging import FeatureBagging
     clf_feat_bag = FeatureBagging(contamination=cfg.percent_contamination,
                                   combination='max',
                                   n_estimators=cfg.NUM_ESTIMATORS,
@@ -180,7 +186,6 @@ def set_model_bagging():
 
 
 def set_model_lof():
-    from pyod.models.lof import LOF
     clf_lof = LOF(contamination=cfg.percent_contamination,
                   n_neighbors=cfg.NUM_NEIGHBORS,
                   n_jobs=cfg.N_JOBS)
@@ -188,7 +193,6 @@ def set_model_lof():
 
 
 def set_model_cblof():
-    from pyod.models.cblof import CBLOF
     clf_cblof = CBLOF(contamination=cfg.percent_contamination,
                       n_clusters=cfg.NUM_CLUSTERS,
                       random_state=cfg.RANDOM_NUMBER,
@@ -197,7 +201,6 @@ def set_model_cblof():
 
 
 def set_model_smotenc():
-    from imblearn.over_sampling import SMOTENC
     cfg.model_smotenc = SMOTENC(
         categorical_features=cfg.categorical_features_dims,
         random_state=cfg.RANDOM_NUMBER,

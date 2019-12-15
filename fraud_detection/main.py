@@ -34,10 +34,6 @@ def validate(**kwargs):
     --output_valid_result_file ../data/valid_result.csv
     """
     hdl.outside_log(validate.__name__, '...Init...')
-    if not hdl.is_missing_file_validation:
-        print('------------ No Model Trained Found ------------')
-        sys.exit()
-
     hdl.extract_data_validation(**kwargs)
     hdl.evaluate_model('VALID')
     hdl.export_data_valid_result(**kwargs)

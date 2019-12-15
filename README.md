@@ -1,12 +1,11 @@
 [![Build Status](https://travis-ci.com/italoPontes/fraud_detection.svg?token=xCXQ5y8dztyVs3aHPJLA&branch=master)](https://travis-ci.com/italoPontes/fraud_detection)
 
 # Fraud Detection
-> Simple project description.
+> The objective of this machine learning model is detect fraudulent transactions in the financial services sector.
 
-The objective of this machine learning model is detect fraudulent transactions in the financial services sector.
 
 ## Stakeholders
-> Describe the people involved in this project
+> People involved in this project
 
 | Role                 | Responsibility         | Full name                | e-mail       |
 | -----                | ----------------       | -----------              | ---------    |
@@ -16,24 +15,25 @@ The objective of this machine learning model is detect fraudulent transactions i
 
 
 ## Usage
-> Describe how to reproduce your model
-
-Usage is standardized across models. There are two main things you need to know, the development workflow and the Makefile commands.
-
-Both are made super simple to work with Git and Docker while versioning experiments and workspace.
-
-All you'll need to have setup is Docker and Git, which you probably already have. If you don't, feel free to ask for help.
-
-Makefile commands can be accessed using `make help`.
-
-
-Make sure that **docker** is installed.
+> Describe how to reproduce the model
 
 Clone the project from the analytics Models repo.
 ```
 git clone https://github.com/<@github_username>/fraud_detection.git
 cd fraud_detection
 ```
+
+### Prerequisites
+
+We have tested the library in Ubuntu 19.04, 18.04 and 16.04, but it should be easy to compile in other platforms.
+
+#### Python
+
+The project was wrote in Python 3, and work with later as well.
+
+#### Libraries
+
+We also use the libraries: [CatBoost](https://catboost.ai/), [Scikit Learn](https://scikit-learn.org/stable/), [PyOD](https://pyod.readthedocs.io/en/latest/), [Pandas](https://pandas.pydata.org/) and [PySpark](https://spark.apache.org/).
 
 
 ## Final Report (to be filled once the project is done)

@@ -18,6 +18,13 @@ Automatically identify if a financial transaction was fraudulent or not.
 
 * If the choice if a test, the client can start to test the model predicting the transaction type using a text input file.
 
+## Code Review
+
+### File config.py
+
+* In this code file is possible to insert how many kernels is inteded to use in a couple of functionalities.
+
+* Set if will be used GPU or CPU to training the classification model.
 
 ## Documentation
 ### README
@@ -30,10 +37,9 @@ Automatically identify if a financial transaction was fraudulent or not.
 - Code is formatted with consistent, logical, and easy-to-read formatting as described in the [PEP 8](https://www.python.org/dev/peps/pep-0008/).
 
 ## Suggestions to Make Your Project Stand Out!
-- Add unique functionality beyond the minimum requirements (i.e. the ability to “favorite” a location, etc.).
-- Incorporate a build process allowing for production quality, minified code, to be delivered to the client.
+- Create new features based on correlation features matrix.
+- Incorporate news outlier detectors.
 - Data persists when the app is closed and reopened, either through localStorage or an external database (e.g. Firebase).
 - Include additional third-party data sources beyond the minimum required.
-- Style different markers in different (and functionally-useful) ways, depending on the data set.
-- Implement additional optimizations that improve the performance and user experience of the filter functionality (keyboard shortcuts, autocomplete functionality, filtering of multiple fields, etc).
+- Implement additional optimizations that improve the performance and user experience (keyboard shortcuts, autocomplete functionality, filtering of multiple fields, etc).
 - Integrate all application components into a cohesive and enjoyable user experience.

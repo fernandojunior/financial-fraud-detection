@@ -15,9 +15,7 @@
 
 
 ## Usage
-> Describe how to reproduce the model
-
-Clone the project from the analytics Models repo.
+Clone the repository:
 ```
 git clone https://github.com/<@github_username>/fraud_detection.git
 cd fraud_detection
@@ -29,7 +27,7 @@ We have tested the library in Ubuntu 19.04, 18.04 and 16.04, but it should be ea
 
 #### Python
 
-The project was wrote in Python 3, and work with later as well.
+The project was written in Python 3, and work with later as well.
 
 #### Libraries
 
@@ -61,11 +59,11 @@ python main.py run \
   --output_test_result_file ../data/xente_output_final.txt
 ```
 
-* input_train_file & input_test_file: train and test datasets available by [Zindi](https://zindi.africa/competitions/xente-fraud-detection-challenge/data).
-* output_balanced_train_x_file & output_balanced_train_y_file: 70% of the oversampled training dataset to work on the training step.
-* output_valid_x_file & output_valid_y_file: 30% of the training dataset saved on memory to be used in validation step.
-* output_valid_result_file: outcome from the classification model using validation data.
-* output_test_result_file: outcome from the classification model using test data.
+* **input_train_file** & **input_test_file**: train and test datasets available by [Zindi](https://zindi.africa/competitions/xente-fraud-detection-challenge/data).
+* **output_balanced_train_x_file** & **output_balanced_train_y_file**: 70% of the oversampled training dataset to work on the training step.
+* **output_valid_x_file** & **output_valid_y_file**: 30% of the training dataset saved on memory to be used in validation step.
+* **output_valid_result_file**: outcome from the classification model using validation data.
+* **output_test_result_file**: outcome from the classification model using test data.
 
 
 If that interested in work just a specific step (train, validate, or test), it is possible by:
@@ -73,9 +71,9 @@ If that interested in work just a specific step (train, validate, or test), it i
 python <mode> <--key> <keywords>
 ```
 
-* mode: run, train, validate, and test
-* --key: input_train_file, input_test_file, output_balanced_train_x_file, output_balanced_train_y_file, output_valid_x_file, output_valid_y_file, output_valid_result_file, output_test_result_file
-* keywords: file name in your choice
+* **mode**: run, train, validate, and test
+* **--key**: input_train_file, input_test_file, output_balanced_train_x_file, output_balanced_train_y_file, output_valid_x_file, output_valid_y_file, output_valid_result_file, output_test_result_file
+* **keywords**: file name in your choice
 
 For example:
 
@@ -85,27 +83,9 @@ python main.py test \
  --output_test_result_file ../data/xente_output_final.txt
 ```
 
-## Final Report (to be filled once the project is done)
-
 ### Model Frequency
 
-> Describe the interval frequency and estimated total time to run
-
-### Model updating
-
-> Describe how your model may be updated in the future
-
-### Maintenance
-
-> Describe how your model may be maintained in the future
-
-### Minimum viable product
-
-> Describe a minimum configuration that would be able to create a minimum viable product.
-
-### Early adopters
-
-> Describe any potential paying users for this product if it was available today. Also state a point of contact for each of them.
+The entire process is running over 11'44". To training and predict the outcomes by detector outliers, it happens over 2'42," and to train dataset oversampling happens over by 4'10".
 
 ## Documentation
 
@@ -117,7 +97,7 @@ python main.py test \
 #### Folder structure
 >Explain you folder strucure
 
-* [docs](./docs): contains documentation of the project
-* [analysis](./analysis/): contains notebooks of data and modeling experimentation.
-* [tests](./tests/): contains files used for unit tests.
+* [data](./data/): contains data files generated and used by the classification model.
+* [docs](./docs/): contains documentation of the project
 * [fraud_detection](./fraud_detection/): main Python package with source of the model.
+* [jupyter-notebook](./jupyter-notebook/): contains jupyter notebooks evaluation and modeling experimentation.

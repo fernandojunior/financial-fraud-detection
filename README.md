@@ -118,7 +118,7 @@ This project reviewed before the submission and respecting all criteria "meet sp
 
 * [project_specification.md](./docs/project_specification.md): gives a data-science oriented description of the project.
 
-* [model_report.md](./docs/model_report.md): describes the modeling performed.
+* [Overview and System Documentation]()**(Written in Portuguese)**
 
 
 #### Folder structure

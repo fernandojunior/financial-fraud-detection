@@ -28,19 +28,14 @@ We have tested the library in Ubuntu 19.04, 18.04 and 16.04, but it should be ea
 #### Python
 
 The project was written in Python 3, and work with later as well.
+Also, please read up the subsequent libraries that are used: [CatBoost](https://catboost.ai/), [Scikit Learn](https://scikit-learn.org/stable/), [PyOD](https://pyod.readthedocs.io/en/latest/), [Pandas](https://pandas.pydata.org/) and [PySpark](https://spark.apache.org/).
 
 #### Libraries
 
 Please make sure that it has installed all the required dependencies. 
-The install instructions can be found at: [CatBoost](https://catboost.ai/), [Scikit Learn](https://scikit-learn.org/stable/), [PyOD](https://pyod.readthedocs.io/en/latest/), [Pandas](https://pandas.pydata.org/) and [PySpark](https://spark.apache.org/).
-
-.. or running:
+A list of items to be installed using pip install can be running as following:
 ```
-pip install catboost
-pip install sckit-learn
-pip install pyod
-pip install pandas
-pip install pyspark
+pip install -r requirements.txt
 ```
 
 ### Running
@@ -95,7 +90,7 @@ The entire process is running over 11'44". To training and predict the outcomes 
 
 
 #### Folder structure
->Explain you folder strucure
+>Project Folder Structure and Files
 
 * [data](./data/): contains data files generated and used by the classification model.
 * [docs](./docs/): contains documentation of the project

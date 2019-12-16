@@ -1,4 +1,4 @@
-# Project specification : Fraud Detection
+# Project Specification : Fraud Detection
 
 ## Transaction Classification
 

@@ -4,13 +4,13 @@
 
 Automatically identify if a financial transaction was fraudulent or not.
 
-### Runing the system
+### Runing the System
 
-* Immediately before running the program, user is wrote to select a running type of the project: run, train, validate, and test.
+* Immediately before running the program, the user is written to select a running type of the project: run, train, validate, and test.
 
-* Once a running type is selected, the client needs insert by scripting key and respectives values about files used by the system.
+* Once the running type is selected, the client needs to insert by scripting key and respective values about files used by the system.
 
-### Files
+### Input Files
 
 * By insert running type, if the client's choice is run or train, can start the whole process of machine learn how to classify automatically if a transaction is genuine or fraud and generate an output file with the results.
 
@@ -18,13 +18,26 @@ Automatically identify if a financial transaction was fraudulent or not.
 
 * If the choice if a test, the client can start to test the model predicting the transaction type using a text input file.
 
-## Code Review
+## Setting Run Configuration
 
-### File config.py
+### File `config.py`
 
-* In this code file is possible to insert how many kernels is inteded to use in a couple of functionalities.
+* It is possible to insert how many kernels are intended to use in a couple of functionalities.
 
 * Set if will be used GPU or CPU to training the classification model.
+
+## Code Review
+
+### Use of Variables
+* Code uses variables to avoid magic numbers
+* Each variable name reflects the purpose of the value stored in it
+* Once initiated, the purpose of each variable is maintained throughout the program
+* No variables override `Python` built-in values (for example, `def`)
+
+### Use of Functions
+* Functions are used as tools to automate tasks which are likely to be repeated
+* Functions produce the appropriate output (typically with a return statement) from the appropriate input (function parameters)
+* No functions are longer than 18 lines of code (does not include blank lines, comments, or function definitions)
 
 ## Documentation
 ### README

@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
+from catboost import Pool
+import shap
 
 import config as cfg
 import handler as hdl
@@ -45,9 +47,6 @@ def plot_heatmap(flag):
 
 
 def plot_feature_importance():
-    from catboost import Pool
-    import shap
-
     shap.initjs()
     shap_values = cfg.model_cat_boost.get_feature_importance(
         Pool(cfg.x_train_balanced,

@@ -5,7 +5,10 @@ import handler as hdl
 
 
 def train(**kwargs):
-    """Load Dataframe, handle features and train model.
+    """In this function, It's followed this pipeline:
+    - Load input data frame (training)
+    - pre-processing the data
+     handle features and train model.
     $ python main.py train \
     --input_train_file ../data/xente_fraud_detection_train.csv \
     --output_balanced_train_x_file ../data/balanced_train_x.csv \
@@ -14,11 +17,12 @@ def train(**kwargs):
     --output_valid_y_file ../data/valid_y.csv
     """
     hdl.outside_log(train.__name__, '...Init Train...')
-    if hdl.extract_data_train(**kwargs):
+    training_data = hdl.read_train_data(kwargs['input_train_file'])
+    if training_data:
         hdl.outside_log(train.__name__, 'Input Data Not Found')
         sys.exit()
 
-    hdl.handle_data_train(**kwargs)
+    hdl.pre_process_train_data(**kwargs)
     hdl.split_train_val(**kwargs)
     hdl.balance_oversampling(**kwargs)
     hdl.train_model()
@@ -34,7 +38,7 @@ def validate(**kwargs):
     --output_valid_result_file ../data/valid_result.csv
     """
     hdl.outside_log(validate.__name__, '...Init...')
-    hdl.extract_data_validation(**kwargs)
+    hdl.read_validation_data(**kwargs)
     hdl.evaluate_model('VALID')
     hdl.export_data_valid_result(**kwargs)
     print('------------ Finish Validation ------------')
@@ -48,7 +52,8 @@ def test(**kwargs):
     --output_test_result_file ../data/xente_output_final.txt
     """
     hdl.outside_log(test.__name__, '...Init Test...')
-    if hdl.extract_data_test(**kwargs):
+    testing_data = hdl.read_train_data(kwargs['input_test_file'])
+    if testing_data:
         hdl.outside_log(test.__name__, 'Input Data Not Found')
         sys.exit()
 

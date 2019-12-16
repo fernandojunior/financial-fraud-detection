@@ -11,6 +11,10 @@ import config as cfg
 import models
 import visualization as vis
 
+from pyspark.sql import SparkSession
+import findspark
+findspark.init()
+SPARK = SparkSession.builder.appName('Xente').getOrCreate()
 
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,
@@ -29,16 +33,6 @@ def outside_log(function_name, message):
     logging.info(function_name + '.py :: ' + message)
 
 
-def read_train_data(**kwargs):
-    """Read train data.
-
-    Args:
-        kwargs[input_train_file] (str): file name for train data.
-    """
-    logging.info('Loading train data')
-    cfg.data_train = read_data(kwargs['input_train_file'])
-
-
 def read_validation_data(**kwargs):
     """Read validation data.
 
@@ -55,27 +49,17 @@ def read_validation_data(**kwargs):
     cfg.x_to_predict_catboost = cfg.x_validation
 
 
-def read_test_data(**kwargs):
-    """Read test data.
-
-    Args:
-        kwargs[input_test_file] (str): file name for test data.
-    """
-    logging.info('Loading test data')
-    cfg.data_test = read_data(kwargs['input_test_file'])
-
-
 def read_data(file_name):
     """Read data frame in Spark format.
 
     Args:
-        file_name (str): input file name for data set,
+        kwargs[input_file_name] (str): input file name for data set,
         could be a url or a path to a local file.
 
     Returns:
         Spark data frame: data set read.
     """
-    data = cfg.SPARK.read.csv(file_name,
+    data = SPARK.read.csv(file_name,
                               header=True,
                               inferSchema=True)
     return data

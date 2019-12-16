@@ -14,39 +14,61 @@ import handler as hdl
 
 
 def train_isolation_forest():
+    """Fit the Isolation Forest model using the training data.
+    Save the weights in output file.
+    """
     hdl.outside_log(train_isolation_forest.__module__,
                     train_isolation_forest.__name__)
-    set_model_if()
-    cfg.model_if = get_model_if()
-    cfg.model_if.fit(cfg.x_train_numerical, cfg.y_train)
+    set_isolation_forest_model()
+    cfg.model_isolation_forest = get_isolation_forest_model()
+    cfg.model_isolation_forest.fit(cfg.x_train_numerical, cfg.y_train)
     with open('../data/model_if', 'wb') as file_model:
-        pickle.dump(cfg.model_if, file_model)
+        pickle.dump(cfg.model_isolation_forest, file_model)
 
 
-def set_model_if():
-    cfg.model_if = IsolationForest(behaviour='new',
+def set_isolation_forest_model():
+    """Save the model trained in local model to keep in memory to run
+    in other parts of the code.
+    """
+    cfg.model_isolation_forest = IsolationForest(behaviour='new',
                                    random_state=cfg.RANDOM_NUMBER,
-                                   contamination=cfg.percent_contamination,
+                                   contamination=cfg.percentage_of_fraudulent_transactions,
                                    n_jobs=cfg.N_JOBS)
 
 
-def get_model_if():
-    return cfg.model_if
+def get_isolation_forest_model():
+    """Retrieve the Isolation Forest model.
+    """
+    return cfg.model_isolation_forest
 
 
 def predict_isolation_forest():
+    """Generate predictions using the Isolation Forest model.
+    This model require the previous model trained or the weights to load.
+    The predictions are made using only numerical features.
+    A new column is created with the predictions made by Isolation
+    Forest model.
+    The prediction are converted to keep the pattern: 0 for genuine
+    transaction, and 1 for fraudulent.
+
+    Source:
+    https://pyod.readthedocs.io/en/latest/_modules/pyod/models/iforest.html
+    """
     hdl.outside_log(predict_isolation_forest.__module__,
                     predict_isolation_forest.__name__)
-    if not cfg.model_if:
+    if not cfg.model_isolation_forest:
         with open('../data/model_if', 'rb') as pickle_file:
-            cfg.model_if = pickle.load(pickle_file)
-    predictions = cfg.model_if.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
-    cfg.x_data_temp[cfg.IF_COLUMN_NAME] = predictions
-    cfg.x_data_temp = cfg.x_data_temp.replace({cfg.IF_COLUMN_NAME: 1}, 0)
-    cfg.x_data_temp = cfg.x_data_temp.replace({cfg.IF_COLUMN_NAME: -1}, 1)
+            cfg.model_isolation_forest = pickle.load(pickle_file)
+    predictions = cfg.model_isolation_forest.predict(cfg.x_data_temp[cfg.NUMERICAL_FEATURES])
+    cfg.x_data_temp[cfg.ISOLATION_FOREST_COLUMN_NAME] = predictions
+    cfg.x_data_temp = cfg.x_data_temp.replace({cfg.ISOLATION_FOREST_COLUMN_NAME: 1}, 0)
+    cfg.x_data_temp = cfg.x_data_temp.replace({cfg.ISOLATION_FOREST_COLUMN_NAME: -1}, 1)
 
 
 def train_lscp():
+    """Fit the LSCP model using the training data.
+    Save the weights in output file.
+    """
     hdl.outside_log(train_lscp.__module__,
                     train_lscp.__name__)
     set_model_lscp()
@@ -57,18 +79,32 @@ def train_lscp():
 
 
 def set_model_lscp():
+    """Save the model trained in local model to keep in memory to run
+    in other parts of the code.
+    """
     cfg.model_lscp = LSCP(detector_list=[set_model_bagging(),
                                          set_model_lof(),
                                          set_model_cblof()],
-                          contamination=cfg.percent_contamination,
+                          contamination=cfg.percentage_of_fraudulent_transactions,
                           random_state=cfg.RANDOM_NUMBER)
 
 
 def get_model_lscp():
+    """Retrieve the LSCP model.
+    """
     return cfg.model_lscp
 
 
 def predict_lscp():
+    """Generate predictions using the Locally Selective Combination of
+    Parallel Outlier Ensembles (LSCP) model.
+    This model require the previous model trained or the weights to load.
+    The predictions are made using only numerical features.
+    A new column is created with the predictions made by LSCP model.
+
+    Source:
+    https://pyod.readthedocs.io/en/latest/_modules/pyod/models/lscp.html
+    """
     hdl.outside_log(predict_lscp.__module__,
                     predict_lscp.__name__)
     if not cfg.model_lscp:
@@ -80,6 +116,9 @@ def predict_lscp():
 
 
 def train_knn():
+    """Fit the KNN model using the training data.
+    Save the weights in output file.
+    """
     hdl.outside_log(train_knn.__module__,
                     train_knn.__name__)
     set_model_knn()
@@ -90,17 +129,31 @@ def train_knn():
 
 
 def set_model_knn():
-    cfg.model_knn = KNN(contamination=cfg.percent_contamination,
+    """Save the model trained in local model to keep in memory to run
+    in other parts of the code.
+    """
+    cfg.model_knn = KNN(contamination=cfg.percentage_of_fraudulent_transactions,
                         n_neighbors=cfg.NUM_NEIGHBORS,
                         method='mean',
                         n_jobs=cfg.N_JOBS)
 
 
 def get_model_knn():
+    """Retrieve the KNN model.
+    """
     return cfg.model_knn
 
 
 def predict_knn():
+    """Generate predictions using the Locally Selective Combination of
+    KNN model.
+    This model require the previous model trained or the weights to load.
+    The predictions are made using only numerical features.
+    A new column is created with the predictions made by KNN model.
+
+    Source:
+    https://pyod.readthedocs.io/en/latest/_modules/pyod/models/knn.html
+    """
     hdl.outside_log(predict_knn.__module__,
                     predict_knn.__name__)
     if not cfg.model_knn:
@@ -112,6 +165,11 @@ def predict_knn():
 
 
 def smotenc_over_sampler():
+    """Generate oversampling for training data set using SMOTENC technique.
+
+    Source:
+    https://imbalanced-learn.readthedocs.io/en/stable/generated/imblearn.over_sampling.SMOTENC.html
+    """
     hdl.outside_log(smotenc_over_sampler.__module__,
                     smotenc_over_sampler.__name__)
     set_model_smotenc()
@@ -121,6 +179,10 @@ def smotenc_over_sampler():
 
 
 def make_grid_search_cat_boost():
+    """We've used the cat boost model to train using balanced data set.
+
+    Source: https://catboost.ai/docs/concepts/about.html
+    """
     hdl.outside_log(make_grid_search_cat_boost.__module__,
                     make_grid_search_cat_boost.__name__)
 
@@ -142,6 +204,9 @@ def make_grid_search_cat_boost():
 
 
 def train_cat_boost():
+    """You can call this function to train the cat boost using the
+    hyper parameters passed.
+    """
     hdl.outside_log(train_cat_boost.__module__,
                     train_cat_boost.__name__)
     cfg.model_cat_boost = set_model_cat_boost()
@@ -154,6 +219,9 @@ def train_cat_boost():
 
 
 def predict_cat_boost(mode):
+    """Use this model to make predictions using the data set to
+    predict outliers using Cat Boost model.
+    """
     hdl.outside_log(predict_cat_boost.__module__,
                     predict_cat_boost.__name__)
     cfg.model_cat_boost = set_model_cat_boost()
@@ -166,6 +234,9 @@ def predict_cat_boost(mode):
 
 
 def set_model_cat_boost():
+    """Define Cat Boost model using the hyper parameters
+    defined in config file.
+    """
     clf_cat_boost = CatBoostClassifier(
         depth=cfg.DEPTH_CATBOOST,
         learning_rate=cfg.LEARNING_RATE_CATBOOST,
@@ -177,7 +248,7 @@ def set_model_cat_boost():
 
 
 def set_model_bagging():
-    clf_feat_bag = FeatureBagging(contamination=cfg.percent_contamination,
+    clf_feat_bag = FeatureBagging(contamination=cfg.percentage_of_fraudulent_transactions,
                                   combination='max',
                                   n_estimators=cfg.NUM_ESTIMATORS,
                                   random_state=cfg.RANDOM_NUMBER,
@@ -186,14 +257,14 @@ def set_model_bagging():
 
 
 def set_model_lof():
-    clf_lof = LOF(contamination=cfg.percent_contamination,
+    clf_lof = LOF(contamination=cfg.percentage_of_fraudulent_transactions,
                   n_neighbors=cfg.NUM_NEIGHBORS,
                   n_jobs=cfg.N_JOBS)
     return clf_lof
 
 
 def set_model_cblof():
-    clf_cblof = CBLOF(contamination=cfg.percent_contamination,
+    clf_cblof = CBLOF(contamination=cfg.percentage_of_fraudulent_transactions,
                       n_clusters=cfg.NUM_CLUSTERS,
                       random_state=cfg.RANDOM_NUMBER,
                       n_jobs=cfg.N_JOBS)
@@ -201,6 +272,7 @@ def set_model_cblof():
 
 
 def set_model_smotenc():
+    """Declaration of SMOTENC model."""
     cfg.model_smotenc = SMOTENC(
         categorical_features=cfg.categorical_features_dims,
         random_state=cfg.RANDOM_NUMBER,
@@ -208,4 +280,5 @@ def set_model_smotenc():
 
 
 def get_model_smotenc():
+    """Retrieve the SMOTENC model."""
     return cfg.model_smotenc

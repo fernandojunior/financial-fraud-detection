@@ -13,12 +13,17 @@ def get_fraud_proportion(data, verbose_mode=True):
 
 
 def norm_pred(data, norm_type='inverse'):
-    """
-    :param data: Pandas DataFrame or Numpy array with labels
+    """ This function is used to normalize the predictions made by any classifier.
+
+    Args:
+        data (Pandas DataFrame or Numpy array): labels
         classified as something as defined in Input, and you
         want to convert into Output definition.
-    :param norm_type: [neg_norm_inverse, neg_and_norm, inverse]
-    :return: data normalized.
+        param norm_type [neg_norm_inverse, neg_and_norm, inverse]:
+        type of normalization applied in data set.
+
+    Returns:
+        data normalized.
     """
     # Input: [-1, 1]
     # Ouput: [1, 0]

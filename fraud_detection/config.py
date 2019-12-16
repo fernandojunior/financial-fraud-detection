@@ -1,10 +1,6 @@
-from pyspark.sql import SparkSession
-import findspark
-findspark.init()
 
-SPARK = SparkSession.builder.appName('Xente').getOrCreate()
 
-ITEMS_LIST = ['ProductId', 'ProviderId']
+LIST_OF_TRANSACTION_CATEGORIES = ['ProductId', 'ProviderId']
 COLUMN_VALUE = 'Value'
 LABEL = 'FraudResult'
 ALL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
@@ -33,15 +29,13 @@ NUMERICAL_FEATURES = ['Value', 'Operation', 'Hour',
 categorical_features_dims = 0
 all_features_dims = 0
 
-data_train = []
-data_test = []
 x_data_temp = []
 x_train = []
 y_train = []
 x_train_balanced = []
 y_train_balanced = []
-x_valid = []
-y_valid = []
+x_validation = []
+y_validation = []
 x_outliers = []
 x_train_numerical = []
 x_outliers_numerical = []
@@ -61,14 +55,14 @@ TYPE_DEVICE_CATBOOST = 'GPU'
 RANDOM_NUMBER = 42
 model_catboost_file = '../data/catBoost_model'
 
-percent_contamination = 0.00201752001839811
+percentage_of_fraudulent_transactions = 0.00201752001839811
 NUM_NEIGHBORS = 3
 NUM_ESTIMATORS = 3
 NUM_CLUSTERS = 2
 N_JOBS = 12
 
 model_cat_boost = []
-model_if = []
+model_isolation_forest = []
 model_feat_bag = []
 model_lof = []
 model_cblof = []
@@ -76,7 +70,7 @@ model_lscp = []
 model_knn = []
 model_smotenc = []
 
-IF_COLUMN_NAME = 'IsolationForest'
+ISOLATION_FOREST_COLUMN_NAME = 'IsolationForest'
 LSCP_COLUMN_NAME = 'LSCP'
 KNN_COLUMN_NAME = 'KNN'
 COUNT_COLUMN_NAME = 'CountDetection'

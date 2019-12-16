@@ -38,10 +38,11 @@ pip install -r requirements.txt
 
 ### Running
 
+The project does not need user interaction of information in time execution.
 To run the whole workflow of the project, it is possible by the following command:
 
 ```
-python main.py run \
+$ python main.py run \
   --input_train_file ../data/xente_fraud_detection_train.csv \
   --input_test_file ../data/xente_fraud_detection_test.csv \
   --output_balanced_train_x_file ../data/balanced_train_x.csv \
@@ -65,7 +66,14 @@ python <mode> <--key> <keywords>
 ```
 
 * **mode**: run, train, validate, and test
-* **--key**: input_train_file, input_test_file, output_balanced_train_x_file, output_balanced_train_y_file, output_valid_x_file, output_valid_y_file, output_valid_result_file, output_test_result_file
+* **--key**: input_train_file, 
+       input_test_file, 
+       output_balanced_train_x_file, 
+       output_balanced_train_y_file, 
+       output_valid_x_file, 
+       output_valid_y_file, 
+       output_valid_result_file, 
+       output_test_result_file
 * **keywords**: file name in your choice
 
 For example:
@@ -78,22 +86,33 @@ $ python main.py train \
   --output_valid_y_file ../data/valid_y.csv
 ```
 
+The following scripts want to have the files to use by the model and the model created to be successful. 
+In the test, it is necessary to have the outlier detectors trained. All of them can be made at the training step.
+
 ```
 $ python main.py validate \
   --output_valid_x_file ../data/valid_x.csv \
-  --output_valid_y_file ../data/valid_y.csv
+  --output_valid_y_file ../data/valid_y.csv \
   --output_valid_result_file ../data/valid_result.csv
 ```
 
 ```
 $ python main.py test \
- --input_test_file ../data/xente_fraud_detection_test.csv \
- --output_test_result_file ../data/xente_output_final.txt
+  --input_test_file ../data/xente_fraud_detection_test.csv \
+  --output_test_result_file ../data/xente_output_final.txt
 ```
 
 ### Model Frequency
 
 The entire process is running over 11'44". To training and predict the outcomes by detector outliers, it happens over 2'42," and to train dataset oversampling happens over by 4'10".
+
+## Evaluation
+> On-line: the project is evaluated on top 70, over +2000 submissions.
+
+The project has been evaluated by a Zindi online application, according to the F1 score value, which ranges from 0 (total failure) to 1 (perfect score). Hence, the closer score is to 1, the better is the model.
+This project reviewed before the submission and respecting all criteria "meet specifications" in order to pass.
+
+> Off-line: The project submitted off-line to validate success using the dataset has saved 44.2% of lost by fraud/genuine transaction.
 
 ## Documentation
 

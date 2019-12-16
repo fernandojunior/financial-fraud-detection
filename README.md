@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/italoPontes/fraud_detection.svg?token=xCXQ5y8dztyVs3aHPJLA&branch=master)](https://travis-ci.com/italoPontes/fraud_detection)
-
 # Fraud Detection
 > The objective of this machine learning model is detect fraudulent transactions in the financial services sector.
 

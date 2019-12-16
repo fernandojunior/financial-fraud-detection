@@ -1,2 +1,0 @@
-TransactionId,FraudResult
-TransactionId,0

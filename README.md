@@ -69,9 +69,24 @@ python <mode> <--key> <keywords>
 * **keywords**: file name in your choice
 
 For example:
+```
+$ python main.py train \
+  --input_train_file ../data/xente_fraud_detection_train.csv \
+  --output_balanced_train_x_file ../data/balanced_train_x.csv \
+  --output_balanced_train_y_file ../data/balanced_train_y.csv \
+  --output_valid_x_file ../data/valid_x.csv \
+  --output_valid_y_file ../data/valid_y.csv
+```
 
 ```
-python main.py test \
+$ python main.py validate \
+  --output_valid_x_file ../data/valid_x.csv \
+  --output_valid_y_file ../data/valid_y.csv
+  --output_valid_result_file ../data/valid_result.csv
+```
+
+```
+$ python main.py test \
  --input_test_file ../data/xente_fraud_detection_test.csv \
  --output_test_result_file ../data/xente_output_final.txt
 ```

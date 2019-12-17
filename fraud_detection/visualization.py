@@ -19,20 +19,23 @@ def plot_target_distribution():
     plt.show()
 
 
-def plot_heatmap(flag):
+def plot_heatmap(data_set, label_column_name):
+    """Plot heatmap visualization using Seaborn library.
+    In this visualization is shown the correlation for all features.
+    Source:
+    https://seaborn.pydata.org/generated/seaborn.heatmap.html
+
+    Args:
+        data_set (Pandas data frame): data set with features to be
+        plot the correlations.
+        label_column_name (str):
+    """
     hdl.outside_log(plot_heatmap.__module__,
                     plot_heatmap.__name__)
-
-    if flag == 'INIT':
-        data_pd = cfg.data_train.toPandas()
-    if flag == 'OUTLIER':
-        data_pd = cfg.x_train
-        data_pd['FraudResult'] = cfg.y_train
-
-    corr_matrix = data_pd.corr()
+    corr_matrix = data_set.corr()
     k = 70  # number of variables for heat-map
-    cols = corr_matrix.nlargest(k, cfg.LABEL)[cfg.LABEL].index
-    cm = np.corrcoef(data_pd[cols].values.T)
+    cols = corr_matrix.nlargest(k, label_column_name)[label_column_name].index
+    cm = np.corrcoef(data_set[cols].values.T)
     sns.set(font_scale=1.25,
             rc={'figure.figsize': (15, 15)})
     sns.heatmap(cm,

@@ -1,30 +1,19 @@
-
-
-LIST_OF_TRANSACTION_CATEGORIES = ['ProductId', 'ProviderId']
 COLUMN_VALUE = 'Value'
-LABEL = 'FraudResult'
-ALL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
-                'BatchId', 'ProductCategory', 'ChannelId',
-                'PricingStrategy', 'Value', 'Operation', 'Hour',
-                'DayOfWeek', 'WeekOfYear',
-                'Vl_per_weekYr', 'Vl_per_dayWk',
-                'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+
 ALL_FEATURES_TEST = ['ProviderId', 'ProductId', 'TransactionId',
                      'BatchId', 'ProductCategory', 'ChannelId',
                      'PricingStrategy', 'Value', 'Operation', 'Hour',
                      'DayOfWeek', 'WeekOfYear',
                      'Vl_per_weekYr', 'Vl_per_dayWk',
                      'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+
 CATEGORICAL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
                         'BatchId', 'ProductCategory', 'ChannelId',
                         'PricingStrategy']
+
 CATEGORICAL_FEATURES_TEST = ['ProviderId', 'ProductId', 'TransactionId',
                              'BatchId', 'ProductCategory', 'ChannelId',
                              'PricingStrategy']
-NUMERICAL_FEATURES = ['Value', 'Operation', 'Hour',
-                      'DayOfWeek', 'WeekOfYear',
-                      'Vl_per_weekYr', 'Vl_per_dayWk',
-                      'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
 
 categorical_features_dims = 0
 all_features_dims = 0
@@ -55,14 +44,7 @@ TYPE_DEVICE_CATBOOST = 'GPU'
 RANDOM_NUMBER = 42
 model_catboost_file = '../data/catBoost_model'
 
-percentage_of_fraudulent_transactions = 0.00201752001839811
-NUM_NEIGHBORS = 3
-NUM_ESTIMATORS = 3
-NUM_CLUSTERS = 2
-N_JOBS = 12
-
 model_cat_boost = []
-model_isolation_forest = []
 model_feat_bag = []
 model_lof = []
 model_cblof = []

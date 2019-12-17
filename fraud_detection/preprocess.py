@@ -1,6 +1,4 @@
-import logging
 import os.path
-
 import pandas as pd
 import sklearn.model_selection as sk_ml
 from sklearn.metrics import precision_recall_fscore_support as score
@@ -10,27 +8,22 @@ from pyspark.sql.functions import (when, col, hour, dayofweek,
 import config as cfg
 import models
 import visualization as vis
-
-from pyspark.sql import SparkSession
-import findspark
-findspark.init()
-SPARK = SparkSession.builder.appName('Xente').getOrCreate()
-
-logging.basicConfig(filename='log_file.log',
-                    level=logging.INFO,
-                    filemode='w',
-                    format='%(asctime)s :: %(filename)s :: '
-                           '%(funcName)s\n\t%(message)s')
+import utils as ut
 
 
-def outside_log(function_name, message):
-    """Logs a message with level INFO on the root logger.
+LABEL = 'FraudResult'
 
-    Args:
-        function_name (str): name of the function that called this method.
-        message (str): message describing some fact to save.
-    """
-    logging.info(function_name + '.py :: ' + message)
+ALL_FEATURES = ['ProviderId', 'ProductId', 'TransactionId',
+                'BatchId', 'ProductCategory', 'ChannelId',
+                'PricingStrategy', 'Value', 'Operation', 'Hour',
+                'DayOfWeek', 'WeekOfYear',
+                'Vl_per_weekYr', 'Vl_per_dayWk',
+                'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+
+NUMERICAL_FEATURES = ['Value', 'Operation', 'Hour',
+                      'DayOfWeek', 'WeekOfYear',
+                      'Vl_per_weekYr', 'Vl_per_dayWk',
+                      'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
 
 
 def read_validation_data(**kwargs):
@@ -43,97 +36,22 @@ def read_validation_data(**kwargs):
         kwargs[validation_x_file_name] (str): validation vector.
         kwargs[validation_y_file_name] (str): target vector relative to X.
     """
-    logging.info(extract_data_balanced.__name__)
+    ut.save_log(extract_data_balanced.__name__)
     cfg.x_validation = pd.read_csv(kwargs['output_valid_x_file'])
     cfg.y_validation = pd.read_csv(kwargs['output_valid_y_file'])
     cfg.x_to_predict_catboost = cfg.x_validation
 
 
-def read_data(file_name):
-    """Read data frame in Spark format.
-
-    Args:
-        kwargs[input_file_name] (str): input file name for data set,
-        could be a url or a path to a local file.
-
-    Returns:
-        Spark data frame: data set read.
-    """
-    data = SPARK.read.csv(file_name,
-                              header=True,
-                              inferSchema=True)
-    return data
-
-
-def pre_process_train_data(**kwargs):
-    """These method is responsible for pre-processing the
-    training data completely.
-
-    Pipeline:
-        - Compute_outliers_proportion: relation between
-        the number of fraudulent transactions and the total
-        number of transactions.
-        - create_features: new features will be automatically
-        generate for this data set.
-        - plot_heatmap: plot a heat map visualization with
-        correlation level between the features.
-        -
-
-
-
-
-    """
-    logging.info('Handling Data Train')
-    compute_fraud_proportion()
-    create_features(cfg.data_train)
-    vis.plot_heatmap('INIT')
-    set_df_from_data_train(**kwargs)
-    # outliers
-    models.train_isolation_forest()
-    models.predict_isolation_forest()
-    models.train_lscp()
-    models.predict_lscp()
-    models.train_knn()
-    models.predict_knn()
-    create_feature_outlier_intensity()
-    # get back data to x_train
-    cfg.x_train = cfg.x_data_temp
-    vis.plot_heatmap('OUTLIER')
-
-
 def handle_data_test():
-    logging.info('Handling Data Test')
+    ut.save_log('Handling Data Test')
     # create new features
-    create_features(cfg.data_test)
+    generate_new_features(cfg.data_test)
     cfg.ALL_FEATURES = cfg.ALL_FEATURES_TEST
     models.predict_isolation_forest()
     models.predict_lscp()
     models.predict_knn()
     create_feature_outlier_intensity()
     cfg.x_to_predict_catboost = cfg.x_data_temp
-
-
-def compute_fraud_proportion():
-    """This function will compute the proportion of fraudulent
-    transactions in training data.
-    """
-    logging.info('Computing the fraudulent proportion')
-    cfg.percentage_of_fraudulent_transactions = \
-        (cfg.data_train.filter('FraudResult==1').count()) / \
-        (cfg.data_train.count())
-
-
-def create_features(input_data):
-    """Make data augmentation in input data generating new features.
-
-    Args:
-        input_data (spark data frame): this vector contains the data
-        from Zindi challenge used to generate the new features.
-    """
-    logging.info('Creating pre-defined features')
-    cfg.x_data_temp = input_data
-    cfg.x_data_temp = generate_new_features(cfg.x_data_temp)
-    cfg.x_data_temp = cfg.x_data_temp.toPandas()
 
 
 def generate_new_features(data):
@@ -151,14 +69,15 @@ def generate_new_features(data):
         - get_features_per_value:
 
     Args:
-        data (spark data frame): vector used to generate new features.
+        data (spark data frame): this vector contains the data
+        from Zindi challenge used to generate the new features.
 
     Returns:
-        data (spark data frame): with data augmentation.
+        data (spark data frame): input data frame with data augmentation.
     """
     data = create_feature_is_credit_or_debit(data)
     data = create_feature_how_huge_is_value(data)
-    data = create_features_based_on_timestamp_event(data)
+    data = create_features_from_transaction_timestamp(data)
     data = create_feature_based_on_spent_by_timestamp(data)
     data = create_features_for_transaction_value_and_category(data)
     return data
@@ -172,6 +91,7 @@ def create_feature_is_credit_or_debit(data):
     Args:
         data (spark data frame): input spark data frame.
     """
+    ut.save_log('Creating feature: Is credit or debit?')
     data = data.withColumn("Operation",
                            when(data.Amount > 0, 1).
                            when(data.Amount < 0, -1).
@@ -192,6 +112,7 @@ def create_feature_how_huge_is_value(data):
     Args:
         data (spark data frame): input spark data frame.
     """
+    ut.save_log('Creating feature: how huge is the transaction value?')
     avg_value = data.agg({cfg.COLUMN_VALUE: 'avg'}).collect()[0][0]
     data = data.withColumn('ValueStrategy',
                            when(col(cfg.COLUMN_VALUE) > avg_value * 100, 3).
@@ -201,7 +122,7 @@ def create_feature_how_huge_is_value(data):
     return data
 
 
-def create_features_based_on_timestamp_event(data):
+def create_features_from_transaction_timestamp(data):
     """Each transaction has a specific timestamp identifying
     when this happened. So, new features are created based on
     this.
@@ -219,6 +140,7 @@ def create_features_based_on_timestamp_event(data):
     Args:
         data (spark data frame): input spark data frame.
     """
+    ut.save_log('Creating feature: based on transaction timestamp.')
     data = data.withColumn('Hour',
                            hour(data['TransactionStartTime']))
     data = data.withColumn('DayOfWeek',
@@ -245,6 +167,7 @@ def create_feature_based_on_spent_by_timestamp(data):
     Args:
         data (spark data frame): input spark data frame.
     """
+    ut.save_log('Creating feature: based on spent by timestamp.')
     data = data.withColumn('Vl_per_weekYr',
                            (data['Value'] / data['WeekOfYear']))
     data = data.withColumn('Vl_per_dayWk',
@@ -261,7 +184,9 @@ def create_features_for_transaction_value_and_category(data):
     Args:
         data (spark data frame): input spark data frame.
     """
-    for item in cfg.LIST_OF_TRANSACTION_CATEGORIES:
+    ut.save_log('Creating feature: for transaction value and category.')
+    list_of_categories = ['ProductId', 'ProviderId']
+    for item in list_of_categories:
         data = create_feature_average_value_for_category(data, item)
         data = create_feature_ratio_between_value_and_category(data, item)
     return data
@@ -280,13 +205,13 @@ def create_feature_average_value_for_category(data, item):
         data (spark data frame): output spark data frame with
         the new feature created.
     """
-    type_column = 'avg'
-    column_name = '{0}_vl_{1}'.format(type_column, item)
+    ut.save_log('Creating feature: average value for category _{0}_'.format(item))
+    column_name = '{0}_vl_{1}'.format("avg", item)
     aux = data.select([item, 'Value']).\
         groupBy(item).\
         mean()
     aux = aux.select(col(item),
-                     col(type_column +
+                     col('avg' +
                      '(Value)').alias(column_name))
     data = data.join(aux, on=item)
     return data
@@ -301,28 +226,13 @@ def create_feature_ratio_between_value_and_category(data, item):
         item: type of attribute used to aggregate the data and
         compute the average.
     """
+    ut.save_log('Creating feature: ratio between value and category _{0}_'.format(item))
     column_name = 'avg_vl_{0}'.format(item)
     ratio_column_name = 'rt_avg_vl_{0}'.format(item)
     data = data.withColumn(ratio_column_name,
                            (col('Value') - col(column_name)) /
                            col(column_name))
     return data
-
-
-def set_df_from_data_train(**kwargs):
-    logging.info('Splitting data')
-    # converting to pandas
-    data = cfg.x_data_temp
-    # get back the data
-    cfg.x_data_temp = data[cfg.ALL_FEATURES]
-    if 'test' not in kwargs:
-        cfg.y_train = data[cfg.LABEL]
-    # set frauds : outliers
-    cfg.x_outliers = data[data[cfg.LABEL].isin([1])]
-    # set df to train
-    cfg.x_train_numerical = data[cfg.NUMERICAL_FEATURES]
-    # set df fraud to train
-    cfg.x_outliers_numerical = cfg.x_outliers[cfg.NUMERICAL_FEATURES]
 
 
 def create_feature_outlier_intensity():
@@ -335,7 +245,7 @@ def create_feature_outlier_intensity():
     - if all models classify the instance as outlier, so this value will be 3
     - if none model is outlier, so this value will be 0
     """
-    logging.info('Creating outliers detections features')
+    ut.save_log('Creating outliers detections features')
     cfg.x_data_temp[cfg.COUNT_COLUMN_NAME] = \
         (cfg.x_data_temp.IsolationForest +
          cfg.x_data_temp.LSCP +
@@ -364,7 +274,7 @@ def split_train_val(**kwargs):
     Source:
     https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
     """
-    logging.info('Splitting data Train/Validation')
+    ut.save_log('Splitting data Train/Validation')
     cfg.x_train, cfg.x_validation, cfg.y_train, cfg.y_validation = \
         sk_ml.train_test_split(cfg.x_train[cfg.ALL_FEATURES],
                                cfg.y_train,
@@ -376,11 +286,11 @@ def split_train_val(**kwargs):
 def save_validation_data_in_csv_format(**kwargs):
     """Saving the validation data in CSV format.
     """
-    logging.info('Exporting data Validation')
+    ut.save_log('Exporting data Validation')
     cfg.x_validation.to_csv(kwargs['output_valid_x_file'],
-                       index=None, header=True)
+                            index=None, header=True)
     cfg.y_validation.to_csv(kwargs['output_valid_y_file'],
-                       index=None, header=True)
+                            index=None, header=True)
 
 
 def balance_oversampling(**kwargs):
@@ -388,7 +298,7 @@ def balance_oversampling(**kwargs):
     Save this data in disk using the CSV format.
     Plot a distribution for class after balancing the data.
     """
-    logging.info('Balancing the train data')
+    ut.save_log('Balancing the train data')
     x_train, y_train = models.smotenc_over_sampler()
     cfg.x_train_balanced = pd.DataFrame(x_train, columns=cfg.ALL_FEATURES)
     cfg.y_train_balanced = pd.DataFrame(y_train, columns=[cfg.LABEL])
@@ -399,7 +309,7 @@ def balance_oversampling(**kwargs):
 def save_training_data_in_csv_format(**kwargs):
     """Saving the validation data in CSV format.
     """
-    logging.info(save_training_data_in_csv_format.__name__)
+    ut.save_log(save_training_data_in_csv_format.__name__)
     cfg.x_train_balanced.to_csv(kwargs['output_balanced_train_x_file'],
                                 index=False)
     cfg.y_train_balanced.to_csv(kwargs['output_balanced_train_y_file'],
@@ -407,26 +317,26 @@ def save_training_data_in_csv_format(**kwargs):
 
 
 def extract_data_balanced(**kwargs):
-    logging.info(extract_data_balanced.__name__)
+    ut.save_log(extract_data_balanced.__name__)
     cfg.x_train_balanced = pd.read_csv(kwargs['output_balanced_train_x_file'])
     cfg.y_train_balanced = pd.read_csv(kwargs['output_balanced_train_y_file'])
 
 
 def train_model():
-    logging.info(train_model.__name__)
+    ut.save_log(train_model.__name__)
     models.train_cat_boost()
     vis.plot_feature_importance()
 
 
 def evaluate_model(mode):
-    logging.info(evaluate_model.__name__)
+    ut.save_log(evaluate_model.__name__)
     models.predict_cat_boost(mode)
     if mode == 'VALID':
         export_cat_boost_validate()
 
 
 def export_cat_boost_validate():
-    logging.info(export_cat_boost_validate.__name__)
+    ut.save_log(export_cat_boost_validate.__name__)
     precision, recall, f_score, _ = \
         score(cfg.x_to_predict_catboost['FraudResult'],
               cfg.x_to_predict_catboost['CatBoost'])
@@ -450,21 +360,21 @@ def export_cat_boost_validate():
 
 
 def export_data_valid_result(**kwargs):
-    logging.info(export_data_valid_result.__name__)
+    ut.save_log(export_data_valid_result.__name__)
     print('{}'.format(kwargs['output_valid_result_file']))
     cfg.x_to_predict_catboost.to_csv(kwargs['output_valid_result_file'],
                                      index=None, header=True)
 
 
 def export_data_test_result(**kwargs):
-    logging.info(export_data_test_result.__name__)
+    ut.save_log(export_data_test_result.__name__)
     save_predictions_xente(kwargs['output_test_result_file'],
                            cfg.x_to_predict_catboost['TransactionId'],
                            cfg.x_to_predict_catboost['CatBoost'])
 
 
 def is_missing_file_test(**kwargs):
-    logging.info('Finding Data Balanced to Valid')
+    ut.save_log('Finding Data Balanced to Valid')
     ans = os.path.exists(kwargs['input_test_file'])
     return ans
 

@@ -1,8 +1,10 @@
 import sys
 import fire
 
-import handler as hdl
-
+import models
+import preprocess
+import utils as ut
+import visualization
 
 def train(**kwargs):
     """In this function, It's followed this pipeline:
@@ -16,16 +18,38 @@ def train(**kwargs):
     --output_valid_x_file ../data/valid_x.csv \
     --output_valid_y_file ../data/valid_y.csv
     """
-    hdl.outside_log(train.__name__, '...Init Train...')
-    training_data = hdl.read_train_data(kwargs['input_train_file'])
+    ut.save_log('{0} :: {1}'.format(train.__module__,
+                                    train.__name__))
+
+    training_data = ut.read_data(kwargs['input_train_file'])
+
     if training_data:
-        hdl.outside_log(train.__name__, 'Input Data Not Found')
+        ut.save_log(train.__name__ + ' :: Input Data Not Found')
         sys.exit()
 
-    hdl.pre_process_train_data(**kwargs)
-    hdl.split_train_val(**kwargs)
-    hdl.balance_oversampling(**kwargs)
-    hdl.train_model()
+    training_data = preprocess.generate_new_features(training_data)
+    training_data = models.identify_outliers(training_data)
+    visualization.plot_heatmap(training_data)
+
+    x_training_data, x_validation_data, y_training_data, y_validation_data = \
+        ut.split_training_and_validation(training_data[ut.all_features],
+                                         training_data[ut.label],
+                                         kwargs['output_valid_x_file'],
+                                         kwargs['output_valid_y_file'])
+
+    x_training_data_balanced, y_training_data_balanced = \
+        models.balance_data_set(x_training_data,
+                                y_validation_data,
+                                ut.categorical_features_dims,
+                                kwargs['output_balanced_train_x_file'],
+                                kwargs['output_balanced_train_y_file'])
+
+    models.predict_frauds(x_training_data_balanced,
+                          y_training_data_balanced,
+                          ut.categorical_features_list)
+
+    visualization.plot_feature_importance()
+
     print('------------ Finish Train ------------')
 
 
@@ -37,7 +61,7 @@ def validate(**kwargs):
     --output_valid_y_file ../data/valid_y.csv
     --output_valid_result_file ../data/valid_result.csv
     """
-    hdl.outside_log(validate.__name__, '...Init...')
+    ut.save_log(validate.__name__ + ' :: ...Init...')
     hdl.read_validation_data(**kwargs)
     hdl.evaluate_model('VALID')
     hdl.export_data_valid_result(**kwargs)
@@ -51,10 +75,10 @@ def test(**kwargs):
     --input_test_file ../data/xente_fraud_detection_test.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    hdl.outside_log(test.__name__, '...Init Test...')
-    testing_data = hdl.read_train_data(kwargs['input_test_file'])
+    ut.save_log(test.__name__ + ' :: ...Init Test...')
+    testing_data = ut.read_data(kwargs['input_test_file'])
     if testing_data:
-        hdl.outside_log(test.__name__, 'Input Data Not Found')
+        ut.save_log(test.__name__ + ' :: Input Data Not Found')
         sys.exit()
 
     hdl.handle_data_test()
@@ -77,7 +101,7 @@ def run(**kwargs):
     --output_valid_result_file ../data/valid_result.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    hdl.outside_log(run.__name__, 'args: {}\n'.format(kwargs))
+    ut.save_log(run.__name__ + ' :: args: {}\n'.format(kwargs))
 
     # train catboost model
     train(**kwargs)

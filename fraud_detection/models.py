@@ -1,23 +1,9 @@
 import isolation_forest
 import lscp
 import knn
-import cat_boost
 import oversampler
 import utils as ut
 
-
-def predict_frauds(x_data_set,
-                   y_data_set,
-                   categorical_features_list):
-    """
-
-    Args:
-        - x_data_set (pandas data frame):
-        - y_data_set (pandas data frame):
-    """
-    cat_boost.train_cat_boost(x_data_set,
-                              y_data_set,
-                              categorical_features_list
 
 def balance_data_set(x_data_set,
                      y_data_set,

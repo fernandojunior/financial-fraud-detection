@@ -102,10 +102,9 @@ def make_grid_search_cat_boost(x_data_set,
             'depth': depth_tree_list,
             'l2_leaf_reg': leaf_reg_list}
 
-    grid_search_result = \
-        model.grid_search(grid,
-                          X=x_data_set,
-                          y=y_data_set,
-                          plot=True)
+    grid_search_result = model.grid_search(grid,
+                                           X=x_data_set,
+                                           y=y_data_set,
+                                           plot=True)
 
     return grid_search_result

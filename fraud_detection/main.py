@@ -1,6 +1,7 @@
 import sys
 import fire
 
+import cat_boost
 import models
 import preprocess
 import utils as ut
@@ -44,16 +45,18 @@ def train(**kwargs):
                                 kwargs['output_balanced_train_x_file'],
                                 kwargs['output_balanced_train_y_file'])
 
-    models.predict_frauds(x_training_data_balanced,
-                          y_training_data_balanced,
-                          ut.categorical_features_list)
+    cat_boost.train_cat_boost(x_training_data_balanced,
+                              y_training_data_balanced,
+                              ut.categorical_features_list)
 
-    visualization.plot_feature_importance()
+    visualization.plot_feature_importance(x_training_data_balanced,
+                                          y_training_data_balanced,
+                                          ut.categorical_features_list)
 
     print('------------ Finish Train ------------')
 
 
-def validate(**kwargs):
+def validation(**kwargs):
     """Load previously trained model and validate the results.
     Execute:
     $ python main.py validate \
@@ -61,10 +64,21 @@ def validate(**kwargs):
     --output_valid_y_file ../data/valid_y.csv
     --output_valid_result_file ../data/valid_result.csv
     """
-    ut.save_log(validate.__name__ + ' :: ...Init...')
-    hdl.read_validation_data(**kwargs)
-    hdl.evaluate_model('VALID')
-    hdl.export_data_valid_result(**kwargs)
+    ut.save_log('{0} :: {1}'.format(validation.__module__,
+                                    validation.__name__))
+
+    x_validation_data = ut.read_data(kwargs['output_valid_x_file'])
+    y_validation_data = ut.read_data(kwargs['output_valid_y_file'])
+    predictions = cat_boost.predict_cat_boost(x_validation_data)
+
+    ut.save_data_in_disk(x_validation_data,
+                         y_validation_data,
+                         predictions,
+                         kwargs['output_valid_result_file'])
+
+    ut.save_performance_in_disk(y_validation_data,
+                                predictions)
+
     print('------------ Finish Validation ------------')
 
 
@@ -75,15 +89,24 @@ def test(**kwargs):
     --input_test_file ../data/xente_fraud_detection_test.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    ut.save_log(test.__name__ + ' :: ...Init Test...')
+    ut.save_log('{0} :: {1}'.format(test.__module__,
+                                    test.__name__))
+
     testing_data = ut.read_data(kwargs['input_test_file'])
     if testing_data:
-        ut.save_log(test.__name__ + ' :: Input Data Not Found')
+        ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()
 
-    hdl.handle_data_test()
-    hdl.evaluate_model('TEST')
-    hdl.export_data_test_result(**kwargs)
+    testing_data = preprocess.generate_new_features(testing_data)
+    testing_data = models.identify_outliers(testing_data)
+
+    # acho que não precisa usar o all_features_TEST
+    predictions = cat_boost.predict_cat_boost(testing_data[ut.all_features])
+
+    ut.save_zindi_predictions(testing_data['TransactionId'],
+                              predictions,
+                              kwargs['output_test_result_file'])
+
     print('------------ Finish Test ------------')
 
 
@@ -106,11 +129,11 @@ def run(**kwargs):
     # train catboost model
     train(**kwargs)
     # validate catboost model
-    validate(**kwargs)
+    validation(**kwargs)
     # test catboost model in real scenario
     test(**kwargs)
 
-    hdl.outside_log(run.__name__, '...Finish...')
+    ut.save_log('{0}\n...Finish...'.format(run.__name__))
 
 
 def cli():

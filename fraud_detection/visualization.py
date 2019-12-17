@@ -49,12 +49,20 @@ def plot_heatmap(data_set, label_column_name):
     plt.show()
 
 
-def plot_feature_importance():
+def plot_feature_importance(x_data_set,
+                            y_data_set,
+                            categorical_features_dims):
+    """
+    Args:
+        - x_data_set (pandas data frame):
+        - y_data_set (pandas data frame):
+        - categorical_features_dims (int): 
+    """
     shap.initjs()
     shap_values = cfg.model_cat_boost.get_feature_importance(
-        Pool(cfg.x_train_balanced,
-             cfg.y_train_balanced,
-             cat_features=cfg.categorical_features_dims),
+        Pool(x_data_set,
+             y_data_set,
+             cat_features=categorical_features_dims),
         type='ShapValues')
 
     expected_value = shap_values[0, -1]
@@ -62,7 +70,7 @@ def plot_feature_importance():
     # visualize the first prediction's explanation
     shap.force_plot(expected_value,
                     shap_values[200, :],
-                    cfg.x_train_balanced.iloc[200, :])
+                    x_data_set.iloc[200, :])
     plt.show()
 
 

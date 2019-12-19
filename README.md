@@ -36,6 +36,15 @@ A list of items to be installed using pip install can be running as following:
 pip install -r requirements.txt
 ```
 
+#### All Environment
+> It is possible to use the file `install.sh` to install all requirements automatically. 
+
+Execute the script on the shell:
+```
+$ chmod +x install.sh
+$ sudo ./install.sh
+```
+
 ### Running
 
 The project does not need user interaction of information in time execution.
@@ -118,7 +127,9 @@ This project reviewed before the submission and respecting all criteria "meet sp
 
 * [project_specification.md](./docs/project_specification.md): gives a data-science oriented description of the project.
 
-* [Overview Task and System Documentation]() **(Written in Portuguese)**
+* [Fraud Detection Presentation and Classification Model Solution](./docs/Fraud_Detection_in_Financial_Transactions.pdf)
+
+* [Overview Task and System Documentation](./docs/Desafio_sobre_Deteccao_Fraudes.pdf) **(Written in Portuguese)**
 
 
 #### Folder structure

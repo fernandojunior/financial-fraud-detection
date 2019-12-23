@@ -22,11 +22,13 @@ cd ~
 wget https://www-eu.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz
 mkdir ~/spark
 tar -xvf spark-2.4.4-bin-hadoop2.7.tgz -C ~/spark
-export SPARK_HOME=~/spark/spark-2.4.4-bin-hadoop2.7/
-export PATH="$SPARK_HOME/bin:$PATH"
+echo 'export SPARK_HOME=~/spark/spark-2.4.4-bin-hadoop2.7/' >> ~/.bashrc
+echo 'export PATH=$PATH:~/spark/spark-2.4.4-bin-hadoop2.7/bin' >> ~/.bashrc
 source ~/.bashrc
 
 # installing pip
 conda activate
 sudo apt install python3-pip
+pip install --upgrade pip
 pip install -r requirements.txt
+pyspark

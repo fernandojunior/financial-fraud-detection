@@ -31,8 +31,8 @@ def balance_data_set(x_data_set,
                                          y_data_set,
                                          categorical_features_dims)
 
-    x_data_set_oversampled.to_csv(output_x_file_name, index=False)
-    y_data_set_oversampled.to_csv(output_y_file_name, index=False)
+    x_data_set_oversampled.to_csv(output_x_file_name, index=False, header=True)
+    y_data_set_oversampled.to_csv(output_y_file_name, index=False, header=True)
 
     return x_data_set_oversampled, y_data_set_oversampled
 

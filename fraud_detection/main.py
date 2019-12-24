@@ -72,8 +72,10 @@ def validation(**kwargs):
     ut.save_log('{0} :: {1}'.format(validation.__module__,
                                     validation.__name__))
 
-    x_validation_data = pd.read_csv(kwargs['output_valid_x_file'])
-    y_validation_data = pd.read_csv(kwargs['output_valid_y_file'])
+    x_validation_data = pd.read_csv(kwargs['output_valid_x_file'],
+                                    dtype=ut.mapping_types)
+    y_validation_data = pd.read_csv(kwargs['output_valid_y_file'],
+                                    dtype=ut.mapping_types)
 
     if x_validation_data.empty or y_validation_data.empty:
         ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
@@ -103,7 +105,8 @@ def test(**kwargs):
     ut.save_log('{0} :: {1}'.format(test.__module__,
                                     test.__name__))
 
-    testing_data = ut.read_data(kwargs['input_test_file'])
+    testing_data = ut.read_data(kwargs['input_test_file'],
+                                dtype=ut.mapping_types)
     if not testing_data:
         ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()

@@ -1,6 +1,5 @@
 from setuptools import setup, find_packages
 import os
-from os import path
 
 # Model package name
 NAME = 'fraud_detection'

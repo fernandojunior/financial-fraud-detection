@@ -103,7 +103,7 @@ def create_features_from_transaction_timestamp(data):
         create_features_from_transaction_timestamp.__module__,
         create_features_from_transaction_timestamp.__name__))
 
-    data = data.withColumn('Hour',
+    data = data.withColumn('TransactionHour',
                            hour(data['TransactionStartTime']))
     data = data.withColumn('DayOfWeek',
                            dayofweek(data['TransactionStartTime']))
@@ -133,11 +133,11 @@ def create_feature_based_on_spent_by_timestamp(data):
         create_feature_based_on_spent_by_timestamp.__module__,
         create_feature_based_on_spent_by_timestamp.__name__))
 
-    data = data.withColumn('Vl_per_weekYr',
+    data = data.withColumn('RatioValueSpentByWeek',
                            (data['Value'] / data['WeekOfYear']))
-    data = data.withColumn('Vl_per_dayWk',
+    data = data.withColumn('RatioValueSpentByDayOfWeek',
                            (data['Value'] / data['DayOfWeek']))
-    data = data.withColumn('Vl_per_dayYr',
+    data = data.withColumn('RatioValueSpentByDayOfYear',
                            (data['Value'] / data['DayOfYear']))
     return data
 
@@ -177,7 +177,7 @@ def create_feature_average_value_for_category(data, item):
         create_feature_average_value_for_category.__module__,
         create_feature_average_value_for_category.__name__))
 
-    column_name = 'avg_vl_{0}'.format(item)
+    column_name = 'AverageValuePer{0}'.format(item)
     aux = data.select([item, 'Value']).\
         groupBy(item).\
         mean()
@@ -201,8 +201,8 @@ def create_feature_ratio_between_value_and_category(data, item):
         create_feature_ratio_between_value_and_category.__module__,
         create_feature_ratio_between_value_and_category.__name__))
 
-    column_name = 'avg_vl_{0}'.format(item)
-    ratio_column_name = 'rt_avg_vl_{0}'.format(item)
+    column_name = 'AverageValuePer{0}'.format(item)
+    ratio_column_name = 'RatioOfAverageValuePer{0}'.format(item)
     data = data.withColumn(ratio_column_name,
                            (col('Value') - col(column_name)) /
                            col(column_name))

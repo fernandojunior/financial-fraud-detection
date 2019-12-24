@@ -18,7 +18,6 @@ def train_cat_boost(x_data_set,
         model_cat_boost.load_model(fname=output_cat_boost_file_name)
         return model_cat_boost
 
-    ut.save_log(x_data_set.columns)
     model_cat_boost = get_model_cat_boost()
     model_cat_boost.fit(x_data_set,
                         y_data_set,
@@ -73,8 +72,6 @@ def predict_cat_boost(x_data_set,
     """
     ut.save_log('{0} :: {1}'.format(predict_cat_boost.__module__,
                                     predict_cat_boost.__name__))
-
-    ut.save_log(x_data_set.columns)
 
     model_cat_boost = get_model_cat_boost()
     model_cat_boost.load_model(fname=cat_boot_file_name)

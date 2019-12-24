@@ -80,11 +80,11 @@ def identify_outliers(data_set):
         ut.label,
         percentage_of_fraudulent_transactions)
 
-    data_set[ut.outliers_column_name] = \
+    data_set[ut.number_of_outliers_column_name] = \
         (data_set[ut.isolation_forest_column_name] +
          data_set[ut.lscp_column_name] +
          data_set[ut.knn_column_name])
-
+    ut.update_features_list(data_set)
     return data_set
 
 

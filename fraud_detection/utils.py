@@ -18,7 +18,7 @@ value_column_name = 'Value'
 isolation_forest_column_name = 'IsolationForest'
 lscp_column_name = 'LSCP'
 knn_column_name = 'KNN'
-outliers_column_name = 'Sum_of_outliers'
+number_of_outliers_column_name = 'SumOfOutliers'
 
 default_value = -1
 fraudulent_percentage = default_value
@@ -29,22 +29,30 @@ mapping_types = {'ProviderId': 'object', 'ProductId': 'object',
                  'PricingStrategy': 'int64', 'Value': 'float64',
                  'Operation': 'float64', 'Hour': 'float64',
                  'DayOfWeek': 'float64', 'WeekOfYear': 'float64',
-                 'Vl_per_weekYr': 'float64', 'Vl_per_dayWk': 'float64',
-                 'rt_avg_vl_ProductId': 'float64',
-                 'rt_avg_vl_ProviderId': 'float64', 'IsolationForest': 'int64',
-                 'LSCP': 'int64', 'KNN': 'int64', 'Sum_of_outliers': 'int64'}
+                 'RatioValueSpentByWeek': 'float64',
+                 'RatioValueSpentByDayOfWeek': 'float64',
+                 'RatioOfAverageValuePerProductId': 'float64',
+                 'RatioOfAverageValuePerProviderId': 'float64',
+                 'IsolationForest': 'int64',
+                 'LSCP': 'int64', 'KNN': 'int64', 'SumOfOutliers': 'int64'}
 
 all_features_list = ['ProviderId', 'ProductId', 'TransactionId', 'BatchId',
                      'ProductCategory', 'ChannelId', 'PricingStrategy',
-                     'Value', 'Operation', 'Hour', 'DayOfWeek',
-                     'WeekOfYear', 'Vl_per_weekYr', 'Vl_per_dayWk',
-                     'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+                     'Value', 'Operation', 'TransactionHour', 'DayOfWeek',
+                     'WeekOfYear', 'RatioValueSpentByWeek',
+                     'RatioValueSpentByDayOfWeek',
+                     'RatioOfAverageValuePerProductId',
+                     'RatioOfAverageValuePerProviderId']
 
-numerical_features_list = ['Value', 'Operation', 'ValueStrategy', 'Hour',
-                           'DayOfWeek', 'WeekOfYear', 'Vl_per_weekYr',
-                           'Vl_per_dayWk', 'Vl_per_dayYr', 'avg_vl_ProductId',
-                           'avg_vl_ProviderId', 'rt_avg_vl_ProductId',
-                           'rt_avg_vl_ProviderId']
+numerical_features_list = ['Value', 'Operation', 'ValueStrategy',
+                           'TransactionHour', 'DayOfWeek', 'WeekOfYear',
+                           'RatioValueSpentByWeek',
+                           'RatioValueSpentByDayOfWeek',
+                           'RatioValueSpentByDayOfYear',
+                           'AverageValuePerProductId',
+                           'AverageValuePerProviderId',
+                           'RatioOfAverageValuePerProductId',
+                           'RatioOfAverageValuePerProviderId']
 
 categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
                              'BatchId', 'ProductCategory', 'ChannelId',
@@ -135,6 +143,12 @@ def update_categorical_features_list(content_to_be_include):
     categorical_features_list += content_to_be_include
 
 
+def remove_repeated_items(data):
+    """Return a list without repeated items.
+    """
+    return list(set(data))
+
+
 def update_features_list(data_set):
     """The variables CATEGORICAL_FEATURES and ALL_FEATURES
     keep the relation of categorical features, so this
@@ -150,13 +164,16 @@ def update_features_list(data_set):
     new_features_list = [isolation_forest_column_name,
                          lscp_column_name,
                          knn_column_name,
-                         outliers_column_name]
+                         number_of_outliers_column_name]
 
     all_features_list += new_features_list
+    all_features_list = remove_repeated_items(all_features_list)
     categorical_features_list += new_features_list
+    categorical_features_list = remove_repeated_items(
+        categorical_features_list)
     categorical_features_dims = \
         [data_set[all_features_list].columns.get_loc(i)
-         for i in categorical_features_list[:]]
+         for i in categorical_features_list]
 
 
 def save_data_in_disk(x_validation_data,

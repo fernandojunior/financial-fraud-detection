@@ -32,7 +32,6 @@ def train(**kwargs):
 
     training_data = preprocess.generate_new_features(training_data)
     training_data = models.identify_outliers(training_data)
-    ut.update_features_list(training_data)
 
     visualization.plot_heatmap(training_data, ut.label_name)
 
@@ -49,11 +48,12 @@ def train(**kwargs):
                                 kwargs['output_balanced_train_x_file'],
                                 kwargs['output_balanced_train_y_file'])
 
-    cat_boost.train_cat_boost(x_training_data_balanced[ut.all_features_list],
-                              y_training_data_balanced,
-                              ut.categorical_features_list)
+    cat_boost_model = cat_boost.train_cat_boost(
+        x_training_data_balanced[ut.all_features_list],
+        y_training_data_balanced,
+        ut.categorical_features_list)
 
-    visualization.plot_feature_importance(cat_boost,
+    visualization.plot_feature_importance(cat_boost_model,
                                           x_training_data_balanced,
                                           y_training_data_balanced,
                                           ut.categorical_features_list)

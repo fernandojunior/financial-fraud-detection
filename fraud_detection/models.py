@@ -45,7 +45,7 @@ def get_percentage_of_fraudulent_transactions(data_set):
         get_percentage_of_fraudulent_transactions.__module__,
         get_percentage_of_fraudulent_transactions.__name__))
 
-    if not ut.is_fraudulent_value_computed():
+    if ut.label in data_set.columns:
         ut.fraudulent_percentage = \
             data_set.filter('FraudResult==1').count() / data_set.count()
     return ut.fraudulent_percentage
@@ -84,7 +84,6 @@ def identify_outliers(data_set):
         (data_set[ut.isolation_forest_column_name] +
          data_set[ut.lscp_column_name] +
          data_set[ut.knn_column_name])
-    ut.update_features_list(data_set)
     return data_set
 
 

@@ -1,3 +1,4 @@
+from sklearn.metrics import precision_recall_fscore_support as score
 from pyspark.sql import SparkSession
 import findspark
 import sklearn.model_selection as sklearn
@@ -20,14 +21,14 @@ lscp_column_name = 'LSCP'
 knn_column_name = 'KNN'
 number_of_outliers_column_name = 'SumOfOutliers'
 
-default_value = -1
-fraudulent_percentage = default_value
+DEFAULT_OUTLIER_PERCENTAGE = 0.00201752001839811
+fraudulent_percentage = DEFAULT_OUTLIER_PERCENTAGE
 
 mapping_types = {'ProviderId': 'object', 'ProductId': 'object',
                  'TransactionId': 'object', 'BatchId': 'object',
                  'ProductCategory': 'object', 'ChannelId': 'object',
                  'PricingStrategy': 'int64', 'Value': 'float64',
-                 'Operation': 'float64', 'Hour': 'float64',
+                 'Operation': 'float64', 'TransactionHour': 'float64',
                  'DayOfWeek': 'float64', 'WeekOfYear': 'float64',
                  'RatioValueSpentByWeek': 'float64',
                  'RatioValueSpentByDayOfWeek': 'float64',
@@ -59,14 +60,6 @@ categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
                              'PricingStrategy']
 
 label_name = 'FraudResult'
-
-
-def is_fraudulent_value_computed():
-    """"
-    """
-    if fraudulent_percentage == default_value:
-        return False
-    return True
 
 
 def save_log(message):
@@ -143,12 +136,6 @@ def update_categorical_features_list(content_to_be_include):
     categorical_features_list += content_to_be_include
 
 
-def remove_repeated_items(data):
-    """Return a list without repeated items.
-    """
-    return list(set(data))
-
-
 def update_features_list(data_set):
     """The variables CATEGORICAL_FEATURES and ALL_FEATURES
     keep the relation of categorical features, so this
@@ -167,10 +154,7 @@ def update_features_list(data_set):
                          number_of_outliers_column_name]
 
     all_features_list += new_features_list
-    all_features_list = remove_repeated_items(all_features_list)
     categorical_features_list += new_features_list
-    categorical_features_list = remove_repeated_items(
-        categorical_features_list)
     categorical_features_dims = \
         [data_set[all_features_list].columns.get_loc(i)
          for i in categorical_features_list]
@@ -194,6 +178,38 @@ def save_data_in_disk(x_validation_data,
     data.to_csv(output_file_name,
                 index=None,
                 header=True)
+
+
+def save_performance_in_disk(y_label,
+                             y_predictions,
+                             depth_tree=5,
+                             learning_rate=0.1,
+                             regularization_l2=2,
+                             output_file='../data/catBoost_model_result.txt'):
+    """
+    Args:
+    """
+    save_log('{0} :: {1}'.format(save_performance_in_disk.__module__,
+                                 save_performance_in_disk.__name__))
+
+    precision, recall, f_score, _ = score(y_label, y_predictions)
+
+    output_parser = open(output_file, 'w')
+    output_parser.write('LABELS\t\tFraudResult\t\t\t\t | \tCatBoost\n')
+    output_parser.write('------------------------------------------\n')
+    output_parser.write('precision: \t{}\t\t | \t{}\n'.
+                        format(precision[0], precision[1]))
+    output_parser.write('recall: \t\t{}\t\t | \t{}\n'.
+                        format(recall[0], recall[1]))
+    output_parser.write('f-score: \t\t{}\t\t | \t{}\n'.
+                        format(f_score[0], f_score[1]))
+    output_parser.write('------------------------------------------\n')
+    output_parser.write('CAT-BOOST CONFIGURATION--------------------\n')
+    output_parser.write('depth: {} - LR {} - L2: {}\n'.
+                        format(depth_tree,
+                               learning_rate,
+                               regularization_l2))
+    output_parser.close()
 
 
 def save_zindi_predictions(list_of_transactions_id,

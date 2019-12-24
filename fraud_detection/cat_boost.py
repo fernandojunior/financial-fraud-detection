@@ -75,7 +75,7 @@ def predict_cat_boost(x_data_set,
 
     model_cat_boost = get_model_cat_boost()
     model_cat_boost.load_model(fname=cat_boot_file_name)
-    predictions = model_cat_boost.predict(x_data_set.astype(ut.mapping_types))
+    predictions = model_cat_boost.predict(x_data_set)
 
     return predictions
 

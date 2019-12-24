@@ -32,7 +32,7 @@ def train(**kwargs):
 
     training_data = preprocess.generate_new_features(training_data)
     training_data = models.identify_outliers(training_data)
-
+    ut.update_features_list(training_data)
     visualization.plot_heatmap(training_data, ut.label_name)
 
     x_training_data, x_validation_data, y_training_data, y_validation_data = \
@@ -57,7 +57,6 @@ def train(**kwargs):
                                           x_training_data_balanced,
                                           y_training_data_balanced,
                                           ut.categorical_features_list)
-
     print('------------ Finish Train ------------')
 
 
@@ -105,8 +104,7 @@ def test(**kwargs):
     ut.save_log('{0} :: {1}'.format(test.__module__,
                                     test.__name__))
 
-    testing_data = ut.read_data(kwargs['input_test_file'],
-                                dtype=ut.mapping_types)
+    testing_data = ut.read_data(kwargs['input_test_file'])
     if not testing_data:
         ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()
@@ -115,7 +113,7 @@ def test(**kwargs):
     testing_data = models.identify_outliers(testing_data)
 
     predictions = cat_boost.predict_cat_boost(
-        testing_data[ut.all_features_list])
+        testing_data[ut.all_features_list].astype(ut.mapping_types))
 
     ut.save_zindi_predictions(testing_data['TransactionId'],
                               predictions,

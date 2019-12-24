@@ -4,16 +4,20 @@ import numpy as np
 import pandas as pd
 from catboost import Pool
 import shap
+from sklearn.model_selection import learning_curve
+import utils as ut
 
-import config as cfg
-import handler as hdl
 
-
-def plot_target_distribution():
-    hdl.outside_log(plot_target_distribution.__module__,
-                    plot_target_distribution.__name__)
+def plot_target_distribution(y_data_set):
+    """Plot visualization
+    Args:
+        - y_data_set (Pandas Data Frame)
+    """
+    ut.save_log('{0} :: {1}'.format(
+        plot_target_distribution.__module__,
+        plot_target_distribution.__name__))
     sns.set(font_scale=1.25, rc={'figure.figsize': (4, 4)})
-    fg = pd.Series(cfg.y_train_balanced[cfg.LABEL]).\
+    fg = pd.Series(y_data_set).\
         value_counts().plot.bar(title='SMOTENC Output')
     fg.plot()
     plt.show()
@@ -30,8 +34,9 @@ def plot_heatmap(data_set, label_column_name):
         plot the correlations.
         label_column_name (str):
     """
-    hdl.outside_log(plot_heatmap.__module__,
-                    plot_heatmap.__name__)
+    ut.save_log('{0} :: {1}'.format(plot_heatmap.__module__,
+                                    plot_heatmap.__name__))
+
     corr_matrix = data_set.corr()
     k = 70  # number of variables for heat-map
     cols = corr_matrix.nlargest(k, label_column_name)[label_column_name].index
@@ -49,17 +54,20 @@ def plot_heatmap(data_set, label_column_name):
     plt.show()
 
 
-def plot_feature_importance(x_data_set,
+def plot_feature_importance(cat_boost_model,
+                            x_data_set,
                             y_data_set,
                             categorical_features_dims):
-    """
+    """Plot feature importance learning with cat boost.
     Args:
         - x_data_set (pandas data frame):
         - y_data_set (pandas data frame):
-        - categorical_features_dims (int): 
+        - categorical_features_dims (int):
     """
+    ut.save_log('{0} :: {1}'.format(plot_feature_importance.__module__,
+                                    plot_feature_importance.__name__))
     shap.initjs()
-    shap_values = cfg.model_cat_boost.get_feature_importance(
+    shap_values = cat_boost_model.get_feature_importance(
         Pool(x_data_set,
              y_data_set,
              cat_features=categorical_features_dims),
@@ -106,7 +114,8 @@ def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
         be big enough to contain at least one sample from each class.
         (default: np.linspace(0.1, 1.0, 5))
     """
-    from sklearn.model_selection import learning_curve
+    ut.save_log('{0} :: {1}'.format(plot_learning_curve.__module__,
+                                    plot_learning_curve.__name__))
 
     plt.figure()
     plt.title(title)
@@ -147,6 +156,13 @@ def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
 
 
 def plot_transactions_proportions(data, column="ProductCategory"):
+    """Plot transaction proportion
+    Args:
+        - data (pandas data frame):
+    """
+    ut.save_log('{0} :: {1}'.format(
+        plot_transactions_proportions.__module__,
+        plot_transactions_proportions.__name__))
     genuine_condition = "FraudResult == 0"
     fraud_condition = "FraudResult == 1"
     gen_column_name = "gen_count"
@@ -189,20 +205,13 @@ def plot_transactions_proportions(data, column="ProductCategory"):
     plt.show()
 
 
-def plot_roc(file_name):
-    data = pd.read_csv(file_name, sep='\t')
-    x = data['FPR']
-    y = data['TPR']
-    # This is the ROC curve
-    plt.plot(x, y)
-    plt.show()
-
-    # This is the AUC
-    auc = np.trapz(y, x)
-    print('The AUC was: {0:.2f}.'.format(auc))
-
-
 def plot_performance_comparison(data, x='max', y='score', hue='contamination'):
+    """Plot performance for multiples params
+    Args:
+        - data (pandas dataframe):
+    """
+    ut.save_log('{0} :: {1}'.format(plot_performance_comparison.__module__,
+                                    plot_performance_comparison.__name__))
     data[x] = data[x].astype(np.int)
     data[y] = data[y].astype(np.float)
     data[hue] = data[hue].astype(np.float)
@@ -219,6 +228,13 @@ def plot_performance_comparison(data, x='max', y='score', hue='contamination'):
 
 
 def plot_hist(data, feature_columns, label_type):
+    """Plot histogram for label classes.
+    Args:
+        - data (pandas dataframe)
+    """
+    ut.save_log('{0} :: {1}'.format(plot_hist.__module__,
+                                    plot_hist.__name__))
+
     column = 'FraudResult == {0}'.format('1' if label_type else '0')
     data.filter(column).toPandas().hist(column=feature_columns,
                                         figsize=(15, 15))
@@ -232,6 +248,8 @@ def plot_correlation(data, label='FraudResult', k=15):
     :param k: number of variables for heatmap.
     :return:
     """
+    ut.save_log('{0} :: {1}'.format(plot_correlation.__module__,
+                                    plot_correlation.__name__))
     data_pd = data.toPandas()
     corr_matrix = data_pd.corr()
     cols = corr_matrix.nlargest(k, label)[label].index
@@ -249,5 +267,11 @@ def plot_correlation(data, label='FraudResult', k=15):
 
 
 def plot_bar(data, title):
+    """Plot bar to show the (im)balanced distribution.
+    Args:
+        - data (pandas data frame)
+    """
+    ut.save_log('{0} :: {1}'.format(plot_bar.__module__,
+                                    plot_bar.__name__))
     pd.Series(data).value_counts().plot.bar(title=title)
     plt.show()

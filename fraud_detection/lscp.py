@@ -1,4 +1,5 @@
 import pickle
+import os
 import utils as ut
 from pyod.models.lscp import LSCP
 from pyod.models.feature_bagging import FeatureBagging
@@ -6,8 +7,9 @@ from pyod.models.lof import LOF
 from pyod.models.cblof import CBLOF
 
 
-def train_lscp(x_data_set,
-               y_data_set,
+def train_lscp(data_set,
+               x_columns_list,
+               y_column_name,
                percentage_of_outliers,
                output_file_name='../data/model_lscp'):
     """Fit the LSCP model using the training data.
@@ -16,8 +18,14 @@ def train_lscp(x_data_set,
     ut.save_log('{0} :: {1}'.format(train_lscp.__module__,
                                     train_lscp.__name__))
 
-    model = get_model_lscp(percentage_of_outliers)
-    model.fit(x_data_set, y_data_set)
+    if os.path.isfile(output_file_name):
+        ut.save_log('Loading LSCP model.')
+        with open(output_file_name, 'rb') as pickle_file:
+            model = pickle.load(pickle_file)
+        return model
+
+    model = get_model_lscp(percentage_of_outliers=percentage_of_outliers)
+    model.fit(data_set[x_columns_list], data_set[y_column_name])
     with open(output_file_name, 'wb') as file_model:
         pickle.dump(model, file_model)
 
@@ -46,10 +54,10 @@ def get_model_lscp(percentage_of_outliers=0.002,
 
 
 def get_model_bagging(percentage_of_outliers=0.002,
-                      num_estimators=3,
+                      num_estimators=2,
                       combination='max',
                       random_seed=42,
-                      num_jobs=12):
+                      num_jobs=8):
     """
     Source:
 
@@ -69,8 +77,8 @@ def get_model_bagging(percentage_of_outliers=0.002,
 
 
 def get_model_lof(percentage_of_outliers=0.002,
-                  num_neighbors=3,
-                  num_jobs=12):
+                  num_neighbors=2,
+                  num_jobs=8):
     """
 
     Source:
@@ -93,7 +101,7 @@ def get_model_lof(percentage_of_outliers=0.002,
 def get_model_cblof(percentage_of_outliers=0.002,
                     num_clusters=2,
                     random_seed=42,
-                    num_jobs=12):
+                    num_jobs=8):
     """
     Source:
 
@@ -128,7 +136,7 @@ def predict_lscp(x_data_set,
     ut.save_log('{0} :: {1}'.format(predict_lscp.__module__,
                                     predict_lscp.__name__))
 
-    with open(input_file_name) as pickle_file:
+    with open(input_file_name, 'rb') as pickle_file:
         model = pickle.load(pickle_file)
     predictions = model.predict(x_data_set)
 

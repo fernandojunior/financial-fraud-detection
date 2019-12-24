@@ -1,11 +1,13 @@
 import sys
 import fire
 
+import pandas as pd
 import cat_boost
 import models
 import preprocess
 import utils as ut
 import visualization
+
 
 def train(**kwargs):
     """In this function, It's followed this pipeline:
@@ -24,32 +26,35 @@ def train(**kwargs):
 
     training_data = ut.read_data(kwargs['input_train_file'])
 
-    if training_data:
+    if not training_data:
         ut.save_log(train.__name__ + ' :: Input Data Not Found')
         sys.exit()
 
     training_data = preprocess.generate_new_features(training_data)
     training_data = models.identify_outliers(training_data)
-    visualization.plot_heatmap(training_data)
+    ut.update_features_list(training_data)
+
+    visualization.plot_heatmap(training_data, ut.label_name)
 
     x_training_data, x_validation_data, y_training_data, y_validation_data = \
-        ut.split_training_and_validation(training_data[ut.all_features],
+        ut.split_training_and_validation(training_data[ut.all_features_list],
                                          training_data[ut.label],
                                          kwargs['output_valid_x_file'],
                                          kwargs['output_valid_y_file'])
 
     x_training_data_balanced, y_training_data_balanced = \
         models.balance_data_set(x_training_data,
-                                y_validation_data,
+                                y_training_data,
                                 ut.categorical_features_dims,
                                 kwargs['output_balanced_train_x_file'],
                                 kwargs['output_balanced_train_y_file'])
 
-    cat_boost.train_cat_boost(x_training_data_balanced,
+    cat_boost.train_cat_boost(x_training_data_balanced[ut.all_features_list],
                               y_training_data_balanced,
                               ut.categorical_features_list)
 
-    visualization.plot_feature_importance(x_training_data_balanced,
+    visualization.plot_feature_importance(cat_boost,
+                                          x_training_data_balanced,
                                           y_training_data_balanced,
                                           ut.categorical_features_list)
 
@@ -67,9 +72,15 @@ def validation(**kwargs):
     ut.save_log('{0} :: {1}'.format(validation.__module__,
                                     validation.__name__))
 
-    x_validation_data = ut.read_data(kwargs['output_valid_x_file'])
-    y_validation_data = ut.read_data(kwargs['output_valid_y_file'])
-    predictions = cat_boost.predict_cat_boost(x_validation_data)
+    x_validation_data = pd.read_csv(kwargs['output_valid_x_file'])
+    y_validation_data = pd.read_csv(kwargs['output_valid_y_file'])
+
+    if x_validation_data.empty or y_validation_data.empty:
+        ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
+        sys.exit()
+
+    predictions = cat_boost.predict_cat_boost(
+        x_validation_data[ut.all_features_list])
 
     ut.save_data_in_disk(x_validation_data,
                          y_validation_data,
@@ -93,15 +104,15 @@ def test(**kwargs):
                                     test.__name__))
 
     testing_data = ut.read_data(kwargs['input_test_file'])
-    if testing_data:
+    if not testing_data:
         ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()
 
     testing_data = preprocess.generate_new_features(testing_data)
     testing_data = models.identify_outliers(testing_data)
 
-    # acho que não precisa usar o all_features_TEST
-    predictions = cat_boost.predict_cat_boost(testing_data[ut.all_features])
+    predictions = cat_boost.predict_cat_boost(
+        testing_data[ut.all_features_list])
 
     ut.save_zindi_predictions(testing_data['TransactionId'],
                               predictions,

@@ -1,10 +1,12 @@
 from pyod.models.knn import KNN
 import utils as ut
 import pickle
+import os
 
 
-def train_knn(x_data_set,
-              y_data_set,
+def train_knn(data_set,
+              x_columns_list,
+              y_column_name,
               percentage_of_outliers,
               output_file_name='../data/model_knn'):
     """Fit the KNN model using the training data.
@@ -13,17 +15,25 @@ def train_knn(x_data_set,
     ut.save_log('{0} :: {1}'.format(train_knn.__module__,
                                     train_knn.__name__))
 
-    model = get_model_knn(percentage_of_outliers)
-    model.fit(x_data_set, y_data_set)
+    if os.path.isfile(output_file_name):
+        ut.save_log('Loading KNN model.')
+        with open(output_file_name, 'rb') as pickle_file:
+            model = pickle.load(pickle_file)
+        return model
+
+    model = get_model_knn(percentage_of_outliers=percentage_of_outliers)
+    model.fit(data_set[x_columns_list], data_set[y_column_name])
 
     with open(output_file_name, 'wb') as file_model:
         pickle.dump(model, file_model)
 
+    return model
+
 
 def get_model_knn(percentage_of_outliers=0.002,
-                  num_neighbors=3,
-                  method='mean',
-                  num_jobs=12):
+                  num_neighbors=2,
+                  method='largest',
+                  num_jobs=8):
     """Retrieve KNN model.
     """
     ut.save_log('{0} :: {1}'.format(get_model_knn.__module__,

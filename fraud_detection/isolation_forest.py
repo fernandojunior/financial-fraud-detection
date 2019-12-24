@@ -1,10 +1,12 @@
+import os
 import pickle
 import utils as ut
 from sklearn.ensemble import IsolationForest
 
 
-def train_isolation_forest(x_data_set,
-                           y_data_set,
+def train_isolation_forest(data_set,
+                           x_columns_list,
+                           y_column_name,
                            percentage_of_outliers,
                            output_file_name='../data/model_if'):
     """Fit the Isolation Forest model using the training data.
@@ -16,8 +18,14 @@ def train_isolation_forest(x_data_set,
     ut.save_log('{0} :: {1}'.format(train_isolation_forest.__module__,
                                     train_isolation_forest.__name__))
 
+    if os.path.isfile(output_file_name):
+        ut.save_log('Loading Isolation Forest model.')
+        with open(output_file_name, 'rb') as pickle_file:
+            model = pickle.load(pickle_file)
+        return model
+
     model = get_isolation_forest_model(percentage_of_outliers)
-    model.fit(x_data_set, y_data_set)
+    model.fit(data_set[x_columns_list], data_set[y_column_name])
     with open(output_file_name, 'wb') as file_model:
         pickle.dump(model, file_model)
 

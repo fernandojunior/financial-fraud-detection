@@ -5,7 +5,7 @@ from imblearn.over_sampling import SMOTENC
 def smotenc_over_sampler(x_data_set,
                          y_data_set,
                          categorical_features_dims,
-                         num_jobs=12,
+                         num_jobs=8,
                          random_seed=42):
     """Generate oversampling for training data set using SMOTENC technique.
 

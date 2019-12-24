@@ -1,4 +1,5 @@
-from sklearn.metrics import precision_recall_fscore_support as score
+from pyspark.sql import SparkSession
+import findspark
 import sklearn.model_selection as sklearn
 import logging
 logging.basicConfig(filename='log_file.log',
@@ -6,29 +7,43 @@ logging.basicConfig(filename='log_file.log',
                     filemode='w',
                     format='%(asctime)s :: %(filename)s :: '
                            '%(funcName)s\n\t%(message)s')
-
-
-from pyspark.sql import SparkSession
-import findspark
 findspark.init()
 SPARK = SparkSession.builder.appName('Xente').getOrCreate()
 
 categorical_features_dims = 0
 cat_boost_column_name = 'CatBoost'
 
-label = ['FrauldResult']
-isolation_forest_column_name = ['IsolationForest']
-lscp_column_name = ['LCSP']
-knn_column_name = ['Knn']
-outliers_column_name = ['Sum_of_outliers']
+label = 'FraudResult'
+value_column_name = 'Value'
+isolation_forest_column_name = 'IsolationForest'
+lscp_column_name = 'LSCP'
+knn_column_name = 'KNN'
+outliers_column_name = 'Sum_of_outliers'
+
+default_value = -1
+fraudulent_percentage = default_value
+
+mapping_types = {'ProviderId': 'object', 'ProductId': 'object',
+                 'TransactionId': 'object', 'BatchId': 'object',
+                 'ProductCategory': 'object', 'ChannelId': 'object',
+                 'PricingStrategy': 'int64', 'Value': 'float64',
+                 'Operation': 'float64', 'Hour': 'float64',
+                 'DayOfWeek': 'float64', 'WeekOfYear': 'float64',
+                 'Vl_per_weekYr': 'float64', 'Vl_per_dayWk': 'float64',
+                 'rt_avg_vl_ProductId': 'float64',
+                 'rt_avg_vl_ProviderId': 'float64', 'IsolationForest': 'int64',
+                 'LSCP': 'int64', 'KNN': 'int64', 'Sum_of_outliers': 'int64'}
 
 all_features_list = ['ProviderId', 'ProductId', 'TransactionId', 'BatchId',
-                     'ProductCategory', 'ChannelId', 'PricingStrategy', 'Value',
-                     'Operation', 'Hour', 'DayOfWeek', 'WeekOfYear', 'Vl_per_weekYr',
-                     'Vl_per_dayWk', 'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
+                     'ProductCategory', 'ChannelId', 'PricingStrategy',
+                     'Value', 'Operation', 'Hour', 'DayOfWeek',
+                     'WeekOfYear', 'Vl_per_weekYr', 'Vl_per_dayWk',
+                     'rt_avg_vl_ProductId', 'rt_avg_vl_ProviderId']
 
-numerical_features_list = ['Value', 'Operation', 'Hour', 'DayOfWeek', 'WeekOfYear',
-                           'Vl_per_weekYr', 'Vl_per_dayWk', 'rt_avg_vl_ProductId',
+numerical_features_list = ['Value', 'Operation', 'ValueStrategy', 'Hour',
+                           'DayOfWeek', 'WeekOfYear', 'Vl_per_weekYr',
+                           'Vl_per_dayWk', 'Vl_per_dayYr', 'avg_vl_ProductId',
+                           'avg_vl_ProviderId', 'rt_avg_vl_ProductId',
                            'rt_avg_vl_ProviderId']
 
 categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
@@ -36,6 +51,14 @@ categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
                              'PricingStrategy']
 
 label_name = 'FraudResult'
+
+
+def is_fraudulent_value_computed():
+    """"
+    """
+    if fraudulent_percentage == default_value:
+        return False
+    return True
 
 
 def save_log(message):
@@ -117,6 +140,9 @@ def update_features_list(data_set):
     keep the relation of categorical features, so this
     function update these lists.
     """
+    save_log('{0} :: {1}'.format(update_features_list.__module__,
+                                 update_features_list.__name__))
+
     global all_features_list
     global categorical_features_list
     global categorical_features_dims
@@ -129,7 +155,8 @@ def update_features_list(data_set):
     all_features_list += new_features_list
     categorical_features_list += new_features_list
     categorical_features_dims = \
-        [data_set.columns.get_loc(i) for i in categorical_features_list[:]]
+        [data_set[all_features_list].columns.get_loc(i)
+         for i in categorical_features_list[:]]
 
 
 def save_data_in_disk(x_validation_data,
@@ -161,42 +188,10 @@ def save_zindi_predictions(list_of_transactions_id,
     """
     file = open(output_file_name, 'w')
     file.write('TransactionId,FraudResult\n')
-    for trans_id, value in zip(list_of_transactions_id, list_of_predicted_classes):
-        file.write('{0},{1}\n'.format(trans_id, int(value)))
+    for transaction_id, value in \
+            zip(list_of_transactions_id, list_of_predicted_classes):
+        file.write('{0},{1}\n'.format(transaction_id, int(value)))
     file.close()
-
-
-def save_performance_in_disk(y_label,
-                             y_predictions,
-                             depth_tree=5,
-                             learning_rate=0.1,
-                             regularization_l2=2,
-                             output_file_name='../data/catBoost_model_result.txt'):
-    """
-    Args:
-
-    """
-    save_log('{0} :: {1}'.format(save_performance_in_disk.__module__,
-                                 save_performance_in_disk.__name__))
-
-    precision, recall, f_score, _ = score(y_label, y_predictions)
-
-    output_parser = open(output_file_name, 'w')
-    output_parser.write('LABELS\t\tFraudResult\t\t\t\t | \tCatBoost\n')
-    output_parser.write('------------------------------------------\n')
-    output_parser.write('precision: \t{}\t\t | \t{}\n'.
-                        format(precision[0], precision[1]))
-    output_parser.write('recall: \t\t{}\t\t | \t{}\n'.
-                        format(recall[0], recall[1]))
-    output_parser.write('f-score: \t\t{}\t\t | \t{}\n'.
-                        format(f_score[0], f_score[1]))
-    output_parser.write('------------------------------------------\n')
-    output_parser.write('CAT-BOOST CONFIGURATION--------------------\n')
-    output_parser.write('depth: {} - LR {} - L2: {}\n'.
-                        format(depth_tree,
-                               learning_rate,
-                               regularization_l2))
-    output_parser.close()
 
 
 def normalize_vector(vector):

@@ -1,3 +1,4 @@
+import os
 import utils as ut
 from catboost import CatBoostClassifier
 
@@ -12,8 +13,13 @@ def train_cat_boost(x_data_set,
     ut.save_log('{0} :: {1}'.format(train_cat_boost.__module__,
                                     train_cat_boost.__name__))
 
-    model_cat_boost = get_model_cat_boost()
+    if os.path.isfile(output_cat_boost_file_name):
+        model_cat_boost = get_model_cat_boost()
+        model_cat_boost.load_model(fname=output_cat_boost_file_name)
+        return model_cat_boost
 
+    ut.save_log(x_data_set.columns)
+    model_cat_boost = get_model_cat_boost()
     model_cat_boost.fit(x_data_set,
                         y_data_set,
                         verbose=False,
@@ -21,6 +27,7 @@ def train_cat_boost(x_data_set,
                         cat_features=categorical_features_list)
 
     model_cat_boost.save_model(fname=output_cat_boost_file_name)
+    return model_cat_boost
 
 
 def get_model_cat_boost(depth_tree=5,
@@ -67,9 +74,11 @@ def predict_cat_boost(x_data_set,
     ut.save_log('{0} :: {1}'.format(predict_cat_boost.__module__,
                                     predict_cat_boost.__name__))
 
+    ut.save_log(x_data_set.columns)
+
     model_cat_boost = get_model_cat_boost()
     model_cat_boost.load_model(fname=cat_boot_file_name)
-    predictions = model_cat_boost.predict(x_data_set)
+    predictions = model_cat_boost.predict(x_data_set.astype(ut.mapping_types))
 
     return predictions
 

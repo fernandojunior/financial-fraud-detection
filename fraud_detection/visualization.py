@@ -6,6 +6,7 @@ from catboost import Pool
 import shap
 from sklearn.model_selection import learning_curve
 import utils as ut
+import features_engineering as fte
 
 
 def plot_target_distribution(y_data_set):
@@ -23,23 +24,18 @@ def plot_target_distribution(y_data_set):
     plt.show()
 
 
-def plot_heatmap(data_set, label_column_name):
+def plot_heatmap(data_set):
     """Plot heatmap visualization using Seaborn library.
-    In this visualization is shown the correlation for all features.
-    Source:
-    https://seaborn.pydata.org/generated/seaborn.heatmap.html
 
     Args:
         data_set (Pandas data frame): data set with features to be
-        plot the correlations.
-        label_column_name (str):
     """
     ut.save_log('{0} :: {1}'.format(plot_heatmap.__module__,
                                     plot_heatmap.__name__))
 
     corr_matrix = data_set.corr()
     k = 70  # number of variables for heat-map
-    cols = corr_matrix.nlargest(k, label_column_name)[label_column_name].index
+    cols = corr_matrix.nlargest(k, fte.target_label)[fte.target_label].index
     cm = np.corrcoef(data_set[cols].values.T)
     sns.set(font_scale=1.25,
             rc={'figure.figsize': (15, 15)})
@@ -85,35 +81,6 @@ def plot_feature_importance(cat_boost_model,
 def plot_learning_curve(estimator, x_data, y_data, title, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 10),
                         x_label="Training examples", y_label="Score"):
-    """
-    ylim : tuple, shape (ymin, ymax), optional
-        Defines minimum and maximum yvalues plotted.
-
-    cv : int, cross-validation generator or an iterable, optional
-        Determines the cross-validation splitting strategy.
-        Possible inputs for cv are:
-          - None, to use the default 3-fold cross-validation,
-          - integer, to specify the number of folds.
-          - :term:`CV splitter`,
-          - An iterable yielding (train, test) splits as arrays of indices.
-
-        For integer/None inputs, if ``y`` is binary or multiclass,
-        :class:`StratifiedKFold` used. If the estimator is not a classifier
-        or if ``y`` is neither binary nor multiclass, :class:`KFold` is used.
-
-        Refer :ref:`User Guide <cross_validation>` for the various
-        cross-validators that can be used here.
-
-    train_sizes : array-like, shape (n_ticks,), dtype float or int
-        Relative or absolute numbers of training examples that will be used to
-        generate the learning curve. If the dtype is float, it is regarded as a
-        fraction of the maximum size of the training set (that is determined
-        by the selected validation method), i.e. it has to be within (0, 1].
-        Otherwise it is interpreted as absolute sizes of the training sets.
-        Note that for classification the number of samples usually have to
-        be big enough to contain at least one sample from each class.
-        (default: np.linspace(0.1, 1.0, 5))
-    """
     ut.save_log('{0} :: {1}'.format(plot_learning_curve.__module__,
                                     plot_learning_curve.__name__))
 

@@ -1,8 +1,9 @@
-from sklearn.metrics import precision_recall_fscore_support as score
 from pyspark.sql import SparkSession
 import findspark
 import sklearn.model_selection as sklearn
 import logging
+import config as cfg
+
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,
                     filemode='w',
@@ -11,55 +12,7 @@ logging.basicConfig(filename='log_file.log',
 findspark.init()
 SPARK = SparkSession.builder.appName('Xente').getOrCreate()
 
-categorical_features_dims = 0
 cat_boost_column_name = 'CatBoost'
-
-label = 'FraudResult'
-value_column_name = 'Value'
-isolation_forest_column_name = 'IsolationForest'
-lscp_column_name = 'LSCP'
-knn_column_name = 'KNN'
-number_of_outliers_column_name = 'SumOfOutliers'
-
-DEFAULT_OUTLIER_PERCENTAGE = 0.00201752001839811
-fraudulent_percentage = DEFAULT_OUTLIER_PERCENTAGE
-
-mapping_types = {'ProviderId': 'object', 'ProductId': 'object',
-                 'TransactionId': 'object', 'BatchId': 'object',
-                 'ProductCategory': 'object', 'ChannelId': 'object',
-                 'PricingStrategy': 'int64', 'Value': 'float64',
-                 'Operation': 'float64', 'TransactionHour': 'float64',
-                 'DayOfWeek': 'float64', 'WeekOfYear': 'float64',
-                 'RatioValueSpentByWeek': 'float64',
-                 'RatioValueSpentByDayOfWeek': 'float64',
-                 'RatioOfAverageValuePerProductId': 'float64',
-                 'RatioOfAverageValuePerProviderId': 'float64',
-                 'IsolationForest': 'int64',
-                 'LSCP': 'int64', 'KNN': 'int64', 'SumOfOutliers': 'int64'}
-
-all_features_list = ['ProviderId', 'ProductId', 'TransactionId', 'BatchId',
-                     'ProductCategory', 'ChannelId', 'PricingStrategy',
-                     'Value', 'Operation', 'TransactionHour', 'DayOfWeek',
-                     'WeekOfYear', 'RatioValueSpentByWeek',
-                     'RatioValueSpentByDayOfWeek',
-                     'RatioOfAverageValuePerProductId',
-                     'RatioOfAverageValuePerProviderId']
-
-numerical_features_list = ['Value', 'Operation', 'ValueStrategy',
-                           'TransactionHour', 'DayOfWeek', 'WeekOfYear',
-                           'RatioValueSpentByWeek',
-                           'RatioValueSpentByDayOfWeek',
-                           'RatioValueSpentByDayOfYear',
-                           'AverageValuePerProductId',
-                           'AverageValuePerProviderId',
-                           'RatioOfAverageValuePerProductId',
-                           'RatioOfAverageValuePerProviderId']
-
-categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
-                             'BatchId', 'ProductCategory', 'ChannelId',
-                             'PricingStrategy']
-
-label_name = 'FraudResult'
 
 
 def save_log(message):
@@ -81,8 +34,8 @@ def read_data(file_name):
     Returns:
         Spark data frame: data set read.
     """
-    save_log('{0} :: {1}'.format(read_data.__module__,
-                                 read_data.__name__))
+    save_log(f'{read_data.__module__} :: '
+             f'{read_data.__name__}')
 
     data = SPARK.read.csv(file_name,
                           header=True,
@@ -91,148 +44,94 @@ def read_data(file_name):
     return data
 
 
-def split_training_and_validation(x_data_set,
-                                  y_data_set,
-                                  output_x_validation_file_name,
-                                  output_y_validation_file_name,
-                                  test_proportion=0.3,
-                                  random_seed=42):
-    """
-    Args:
-        - x_data_set (pandas data frame):
-        - y_data_set (pandas data frame):
-        - test_proportion (float):
-        - output_x_file_name (str):
-        - output_y_file_name (str):
-    """
-    save_log('{0} :: {1}'.format(split_training_and_validation.__module__,
-                                 split_training_and_validation.__name__))
+def split_data_train_valid(X_data, y_data, test_proportion=0.3):
+    """Split data in training data and validation data
 
-    x_train, x_validation, y_train, y_validation = \
-        sklearn.train_test_split(x_data_set,
-                                 y_data_set,
+    Args:
+        X_data: input data with features columns
+        y_data: input data with target outcomes column
+        test_proportion: proportion to split train/valid
+            default 0.3-> train 70% - valid 30%
+
+    Returns:
+        Spark data frame: data set read.
+    """
+    save_log(f'{split_data_train_valid.__module__} :: '
+             f'{split_data_train_valid.__name__}')
+
+    X_train, X_valid, y_train, y_valid = \
+        sklearn.train_test_split(X_data,
+                                 y_data,
                                  test_size=test_proportion,
-                                 random_state=random_seed)
+                                 random_state=cfg.random_seed)
 
-    x_validation.to_csv(output_x_validation_file_name,
-                        index=None, header=True)
-
-    y_validation.to_csv(output_y_validation_file_name,
-                        index=None, header=True)
-
-    return x_train, x_validation, y_train, y_validation
+    return X_train, X_valid, y_train, y_valid
 
 
-def update_categorical_features_list(content_to_be_include):
-    """
+def export_pandas_columns_to_txt(data):
+    """ Export dataframe columns to txt file
 
     Args:
-        -
+        - data (pandas data frame): Pandas dataframe file
     """
-    save_log('{0} :: {1}'.format(update_categorical_features_list.__module__,
-                                 update_categorical_features_list.__name__))
+    save_log(f'{export_pandas_dataframe_to_csv.__module__} :: '
+             f'{export_pandas_dataframe_to_csv.__name__}')
 
-    global categorical_features_list
-    categorical_features_list += content_to_be_include
-
-
-def update_features_list(data_set):
-    """The variables CATEGORICAL_FEATURES and ALL_FEATURES
-    keep the relation of categorical features, so this
-    function update these lists.
-    """
-    save_log('{0} :: {1}'.format(update_features_list.__module__,
-                                 update_features_list.__name__))
-
-    global all_features_list
-    global categorical_features_list
-    global categorical_features_dims
-
-    new_features_list = [isolation_forest_column_name,
-                         lscp_column_name,
-                         knn_column_name,
-                         number_of_outliers_column_name]
-
-    all_features_list += new_features_list
-    categorical_features_list += new_features_list
-    categorical_features_dims = \
-        [data_set[all_features_list].columns.get_loc(i)
-         for i in categorical_features_list]
+    columns = data.columns
+    file = open('../data/features_columns.txt', 'w')
+    for col in columns:
+        file.write('{0}\n'.format(col))
+    file.close()
 
 
-def save_data_in_disk(x_validation_data,
-                      y_validation_data,
-                      predictions,
-                      output_file_name):
-    """
+def import_pandas_columns_from_txt(file_name='../data/features_columns.txt'):
+    """ Recovering dataframe columns from txt file
+
     Args:
-        -
+        - file_name: file path to get column names
     """
-    save_log('{0} :: {1}'.format(save_data_in_disk.__module__,
-                                 save_data_in_disk.__name__))
-
-    data = x_validation_data
-    data[cat_boost_column_name] = predictions
-    data[label_name] = y_validation_data
-
-    data.to_csv(output_file_name,
-                index=None,
-                header=True)
+    file_text = open(file_name, "r")
+    array_features = []
+    for line in file_text:
+        array_features.append(line.split('\n')[0])
+    file_text.close()
+    return array_features
 
 
-def save_performance_in_disk(y_label,
-                             y_predictions,
-                             depth_tree=5,
-                             learning_rate=0.1,
-                             regularization_l2=2,
-                             output_file='../data/catBoost_model_result.txt'):
-    """
+def export_pandas_dataframe_to_csv(X_data,
+                                   y_data: None,
+                                   x_name_file,
+                                   y_name_file: None):
+    """ Export Pandas dataframe to CSV file
+
     Args:
+        - X_data (pandas data frame): Pandas dataframe file
+        - y_data (pandas data frame): Pandas dataframe file
+        - x_name_file (str): path to export the first pandas dataframe file
+        - y_name_file (str): path to export the second pandas dataframe file
     """
-    save_log('{0} :: {1}'.format(save_performance_in_disk.__module__,
-                                 save_performance_in_disk.__name__))
+    save_log(f'{export_pandas_dataframe_to_csv.__module__} :: '
+             f'{export_pandas_dataframe_to_csv.__name__}')
 
-    precision, recall, f_score, _ = score(y_label, y_predictions)
-
-    output_parser = open(output_file, 'w')
-    output_parser.write('LABELS\t\tFraudResult\t\t\t\t | \tCatBoost\n')
-    output_parser.write('------------------------------------------\n')
-    output_parser.write('precision: \t{}\t\t | \t{}\n'.
-                        format(precision[0], precision[1]))
-    output_parser.write('recall: \t\t{}\t\t | \t{}\n'.
-                        format(recall[0], recall[1]))
-    output_parser.write('f-score: \t\t{}\t\t | \t{}\n'.
-                        format(f_score[0], f_score[1]))
-    output_parser.write('------------------------------------------\n')
-    output_parser.write('CAT-BOOST CONFIGURATION--------------------\n')
-    output_parser.write('depth: {} - LR {} - L2: {}\n'.
-                        format(depth_tree,
-                               learning_rate,
-                               regularization_l2))
-    output_parser.close()
+    X_data.to_csv(x_name_file, index=False, header=True)
+    if y_data is not None:
+        y_data.to_csv(y_name_file, index=False, header=True)
 
 
 def save_zindi_predictions(list_of_transactions_id,
                            list_of_predicted_classes,
                            output_file_name):
-    """
-    Args:
+    """ Export dataframe columns to txt file
 
+    Args:
+        - data (pandas data frame): Pandas dataframe file
     """
+    save_log(f'{save_zindi_predictions.__module__} :: '
+             f'{save_zindi_predictions.__name__}')
+
     file = open(output_file_name, 'w')
     file.write('TransactionId,FraudResult\n')
     for transaction_id, value in \
             zip(list_of_transactions_id, list_of_predicted_classes):
         file.write('{0},{1}\n'.format(transaction_id, int(value)))
     file.close()
-
-
-def normalize_vector(vector):
-    """
-    Input: [-1, 1]
-    Output: [1, 0]
-
-    Args:
-        - vector (int):
-    """
-    return ((vector * -1) + 1) / 2

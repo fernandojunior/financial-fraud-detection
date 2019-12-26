@@ -1,19 +1,17 @@
 import sys
 import fire
 
-import pandas as pd
-import cat_boost
-import models
-import preprocess
+from models import cat_boost, oversampler
+import detect_outlier
+import features_engineering as fte
 import utils as ut
 import visualization
 
 
 def train(**kwargs):
-    """In this function, It's followed this pipeline:
-    - Load input data frame (training)
-    - pre-processing the data
-     handle features and train model.
+    """Handle features and train model.
+
+    Execute:
     $ python main.py train \
     --input_train_file ../data/xente_fraud_detection_train.csv \
     --output_balanced_train_x_file ../data/balanced_train_x.csv \
@@ -21,99 +19,127 @@ def train(**kwargs):
     --output_valid_x_file ../data/valid_x.csv \
     --output_valid_y_file ../data/valid_y.csv
     """
-    ut.save_log('{0} :: {1}'.format(train.__module__,
-                                    train.__name__))
+    ut.save_log(f'{train.__module__} :: '
+                f'{train.__name__}')
 
     training_data = ut.read_data(kwargs['input_train_file'])
 
     if not training_data:
-        ut.save_log(train.__name__ + ' :: Input Data Not Found')
+        ut.save_log(f'{train.__name__} :: '
+                    'Input Data Not Found')
         sys.exit()
 
-    training_data = preprocess.generate_new_features(training_data)
-    training_data = models.identify_outliers(training_data)
-    ut.update_features_list(training_data)
-    visualization.plot_heatmap(training_data, ut.label_name)
+    training_data = fte.generate_new_features(training_data)
 
-    x_training_data, x_validation_data, y_training_data, y_validation_data = \
-        ut.split_training_and_validation(training_data[ut.all_features_list],
-                                         training_data[ut.label],
-                                         kwargs['output_valid_x_file'],
-                                         kwargs['output_valid_y_file'])
+    training_data = detect_outlier.identify_outliers(training_data)
 
-    x_training_data_balanced, y_training_data_balanced = \
-        models.balance_data_set(x_training_data,
-                                y_training_data,
-                                ut.categorical_features_dims,
-                                kwargs['output_balanced_train_x_file'],
-                                kwargs['output_balanced_train_y_file'])
+    visualization.plot_heatmap(training_data)
 
-    cat_boost_model = cat_boost.train_cat_boost(
-        x_training_data_balanced[ut.all_features_list],
-        y_training_data_balanced,
-        ut.categorical_features_list)
+    fte.update_features_dims(training_data)
+
+    ut.export_pandas_columns_to_txt(training_data[fte.features_list])
+
+    X_train, X_valid, y_train, y_valid = \
+        ut.split_data_train_valid(training_data[fte.features_list],
+                                  training_data[fte.target_label],
+                                  test_proportion=0.3)
+
+    X_train_balanced, y_train_balanced = \
+        oversampler.balance_data_set(X_train,
+                                     y_train,
+                                     fte.categorical_features_dims)
+
+    ut.export_pandas_dataframe_to_csv(
+        X_data=X_valid,
+        y_data=y_valid,
+        x_name_file=kwargs['output_valid_x_file'],
+        y_name_file=kwargs['output_valid_y_file'])
+
+    ut.export_pandas_dataframe_to_csv(
+        X_data=X_train_balanced,
+        y_data=y_train_balanced,
+        x_name_file=kwargs['output_balanced_train_x_file'],
+        y_name_file=kwargs['output_balanced_train_y_file'])
+
+    cat_boost_model = \
+        cat_boost.train(X_train_balanced[fte.features_list],
+                        y_train_balanced,
+                        fte.categorical_features_list)
 
     visualization.plot_feature_importance(cat_boost_model,
-                                          x_training_data_balanced,
-                                          y_training_data_balanced,
-                                          ut.categorical_features_list)
+                                          X_train_balanced,
+                                          y_train_balanced,
+                                          fte.categorical_features_list)
+
     print('------------ Finish Train ------------')
 
 
 def validation(**kwargs):
     """Load previously trained model and validate the results.
+
     Execute:
-    $ python main.py validate \
+    $ python main.py validation \
     --output_valid_x_file ../data/valid_x.csv \
-    --output_valid_y_file ../data/valid_y.csv
+    --output_valid_y_file ../data/valid_y.csv \
     --output_valid_result_file ../data/valid_result.csv
     """
-    ut.save_log('{0} :: {1}'.format(validation.__module__,
-                                    validation.__name__))
+    ut.save_log(f'{validation.__module__} :: '
+                f'{validation.__name__}')
 
-    x_validation_data = pd.read_csv(kwargs['output_valid_x_file'],
-                                    dtype=ut.mapping_types)
-    y_validation_data = pd.read_csv(kwargs['output_valid_y_file'],
-                                    dtype=ut.mapping_types)
-
-    if x_validation_data.empty or y_validation_data.empty:
-        ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
+    x_validation_data = ut.read_data(kwargs['output_valid_x_file'])
+    y_validation_data = ut.read_data(kwargs['output_valid_y_file'])
+    if not x_validation_data or not y_validation_data:
+        print(x_validation_data.head(1))
+        ut.save_log(f'{validation.__name__} :: '
+                    'Input Data Not Found')
         sys.exit()
 
-    predictions = cat_boost.predict_cat_boost(
-        x_validation_data[ut.all_features_list])
+    # atualizando colunas
+    fte.features_list = ut.import_pandas_columns_from_txt()
+    x_validation_data = x_validation_data[fte.features_list].toPandas()
 
-    ut.save_data_in_disk(x_validation_data,
-                         y_validation_data,
-                         predictions,
-                         kwargs['output_valid_result_file'])
+    predictions = cat_boost.predict(data=x_validation_data,
+                                    y_value=y_validation_data)
 
-    ut.save_performance_in_disk(y_validation_data,
-                                predictions)
+    data_validated = x_validation_data
+    data_validated['FraudResult'] = \
+        y_validation_data.toPandas()
+    data_validated['CatBoost'] = predictions
+
+    ut.export_pandas_dataframe_to_csv(
+        X_data=data_validated,
+        y_data=None,
+        x_name_file=kwargs['output_valid_result_file'],
+        y_name_file=None)
 
     print('------------ Finish Validation ------------')
 
 
 def test(**kwargs):
     """Load previously trained models and test it.
+
     Execute:
     $ python main.py test \
     --input_test_file ../data/xente_fraud_detection_test.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    ut.save_log('{0} :: {1}'.format(test.__module__,
-                                    test.__name__))
+    ut.save_log(f'{test.__module__} :: '
+                f'{test.__name__}')
 
     testing_data = ut.read_data(kwargs['input_test_file'])
     if not testing_data:
-        ut.save_log('{0} :: Input Data Not Found'.format(test.__name__))
+        ut.save_log(f'{test.__name__} :: '
+                    'Input Data Not Found')
         sys.exit()
 
-    testing_data = preprocess.generate_new_features(testing_data)
-    testing_data = models.identify_outliers(testing_data)
+    testing_data = fte.generate_new_features(testing_data)
+    testing_data = detect_outlier.identify_outliers(testing_data)
 
-    predictions = cat_boost.predict_cat_boost(
-        testing_data[ut.all_features_list].astype(ut.mapping_types))
+    # atualizando colunas
+    fte.features_list = ut.import_pandas_columns_from_txt()
+    testing_data = testing_data[fte.features_list]
+
+    predictions = cat_boost.predict(data=testing_data, y_value=None)
 
     ut.save_zindi_predictions(testing_data['TransactionId'],
                               predictions,
@@ -122,7 +148,6 @@ def test(**kwargs):
     print('------------ Finish Test ------------')
 
 
-# Run all pipeline sequentially
 def run(**kwargs):
     """To run the complete pipeline of the model.
     Execute:
@@ -136,16 +161,14 @@ def run(**kwargs):
     --output_valid_result_file ../data/valid_result.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    ut.save_log(run.__name__ + ' :: args: {}\n'.format(kwargs))
+    ut.save_log(f'{run.__name__}' + ' :: '
+                'args: {}\n'.format(kwargs))
 
-    # train catboost model
     train(**kwargs)
-    # validate catboost model
     validation(**kwargs)
-    # test catboost model in real scenario
     test(**kwargs)
 
-    ut.save_log('{0}\n...Finish...'.format(run.__name__))
+    ut.save_log(f'{run.__name__}\n ...Finish...')
 
 
 def cli():

@@ -1,5 +1,43 @@
 # Project Specification : Fraud Detection
 
+Xente is an e-commerce and financial service app serving 10,000+ customers in Uganda.
+
+This dataset includes a sample of approximately 140,000 transactions that occurred between 15 November 2018 and 15 March 2019.
+
+| Name                 | Description                                                                                                       | Type         |
+|----------------------|-------------------------------------------------------------------------------------------------------------------|--------------|
+| TransactionId        | Unique transaction identifier on platform                                                                         | Categorical  |
+| BatchId              | Unique number identifying the customer on platform                                                                | Categorical  |
+| AccountId            | Unique number identifying the customer on platform                                                                | Categorical  |
+| SubscriptionId       | Unique number identifying the customer subscription                                                               | Categorical  |
+| CustomerId           | Unique identifier attached to Account                                                                             | Categorical  |
+| CurrencyCode         | Country currency                                                                                                  | Categorical  |
+| CountryCode          | Numerical geographical code of country                                                                            | Categorical  |
+| ProviderId           | Source provider of Item bought                                                                                    | Categorical  |
+| ProductId            | Item name being bought                                                                                            | Categorical  |
+| ProductCategory      | ProductIds are organized into these broader product categories                                                    | Categorical  |
+| ChannelId            | Identifies if customer used web,Android, IOS, pay later or checkout                                               | Categorical  |
+| Amount               | Value of the transaction. Positive for debits from customer account and negative for credit into customer account | Float        |
+| Value                | Absolute value of the amount                                                                                      | Float        |
+| TransactionStartTime | Transaction start time                                                                                            | Object       |
+| PricingStrategy      | Category of Xente's pricing structure for merchants                                                               | Categorical    |
+| FraudResult          | Fraud status of transaction 1 -yes or 0-No                                                                        | Class target |
+
+
+| Name                       | Description                                                                           | Type      |
+|----------------------------|---------------------------------------------------------------------------------------|-----------|
+| Operation                  | Transaction type 1 for debit and -1 for credit                                        | Numerical |
+| ValueStrategy              | Class identifying how multiple times the transaction value is bigger than the average | Numerical |
+| TransactionHour            | Hour time that the transaction happened                                               | Numerical |
+| TransactionDayOfWeek       | Day of week that the transaction happened                                             | Numerical |
+| TransactionDayOfYear       | Day of year that the transaction happened                                             | Numerical |
+| TransactionWeekOfYear      | Week of year that the transaction happened                                            | Numerical |
+| RatioValuespentByWeek      | Ratio between the transaction value and the week of year                              | Numerical |
+| RatioValueSpentByDayOfWeek | Ratio between the transaction value and the day of week                               | Numerical |
+| RatioValueSpentByDayOfYear | Ratio between the transaction value and the day of year                               | Numerical |
+| AverageValuePerProductId   | Average of transaction value for each product Id                                      | Numerical |
+| AverageValuePerProviderId  | Average of transaction value for each provider Id                                     | Numerical |
+
 ## Transaction Classification
 
 Automatically identify if a financial transaction was fraudulent or not.

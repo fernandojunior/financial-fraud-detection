@@ -53,7 +53,8 @@ def identify_outliers(data):
                               fte.target_label,
                               percent_fraudulent_transactions)
 
-    data['SumOfOutliers'] = data['IsolationForest']+data['LSCP']+data['KNN']
+    data['SumOfOutliers'] = \
+        data['IsolationForest'] + data['LSCP'] + data['KNN']
     fte.update_list_features('categorical', ['SumOfOutliers'])
 
     return data

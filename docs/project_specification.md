@@ -14,7 +14,7 @@ Automatically identify if a financial transaction was fraudulent or not.
 
 * By insert running type, if the client's choice is run or train, can start the whole process of machine learn how to classify automatically if a transaction is genuine or fraud and generate an output file with the results. In this process, we've used the Xente dataset<sup>1</sup>, an e-commerce and financial service app serving 10,000+ customers in Uganda. This dataset includes a sample of approximately 140,000 transactions that occurred between 15 November 2018 and 15 March 2019. This dataset is provided following the organization described in the table below.
 
-<sup>1</sup>: Available at: https://zindi.africa/competitions/xente-fraud-detection-challenge.
+<sup>1</sup>Available at: https://zindi.africa/competitions/xente-fraud-detection-challenge.
 
 #### Input data: Xente dataset
 | Name                 | Description                                                                                                       | Type         |

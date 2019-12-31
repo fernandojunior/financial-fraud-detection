@@ -2,7 +2,6 @@ from pyspark.sql import SparkSession
 import findspark
 import sklearn.model_selection as sklearn
 import logging
-import config as cfg
 
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,

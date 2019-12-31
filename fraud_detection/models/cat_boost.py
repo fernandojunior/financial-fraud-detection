@@ -1,13 +1,14 @@
 import utils as ut
 from catboost import CatBoostClassifier
 from sklearn.metrics import precision_recall_fscore_support as score
-import config as cfg
-
 
 def train(X_data,
           y_data,
           categorical_features_list,
-          cat_boost_file_name='../data/catBoost_model'):
+          cat_boost_file_name='../data/catBoost_model',
+          catboost_depth=5,
+          catboost_learning_rate=0.1,
+          catboost_l2_leaf_reg=2):
     """Fit the CatBoost model using the training data.
         The model weights are saved in output file.
 
@@ -23,7 +24,10 @@ def train(X_data,
     ut.save_log(f'{train.__module__} :: '
                 f'{train.__name__}')
 
-    model_cat_boost = create_model()
+    model_cat_boost = create_model(
+        depth_tree=catboost_depth,
+        learning_rate=catboost_learning_rate,
+        reg_l2=catboost_l2_leaf_reg)
 
     model_cat_boost.fit(X_data,
                         y_data,

@@ -1,6 +1,5 @@
 import utils as ut
 from imblearn.over_sampling import SMOTENC
-import config as cfg
 import features_engineering as fte
 import pandas as pd
 

@@ -2,7 +2,6 @@ import os
 import pickle
 import utils as ut
 from sklearn.ensemble import IsolationForest
-import config as cfg
 
 
 def train(data,

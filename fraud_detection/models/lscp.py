@@ -5,7 +5,6 @@ from pyod.models.lscp import LSCP
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.lof import LOF
 from pyod.models.cblof import CBLOF
-import config as cfg
 import numpy as np
 np.seterr(all='ignore')
 
@@ -14,7 +13,10 @@ def train(data,
           features_columns_list,
           label_column,
           percentage_of_outliers,
-          output_file_name='../data/model_lscp'):
+          output_file_name='../data/model_lscp',
+          lscp_bag_num_of_estimators,
+          lscp_lof_num_neighbors,
+          lscp_cblof_num_clusters):
     """Fit the LSCP model using the training data.
         The model weights are saved in output file.
 
@@ -37,7 +39,10 @@ def train(data,
             model = pickle.load(pickle_file)
         return model
 
-    model = create_model(percentage_of_outliers=percentage_of_outliers)
+    model = create_model(percentage_of_outliers=percentage_of_outliers,
+                         lscp_bag_num_of_estimators=lscp_bag_num_of_estimators,
+                         lscp_lof_num_neighbors=lscp_lof_num_neighbors,
+                         lscp_cblof_num_clusters=lscp_cblof_num_clusters)
     model.fit(data[features_columns_list], data[label_column])
     with open(output_file_name, 'wb') as file_model:
         pickle.dump(model, file_model)
@@ -45,7 +50,10 @@ def train(data,
     return model
 
 
-def create_model(percentage_of_outliers=0.002):
+def create_model(percentage_of_outliers=0.002,
+                 lscp_bag_num_of_estimators=2,
+                 lscp_lof_num_neighbors=2,
+                 lscp_cblof_num_clusters=2):
     """Create a LSCP model.
 
     Args:
@@ -58,18 +66,21 @@ def create_model(percentage_of_outliers=0.002):
                 f'{create_model.__name__}')
 
     bagging_model = \
-        get_model_bagging(percentage_of_outliers=percentage_of_outliers)
+        get_model_bagging(percentage_of_outliers=percentage_of_outliers,
+                          lscp_bag_num_of_estimators=lscp_bag_num_of_estimators)
 
     lof_model = \
-        get_model_lof(percentage_of_outliers=percentage_of_outliers)
+        get_model_lof(percentage_of_outliers=percentage_of_outliers,
+                      lscp_lof_num_neighbors=lscp_lof_num_neighbors)
 
     cblof_model = \
-        get_model_cblof(percentage_of_outliers=percentage_of_outliers)
+        get_model_cblof(percentage_of_outliers=percentage_of_outliers,
+                        lscp_cblof_num_clusters=lscp_cblof_num_clusters)
 
     list_of_detectors = [bagging_model, lof_model, cblof_model]
     model = LSCP(detector_list=list_of_detectors,
                  contamination=percentage_of_outliers,
-                 random_state=cfg.random_seed)
+                 random_state=42)
 
     return model
 
@@ -94,8 +105,8 @@ def get_model_bagging(percentage_of_outliers=0.002,
     model = FeatureBagging(contamination=percentage_of_outliers,
                            n_estimators=num_estimators,
                            combination=combination,
-                           random_state=cfg.random_seed,
-                           n_jobs=cfg.num_jobs)
+                           random_state=42,
+                           n_jobs=8)
 
     return model
 

@@ -31,7 +31,13 @@ def train(**kwargs):
 
     training_data = fte.generate_new_features(training_data)
 
-    training_data = detect_outlier.identify_outliers(training_data)
+    training_data = detect_outlier.identify_outliers(
+        training_data,
+        lscp_bag_num_of_estimators=kwargs['lscp_bag_num_of_estimators'],
+        lscp_lof_num_neighbors=kwargs['lscp_lof_num_neighbors'],
+        lscp_cblof_num_clusters=kwargs['lscp_cblof_num_clusters'],
+        knn_num_neighbors=kwargs['knn_num_neighbors'],
+        knn_method=kwargs['knn_method'])
 
     visualization.plot_heatmap(training_data)
 
@@ -64,7 +70,11 @@ def train(**kwargs):
     cat_boost_model = \
         cat_boost.train(X_train_balanced[fte.features_list],
                         y_train_balanced,
-                        fte.categorical_features_list)
+                        fte.categorical_features_list,
+                        catboost_depth=kwargs['catboost_depth'],
+                        catboost_learning_rate=kwargs[
+                            'catboost_learning_rate'],
+                        catboost_l2_leaf_reg=kwargs['catboost_l2_leaf_reg'])
 
     visualization.plot_feature_importance(cat_boost_model,
                                           X_train_balanced,

@@ -2,14 +2,15 @@ from pyod.models.knn import KNN
 import utils as ut
 import pickle
 import os
-import config as cfg
 
 
 def train(data,
           features_columns_list,
           label_column,
           percentage_of_outliers,
-          output_file_name='../data/model_knn'):
+          output_file_name='../data/model_knn',
+          knn_num_neighbors,
+          knn_method):
     """Fit the KNN model using the training data.
         The model weights are saved in output file.
 
@@ -32,7 +33,9 @@ def train(data,
             model = pickle.load(pickle_file)
         return model
 
-    model = create_model(percentage_of_outliers=percentage_of_outliers)
+    model = create_model(percentage_of_outliers=percentage_of_outliers,
+                         knn_num_neighbors=knn_num_neighbors,
+                         knn_method=knn_method)
     model.fit(data[features_columns_list], data[label_column])
 
     with open(output_file_name, 'wb') as file_model:

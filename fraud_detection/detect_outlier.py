@@ -21,7 +21,12 @@ def get_percentage_of_fraudulent_transactions(data):
     return fte.fraudulent_percentage
 
 
-def identify_outliers(data):
+def identify_outliers(data,
+                      lscp_bag_num_of_estimators=2,
+                      lscp_lof_num_neighbors=2,
+                      lscp_cblof_num_clusters=2,
+                      knn_num_neighbors=2,
+                      knn_method='largest'):
     """Create outlier detectors, train it with dataframe and append
         on data these features.
 
@@ -46,12 +51,18 @@ def identify_outliers(data):
     data = outliers_with_knn(data,
                              fte.numerical_features_list,
                              fte.target_label,
-                             percent_fraudulent_transactions)
+                             percent_fraudulent_transactions,
+                             knn_num_neighbors=knn_num_neighbors,
+                             knn_method=knn_method)
 
-    data = outliers_with_lscp(data,
-                              fte.numerical_features_list,
-                              fte.target_label,
-                              percent_fraudulent_transactions)
+    data = outliers_with_lscp(
+        data,
+        fte.numerical_features_list,
+        fte.target_label,
+        percent_fraudulent_transactions,
+        lscp_bag_num_of_estimators=lscp_bag_num_of_estimators,
+        lscp_lof_num_neighbors=lscp_lof_num_neighbors,
+        lscp_cblof_num_clusters=lscp_cblof_num_clusters)
 
     data['SumOfOutliers'] = \
         data['IsolationForest'] + data['LSCP'] + data['KNN']
@@ -97,7 +108,10 @@ def outliers_with_isolation_forest(data,
 def outliers_with_lscp(data,
                        features_columns_list,
                        label_column: None,
-                       percentage_of_outliers: None):
+                       percentage_of_outliers: None,
+                       lscp_bag_num_of_estimators,
+                       lscp_lof_num_neighbors,
+                       lscp_cblof_num_clusters):
     """Usage of LSCP model to predict outliers into the data
 
     Args:
@@ -116,7 +130,10 @@ def outliers_with_lscp(data,
         model = lscp.train(data,
                            features_columns_list,
                            label_column,
-                           percentage_of_outliers)
+                           percentage_of_outliers,
+                           lscp_bag_num_of_estimators,
+                           lscp_lof_num_neighbors,
+                           lscp_cblof_num_clusters)
         predictions = model.predict(data[features_columns_list])
     else:
         predictions = lscp.predict(data)
@@ -130,7 +147,9 @@ def outliers_with_lscp(data,
 def outliers_with_knn(data,
                       features_columns_list,
                       label_column: None,
-                      percentage_of_outliers: None):
+                      percentage_of_outliers: None,
+                      knn_num_neighbors,
+                      knn_method):
     """Usage of KNN model to predict outliers into the data
 
     Args:
@@ -149,7 +168,9 @@ def outliers_with_knn(data,
         model = knn.train(data,
                           features_columns_list,
                           label_column,
-                          percentage_of_outliers)
+                          percentage_of_outliers,
+                          knn_num_neighbors,
+                          knn_method)
         predictions = model.predict(data[features_columns_list])
     else:
         predictions = knn.predict(data)

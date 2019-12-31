@@ -1,5 +1,4 @@
-from models import isolation_forest, knn, lscp
-
+import models
 import utils
 import features_engineering
 
@@ -91,16 +90,18 @@ def outliers_with_isolation_forest(data,
         outliers_with_isolation_forest.__name__))
 
     if label_column is not None:
-        isolation_forest.train(data,
-                               features_columns_list,
-                               label_column,
-                               percentage_of_outliers)
+        models.isolation_forest.train(data,
+                                      features_columns_list,
+                                      label_column,
+                                      percentage_of_outliers)
 
-        predictions = isolation_forest.predict(data[features_columns_list])
+        predictions = \
+            models.isolation_forest.predict(data[features_columns_list])
     else:
-        predictions = isolation_forest.predict(data)
+        predictions = models.isolation_forest.predict(data)
 
-    data['IsolationForest'] = isolation_forest.normalize_vector(predictions)
+    data['IsolationForest'] = \
+        models.isolation_forest.normalize_vector(predictions)
 
     return data
 
@@ -125,14 +126,14 @@ def outliers_with_lscp(data,
         outliers_with_lscp.__name__))
 
     if label_column is not None:
-        lscp.train(data,
-                   features_columns_list,
-                   label_column,
-                   percentage_of_outliers)
+        models.lscp.train(data,
+                          features_columns_list,
+                          label_column,
+                          percentage_of_outliers)
 
-        predictions = lscp.predict(data[features_columns_list])
+        predictions = models.lscp.predict(data[features_columns_list])
     else:
-        predictions = lscp.predict(data)
+        predictions = models.lscp.predict(data)
 
     data['LSCP'] = predictions
 
@@ -159,13 +160,13 @@ def outliers_with_knn(data,
         outliers_with_knn.__name__))
 
     if label_column is not None:
-        knn.train(data,
-                  features_columns_list,
-                  label_column,
-                  percentage_of_outliers)
-        predictions = knn.predict(data[features_columns_list])
+        models.knn.train(data,
+                         features_columns_list,
+                         label_column,
+                         percentage_of_outliers)
+        predictions = models.knn.predict(data[features_columns_list])
     else:
-        predictions = knn.predict(data)
+        predictions = models.knn.predict(data)
 
     data['KNN'] = predictions
 

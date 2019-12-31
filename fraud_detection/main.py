@@ -1,7 +1,7 @@
 import sys
 import fire
-from models import cat_boost, oversampler
 
+import models
 import outlier_detector
 import features_engineering
 import utils
@@ -49,7 +49,7 @@ def train(**kwargs):
             test_proportion=0.3)
 
     X_train_balanced, y_train_balanced = \
-        oversampler.balance_data_set(
+        models.oversampler.balance_data_set(
             X_train[features_engineering.features_list],
             y_train,
             features_engineering.categorical_features_dims)
@@ -67,9 +67,10 @@ def train(**kwargs):
         y_name_file=kwargs['output_balanced_train_y_file'])
 
     cat_boost_model = \
-        cat_boost.train(X_train_balanced[features_engineering.features_list],
-                        y_train_balanced,
-                        features_engineering.categorical_features_list)
+        models.cat_boost.train(
+            X_train_balanced[features_engineering.features_list],
+            y_train_balanced,
+            features_engineering.categorical_features_list)
 
     visualization.plot_feature_importance(
         cat_boost_model,
@@ -102,12 +103,14 @@ def validation(**kwargs):
         sys.exit()
 
     # atualizando colunas
-    features_engineering.features_list = utils.import_pandas_columns_from_txt()
+    features_engineering.features_list = \
+        utils.import_pandas_columns_from_txt()
+
     x_validation_data = \
         x_validation_data[features_engineering.features_list].toPandas()
 
-    predictions = cat_boost.predict(data=x_validation_data,
-                                    y_value=y_validation_data)
+    predictions = models.cat_boost.predict(data=x_validation_data,
+                                           y_value=y_validation_data)
 
     data_validated = x_validation_data
     data_validated['FraudResult'] = \
@@ -147,10 +150,12 @@ def test(**kwargs):
     transaction_column = testing_data['TransactionId']
 
     # atualizando colunas
-    features_engineering.features_list = utils.import_pandas_columns_from_txt()
+    features_engineering.features_list = \
+        utils.import_pandas_columns_from_txt()
+
     testing_data = testing_data[features_engineering.features_list]
 
-    predictions = cat_boost.predict(data=testing_data, y_value=None)
+    predictions = models.cat_boost.predict(data=testing_data, y_value=None)
 
     testing_data['TransactionId'] = transaction_column
     testing_data['CatBoost'] = predictions

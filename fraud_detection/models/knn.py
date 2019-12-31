@@ -1,8 +1,9 @@
-from pyod.models.knn import KNN
-import utils as ut
-import pickle
 import os
-import config as cfg
+import pickle
+from pyod.models.knn import KNN
+
+import utils
+import config
 
 
 def train(data,
@@ -23,11 +24,11 @@ def train(data,
     Returns:
         model: KNN model
     """
-    ut.save_log(f'{train.__module__} :: '
-                f'{train.__name__}')
+    utils.save_log(f'{train.__module__} :: '
+                   f'{train.__name__}')
 
     if os.path.isfile(output_file_name):
-        ut.save_log('Loading KNN model.')
+        utils.save_log('Loading KNN model.')
         with open(output_file_name, 'rb') as pickle_file:
             model = pickle.load(pickle_file)
         return model
@@ -43,7 +44,7 @@ def train(data,
 
 def create_model(percentage_of_outliers=0.002,
                  num_neighbors=2,
-                 method='largest'):
+                 method='mean'):
     """Create a KNN model.
 
     Args:
@@ -57,13 +58,13 @@ def create_model(percentage_of_outliers=0.002,
     Returns:
         model: Isolation Forest model
     """
-    ut.save_log(f'{create_model.__module__} :: '
-                f'{create_model.__name__}')
+    utils.save_log(f'{create_model.__module__} :: '
+                   f'{create_model.__name__}')
 
     model = KNN(contamination=percentage_of_outliers,
                 n_neighbors=num_neighbors,
                 method=method,
-                n_jobs=cfg.num_jobs)
+                n_jobs=config.num_jobs)
 
     return model
 
@@ -78,11 +79,12 @@ def predict(data, input_file_name='../data/model_knn'):
     Returns:
         predictions: Model outcomes (predictions)
     """
-    ut.save_log(f'{predict.__module__} :: '
-                f'{predict.__name__}')
+    utils.save_log(f'{predict.__module__} :: '
+                   f'{predict.__name__}')
 
     with open(input_file_name, 'rb') as pickle_file:
         model = pickle.load(pickle_file)
+
     predictions = model.predict(data)
 
     return predictions

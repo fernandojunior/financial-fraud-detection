@@ -1,7 +1,8 @@
-import utils as ut
 from catboost import CatBoostClassifier
 from sklearn.metrics import precision_recall_fscore_support as score
-import config as cfg
+
+import utils
+import config
 
 
 def train(X_data,
@@ -20,8 +21,8 @@ def train(X_data,
     Returns:
         model: CatBoost model
     """
-    ut.save_log(f'{train.__module__} :: '
-                f'{train.__name__}')
+    utils.save_log(f'{train.__module__} :: '
+                   f'{train.__name__}')
 
     model_cat_boost = create_model()
 
@@ -36,13 +37,15 @@ def train(X_data,
     return model_cat_boost
 
 
-def create_model(depth_tree=5,
-                 learning_rate=0.1,
+def create_model(iterations=5000,
+                 depth_tree=4,
+                 learning_rate=0.0135,
                  reg_l2=2,
                  evaluation_metric='F1'):
     """Create a CatBoost model.
 
     Args:
+        iterations
         depth_tree (int):
         learning_rate (int):
         reg_l2 (int):
@@ -51,16 +54,17 @@ def create_model(depth_tree=5,
     Returns:
         model: Isolation Forest model
     """
-    ut.save_log(f'{create_model.__module__} :: '
-                f'{create_model.__name__}')
+    utils.save_log(f'{create_model.__module__} :: '
+                   f'{create_model.__name__}')
 
     model = CatBoostClassifier(
+        iterations=iterations,
         depth=depth_tree,
         learning_rate=learning_rate,
         l2_leaf_reg=reg_l2,
         eval_metric=evaluation_metric,
-        task_type=cfg.device_type,
-        random_seed=cfg.random_seed)
+        task_type=config.device_type,
+        random_seed=config.random_seed)
 
     return model
 
@@ -76,8 +80,8 @@ def predict(data, y_value: None, cat_boost_file_name='../data/catBoost_model'):
     Returns:
         predictions: Model outcomes (predictions)
     """
-    ut.save_log(f'{predict.__module__} :: '
-                f'{predict.__name__}')
+    utils.save_log(f'{predict.__module__} :: '
+                   f'{predict.__name__}')
 
     model_cat_boost = create_model()
 
@@ -110,8 +114,8 @@ def grid_search(X_data,
     Returns:
         result: grid search best configuration
     """
-    ut.save_log(f'{grid_search.__module__} :: '
-                f'{grid_search.__name__}')
+    utils.save_log(f'{grid_search.__module__} :: '
+                   f'{grid_search.__name__}')
 
     model = CatBoostClassifier()
 
@@ -140,8 +144,8 @@ def export_valid_performance(y_label,
         regularization_l2: Configure CatBoost
         output_file: output file name to export performance
     """
-    ut.save_log(f'{export_valid_performance.__module__} :: '
-                f'{export_valid_performance.__name__}')
+    utils.save_log(f'{export_valid_performance.__module__} :: '
+                   f'{export_valid_performance.__name__}')
 
     precision, recall, f_score, _ = score(y_label, y_predictions)
 

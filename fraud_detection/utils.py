@@ -2,7 +2,8 @@ from pyspark.sql import SparkSession
 import findspark
 import sklearn.model_selection as sklearn
 import logging
-import config as cfg
+
+import config
 
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,
@@ -63,22 +64,24 @@ def split_data_train_valid(X_data, y_data, test_proportion=0.3):
         sklearn.train_test_split(X_data,
                                  y_data,
                                  test_size=test_proportion,
-                                 random_state=cfg.random_seed)
+                                 random_state=config.random_seed)
 
     return X_train, X_valid, y_train, y_valid
 
 
-def export_pandas_columns_to_txt(data):
+def export_pandas_columns_to_txt(
+        data,
+        input_file_name='../data/features_columns.txt'):
     """ Export dataframe columns to txt file
 
     Args:
         - data (pandas data frame): Pandas dataframe file
     """
-    save_log(f'{export_pandas_dataframe_to_csv.__module__} :: '
-             f'{export_pandas_dataframe_to_csv.__name__}')
+    save_log(f'{export_pandas_columns_to_txt.__module__} :: '
+             f'{export_pandas_columns_to_txt.__name__}')
 
     columns = data.columns
-    file = open('../data/features_columns.txt', 'w')
+    file = open(input_file_name, 'w')
     for col in columns:
         file.write('{0}\n'.format(col))
     file.close()

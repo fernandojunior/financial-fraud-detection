@@ -26,8 +26,7 @@ def train(**kwargs):
     training_data = utils.read_data(kwargs['input_train_file'])
 
     if not training_data:
-        utils.save_log(f'{train.__name__} :: ' +
-                       'Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(train.__name__))
         sys.exit()
 
     training_data = features_engineering.generate_new_features(training_data)
@@ -97,9 +96,7 @@ def validation(**kwargs):
     x_validation_data = utils.read_data(kwargs['output_valid_x_file'])
     y_validation_data = utils.read_data(kwargs['output_valid_y_file'])
     if not x_validation_data or not y_validation_data:
-        print(x_validation_data.head(1))
-        utils.save_log(f'{validation.__name__} ::'
-                       ' Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(train.__name__))
         sys.exit()
 
     # atualizando colunas
@@ -140,8 +137,7 @@ def test(**kwargs):
 
     testing_data = utils.read_data(kwargs['input_test_file'])
     if not testing_data:
-        utils.save_log(f'{test.__name__} :: '
-                       'Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()
 
     testing_data = features_engineering.generate_new_features(testing_data)
@@ -186,14 +182,13 @@ def run(**kwargs):
     --output_valid_result_file ../data/valid_result.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    utils.save_log(f'{run.__name__}' + ' :: '
-                                       'args: {}\n'.format(kwargs))
+    utils.save_log('{0} :: kwargs: {1}\n'.format(run.__name__, kwargs))
 
     train(**kwargs)
     validation(**kwargs)
     test(**kwargs)
 
-    utils.save_log(f'{run.__name__}\n ...Finish...')
+    utils.save_log('{0}\n ...Finish...\n'.format(run.__name__, kwargs))
 
 
 def cli():

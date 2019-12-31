@@ -100,38 +100,6 @@ def predict(data, y_value: None, cat_boost_file_name='../data/catBoost_model'):
     return predictions
 
 
-def grid_search(X_data,
-                y_data,
-                learning_rate_list,
-                depth_tree_list,
-                leaf_reg_list):
-    """Make grid search to find best parameters to use in the data.
-
-    Args:
-        X_data (pandas data):
-        y_data (pandas data):
-        learning_rate_list (float list):
-        depth_tree_list (int list):
-        leaf_reg_list (int list):
-
-    Returns:
-        result: grid search best configuration
-    """
-    utils.save_log('{0} :: {1}'.format(
-        grid_search.__module__,
-        grid_search.__name__))
-
-    model = CatBoostClassifier()
-
-    grid = {'learning_rate': learning_rate_list,
-            'depth': depth_tree_list,
-            'l2_leaf_reg': leaf_reg_list}
-
-    result = model.grid_search(grid, X=X_data, y=y_data, plot=True)
-
-    return result
-
-
 def export_valid_performance(y_label,
                              y_predictions,
                              depth_tree=5,

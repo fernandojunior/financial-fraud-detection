@@ -75,8 +75,6 @@ def create_model(percentage_of_outliers=0.002):
     model = LSCP(detector_list=list_of_detectors,
                  contamination=percentage_of_outliers)
 
-    #model = get_model_cblof(percentage_of_outliers=percentage_of_outliers)
-
     return model
 
 

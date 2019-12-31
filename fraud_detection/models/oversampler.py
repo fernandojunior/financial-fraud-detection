@@ -19,8 +19,9 @@ def smotenc_over_sampler(X_data,
     Returns:
         X and Y datasets balanced
     """
-    utils.save_log(f'{smotenc_over_sampler.__module__} :: '
-                   f'{smotenc_over_sampler.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        smotenc_over_sampler.__module__,
+        smotenc_over_sampler.__name__))
 
     model = SMOTENC(categorical_features=categorical_features_dims,
                     random_state=config.random_seed,
@@ -49,14 +50,9 @@ def balance_data_set(X_data,
      Returns:
         Dataframe with KNN outlier column
     """
-    utils.save_log(f'{balance_data_set.__module__} :: '
-                   f'{balance_data_set.__name__}')
-
-    '''if os.path.isfile(output_x_file_name) and \
-            os.path.isfile(output_y_file_name):
-        X_data_set_oversampled = pandas.read_csv(output_x_file_name)
-        y_data_set_oversampled = pandas.read_csv(output_y_file_name)
-        return X_data_set_oversampled, y_data_set_oversampled'''
+    utils.save_log('{0} :: {1}'.format(
+        balance_data_set.__module__,
+        balance_data_set.__name__))
 
     X_data_oversampled, y_data_oversampled = \
         smotenc_over_sampler(X_data,

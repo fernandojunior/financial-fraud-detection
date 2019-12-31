@@ -30,8 +30,9 @@ def train(data,
     Returns:
         model: LSCP model
     """
-    utils.save_log(f'{train.__module__} :: '
-                   f'{train.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        train.__module__,
+        train.__name__))
 
     if os.path.isfile(output_file_name):
         utils.save_log('Loading LSCP model.')
@@ -57,8 +58,9 @@ def create_model(percentage_of_outliers=0.002):
     Returns:
         model: LSCP model
     """
-    utils.save_log(f'{create_model.__module__} :: '
-                   f'{create_model.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_model.__module__,
+        create_model.__name__))
 
     bagging_model = \
         get_model_bagging(percentage_of_outliers=percentage_of_outliers)
@@ -92,8 +94,9 @@ def get_model_bagging(percentage_of_outliers=0.002,
     Returns:
         model: Feature Bagging model
     """
-    utils.save_log(f'{get_model_bagging.__module__} :: '
-                   f'{get_model_bagging.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        get_model_bagging.__module__,
+        get_model_bagging.__name__))
 
     model = FeatureBagging(contamination=percentage_of_outliers,
                            n_estimators=num_estimators,
@@ -114,8 +117,9 @@ def get_model_lof(percentage_of_outliers=0.002, num_neighbors=2):
     Returns:
         model: LOF model
     """
-    utils.save_log(f'{get_model_lof.__module__} :: '
-                   f'{get_model_lof.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        get_model_lof.__module__,
+        get_model_lof.__name__))
 
     model = LOF(contamination=percentage_of_outliers,
                 n_neighbors=num_neighbors,
@@ -135,8 +139,9 @@ def get_model_cblof(percentage_of_outliers=0.002, num_clusters=2):
     Returns:
         model: CBLOF model
     """
-    utils.save_log(f'{get_model_cblof.__module__} :: '
-                   f'{get_model_cblof.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        get_model_cblof.__module__,
+        get_model_cblof.__name__))
 
     model = CBLOF(contamination=percentage_of_outliers,
                   n_clusters=num_clusters,
@@ -156,8 +161,9 @@ def predict(data, input_file_name='../data/model_lscp'):
     Returns:
         predictions: Model outcomes (predictions)
     """
-    utils.save_log(f'{predict.__module__} :: '
-                   f'{predict.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        predict.__module__,
+        predict.__name__))
 
     with open(input_file_name, 'rb') as pickle_file:
         model = pickle.load(pickle_file)

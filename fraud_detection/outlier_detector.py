@@ -13,9 +13,9 @@ def get_percentage_of_fraudulent_transactions(data):
     Returns:
         Percentage of fraud into dataframe.
     """
-    utils.save_log(
-        f'{get_percentage_of_fraudulent_transactions.__module__} :: '
-        f'{get_percentage_of_fraudulent_transactions.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        get_percentage_of_fraudulent_transactions.__module__,
+        get_percentage_of_fraudulent_transactions.__name__))
 
     if features_engineering.target_label in data.columns:
         features_engineering.fraudulent_percentage = \
@@ -32,8 +32,9 @@ def identify_outliers(data):
     Returns:
         data: Dataframe with outliers columns and sum of them
     """
-    utils.save_log(f'{identify_outliers.__module__} :: '
-                   f'{identify_outliers.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        identify_outliers.__module__,
+        identify_outliers.__name__))
 
     percent_fraudulent_transactions = \
         get_percentage_of_fraudulent_transactions(data)
@@ -85,8 +86,9 @@ def outliers_with_isolation_forest(data,
      Returns:
         data: dataframe with Isolation Forest outlier column
     """
-    utils.save_log(f'{outliers_with_isolation_forest.__module__} :: '
-                   f'{outliers_with_isolation_forest.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        outliers_with_isolation_forest.__module__,
+        outliers_with_isolation_forest.__name__))
 
     if label_column is not None:
         isolation_forest.train(data,
@@ -118,8 +120,9 @@ def outliers_with_lscp(data,
      Returns:
         data: dataframe with LSCP outlier column
     """
-    utils.save_log(f'{outliers_with_lscp.__module__} :: '
-                   f'{outliers_with_lscp.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        outliers_with_lscp.__module__,
+        outliers_with_lscp.__name__))
 
     if label_column is not None:
         lscp.train(data,
@@ -151,8 +154,9 @@ def outliers_with_knn(data,
      Returns:
         data: dataframe with KNN outlier column
     """
-    utils.save_log(f'{outliers_with_knn.__module__} :: '
-                   f'{outliers_with_knn.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        outliers_with_knn.__module__,
+        outliers_with_knn.__name__))
 
     if label_column is not None:
         knn.train(data,

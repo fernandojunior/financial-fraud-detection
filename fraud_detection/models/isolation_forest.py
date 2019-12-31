@@ -24,8 +24,9 @@ def train(data,
     Returns:
         model: Isolation Forest model
     """
-    utils.save_log(f'{train.__module__} :: '
-                   f'{train.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        train.__module__,
+        train.__name__))
 
     if os.path.isfile(output_file_name):
         utils.save_log('Loading Isolation Forest model.')
@@ -53,8 +54,9 @@ def create_model(percentage_of_outliers=0.002,
     Returns:
         model: Isolation Forest model
     """
-    utils.save_log(f'{create_model.__module__} :: '
-                   f'{create_model.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_model.__module__,
+        create_model.__name__))
 
     model = IsolationForest(contamination=percentage_of_outliers,
                             behaviour='new',
@@ -75,8 +77,9 @@ def predict(data, input_file_name='../data/model_if'):
     Returns:
         predictions: Model outcomes (predictions)
     """
-    utils.save_log(f'{predict.__module__} :: '
-                   f'{predict.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        predict.__module__,
+        predict.__name__))
 
     with open(input_file_name, 'rb') as pickle_file:
         model = pickle.load(pickle_file)
@@ -95,4 +98,8 @@ def normalize_vector(vector):
     Returns:
         vector_normalized: a column value of Isolation Forest normalized
     """
+    utils.save_log('{0} :: {1}'.format(
+        normalize_vector.__module__,
+        normalize_vector.__name__))
+
     return ((vector - 1) * -1) // 2

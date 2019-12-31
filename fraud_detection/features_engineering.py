@@ -32,8 +32,9 @@ def generate_new_features(data):
     Returns:
         data (spark dataframe): a matrix dataframe with new features.
     """
-    utils.save_log(f'{generate_new_features.__module__} :: '
-                   f'{generate_new_features.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        generate_new_features.__module__,
+        generate_new_features.__name__))
 
     data = create_feature_is_credit_debit(data)
     data = create_feature_value_category(data)
@@ -53,8 +54,9 @@ def create_feature_is_credit_debit(data):
     Args:
         data (spark data frame): input spark data frame.
     """
-    utils.save_log(f'{create_feature_is_credit_debit.__module__} :: '
-                   f'{create_feature_is_credit_debit.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_is_credit_debit.__module__,
+        create_feature_is_credit_debit.__name__))
 
     data = data.withColumn("Operation",
                            when(data.Amount > 0, 1).
@@ -78,8 +80,9 @@ def create_feature_value_category(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    utils.save_log(f'{create_feature_value_category.__module__} :: '
-                   f'{create_feature_value_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_value_category.__module__,
+        create_feature_value_category.__name__))
 
     avg_value = data.agg({'Value': 'avg'}).collect()[0][0]
     data = data. \
@@ -106,9 +109,9 @@ def create_features_from_transaction_timestamp(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    utils.save_log(
-        f'{create_features_from_transaction_timestamp.__module__} :: '
-        f'{create_features_from_transaction_timestamp.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_features_from_transaction_timestamp.__module__,
+        create_features_from_transaction_timestamp.__name__))
 
     data = data.withColumn('TransactionHour',
                            hour(data[config.feature_column_timestamp]))
@@ -139,9 +142,9 @@ def create_feature_based_on_spent_by_timestamp(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    utils.save_log(
-        f'{create_feature_based_on_spent_by_timestamp.__module__} :: '
-        f'{create_feature_based_on_spent_by_timestamp.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_based_on_spent_by_timestamp.__module__,
+        create_feature_based_on_spent_by_timestamp.__name__))
 
     data = data.withColumn('RatioValueSpentByWeekOfYear',
                            (data['Value'] / data['TransactionWeekOfYear']))
@@ -165,9 +168,9 @@ def create_features_avg_ratio_value_by_categories(data, list_of_categories):
         data: input spark data frame.
         list_of_categories: features to be inserted on global features list
     """
-    utils.save_log(
-        f'{create_features_avg_ratio_value_by_categories.__module__} :: '
-        f'{create_features_avg_ratio_value_by_categories.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_features_avg_ratio_value_by_categories.__module__,
+        create_features_avg_ratio_value_by_categories.__name__))
 
     for item in list_of_categories:
         data = create_feature_average_value_for_category(data, item)
@@ -188,9 +191,9 @@ def create_feature_average_value_for_category(data, item):
         data (spark data frame): output spark data frame with
         the new feature created.
     """
-    utils.save_log(
-        f'{create_feature_average_value_for_category.__module__} :: '
-        f'{create_feature_average_value_for_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_average_value_for_category.__module__,
+        create_feature_average_value_for_category.__name__))
 
     column_name = 'AverageValuePer{0}'.format(item)
     aux = data.select([item, config.feature_column_value[0]]).\
@@ -213,9 +216,9 @@ def create_feature_ratio_between_value_and_category(data, item):
         item: type of attribute used to aggregate the data and
         compute the average.
     """
-    utils.save_log(
-        f'{create_feature_ratio_between_value_and_category.__module__} :: '
-        f'{create_feature_ratio_between_value_and_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_ratio_between_value_and_category.__module__,
+        create_feature_ratio_between_value_and_category.__name__))
 
     column_name = 'AverageValuePer{0}'.format(item)
     ratio_column_name = 'RatioOfAverageValuePer{0}'.format(item)
@@ -235,9 +238,9 @@ def update_list_features(list_type, list_column_name):
         list_column_name: list of features name to be added.
             If is a unique value, need be as list as well.
     """
-    utils.save_log(
-        f'{update_list_features.__module__} :: '
-        f'{update_list_features.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        update_list_features.__module__,
+        update_list_features.__name__))
 
     for column_name in list_column_name:
         if list_type == 'categorical':
@@ -254,8 +257,9 @@ def update_features_dims(data):
         self
         data: dataframe
     """
-    utils.save_log(f'{update_features_dims.__module__} :: '
-                   f'{update_features_dims.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        update_features_dims.__module__,
+        update_features_dims.__name__))
 
     return [data[features_list].columns.get_loc(i)
             for i in categorical_features_list]

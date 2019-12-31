@@ -19,8 +19,9 @@ def train(**kwargs):
     --output_valid_x_file ../data/valid_x.csv \
     --output_valid_y_file ../data/valid_y.csv
     """
-    utils.save_log(f'{train.__module__} :: ' +
-                   f'{train.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        train.__module__,
+        train.__name__))
 
     training_data = utils.read_data(kwargs['input_train_file'])
 
@@ -88,8 +89,9 @@ def validation(**kwargs):
     --output_valid_y_file ../data/valid_y.csv \
     --output_valid_result_file ../data/valid_result.csv
     """
-    utils.save_log(f'{validation.__module__} ::'
-                   f' {validation.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        validation.__module__,
+        validation.__name__))
 
     x_validation_data = utils.read_data(kwargs['output_valid_x_file'])
     y_validation_data = utils.read_data(kwargs['output_valid_y_file'])
@@ -129,8 +131,9 @@ def test(**kwargs):
     --input_test_file ../data/xente_fraud_detection_test.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    utils.save_log(f'{test.__module__} ::'
-                   f' {test.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        test.__module__,
+        test.__name__))
 
     testing_data = utils.read_data(kwargs['input_test_file'])
     if not testing_data:

@@ -21,8 +21,9 @@ def train(X_data,
     Returns:
         model: CatBoost model
     """
-    utils.save_log(f'{train.__module__} :: '
-                   f'{train.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        train.__module__,
+        train.__name__))
 
     model_cat_boost = create_model()
 
@@ -54,8 +55,9 @@ def create_model(iterations=5000,
     Returns:
         model: Isolation Forest model
     """
-    utils.save_log(f'{create_model.__module__} :: '
-                   f'{create_model.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_model.__module__,
+        create_model.__name__))
 
     model = CatBoostClassifier(
         iterations=iterations,
@@ -80,8 +82,9 @@ def predict(data, y_value: None, cat_boost_file_name='../data/catBoost_model'):
     Returns:
         predictions: Model outcomes (predictions)
     """
-    utils.save_log(f'{predict.__module__} :: '
-                   f'{predict.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        predict.__module__,
+        predict.__name__))
 
     model_cat_boost = create_model()
 
@@ -114,8 +117,9 @@ def grid_search(X_data,
     Returns:
         result: grid search best configuration
     """
-    utils.save_log(f'{grid_search.__module__} :: '
-                   f'{grid_search.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        grid_search.__module__,
+        grid_search.__name__))
 
     model = CatBoostClassifier()
 
@@ -144,8 +148,9 @@ def export_valid_performance(y_label,
         regularization_l2: Configure CatBoost
         output_file: output file name to export performance
     """
-    utils.save_log(f'{export_valid_performance.__module__} :: '
-                   f'{export_valid_performance.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        export_valid_performance.__module__,
+        export_valid_performance.__name__))\
 
     precision, recall, f_score, _ = score(y_label, y_predictions)
 

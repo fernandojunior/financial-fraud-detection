@@ -120,12 +120,13 @@ def create_features_from_transaction_timestamp(data):
                            weekofyear(data[config.feature_column_timestamp]))
 
     data = data.withColumn('WeekAction',
-                           when(col('TransactionWeekOfYear').between(50, 52), 1).
+                           when(col('TransactionWeekOfYear').
+                                between(50, 52), 1).
                            otherwise(0))
 
-    update_list_features("numerical", [#'TransactionHour',
+    update_list_features("numerical", ['TransactionHour',
                                        'TransactionDayOfWeek',
-                                       #'TransactionDayOfYear',
+                                       'TransactionDayOfYear',
                                        'TransactionWeekOfYear',
                                        'WeekAction'])
 
@@ -219,7 +220,8 @@ def create_feature_ratio_between_value_and_category(data, item):
     column_name = 'AverageValuePer{0}'.format(item)
     ratio_column_name = 'RatioOfAverageValuePer{0}'.format(item)
     data = data.withColumn(ratio_column_name,
-                           (col(config.feature_column_value[0]) - col(column_name)) /
+                           (col(config.feature_column_value[0]) -
+                            col(column_name)) /
                            col(column_name))
     update_list_features("numerical", [ratio_column_name])
     return data

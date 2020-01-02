@@ -69,4 +69,3 @@ def plot_feature_importance(cat_boost_model,
                     shap_values[200, :],
                     x_data_set.iloc[200, :])
     plt.show()
-

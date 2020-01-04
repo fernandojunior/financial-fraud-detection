@@ -8,6 +8,10 @@ import config
 def train(X_data,
           y_data,
           categorical_features_list,
+          depth_tree,
+          learning_rate,
+          l2_regularization,
+          number_of_iterations,
           cat_boost_file_name='../data/catBoost_model'):
     """Fit the CatBoost model using the training data.
         The model weights are saved in output file.
@@ -16,6 +20,10 @@ def train(X_data,
         X_data: a matrix dataframe
         y_data: column outcome value to use in the train
         categorical_features_list: categorical features in X_data
+        number_of_iterations: number of iterations
+        depth_tree: depth tree to limit the catboost size
+        learning_rate: learning rate to adjust the weights
+        l2_regularization: regularization metric
         cat_boost_file_name: file name to export the trained model
 
     Returns:
@@ -25,7 +33,10 @@ def train(X_data,
         train.__module__,
         train.__name__))
 
-    model_cat_boost = create_model()
+    model_cat_boost = create_model(depth_tree=depth_tree,
+                                   learning_rate=learning_rate,
+                                   reg_l2=l2_regularization,
+                                   iterations=number_of_iterations)
 
     model_cat_boost.fit(X_data,
                         y_data,
@@ -46,10 +57,10 @@ def create_model(iterations=5000,
     """Create a CatBoost model.
 
     Args:
-        iterations
-        depth_tree (int):
-        learning_rate (int):
-        reg_l2 (int):
+        iterations: number of iterations
+        depth_tree: depth tree to limit the catboost size
+        learning_rate: learning rate to adjust the weights
+        reg_l2: regularization metric
         evaluation_metric (str):
 
     Returns:

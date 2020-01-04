@@ -16,6 +16,9 @@ def train(data,
           features_columns_list,
           label_column,
           percentage_of_outliers,
+          lscp_n_estimators,
+          lscp_neighbors,
+          lscp_clusters,
           output_file_name='../data/model_lscp'):
     """Fit the LSCP model using the training data.
         The model weights are saved in output file.
@@ -40,7 +43,10 @@ def train(data,
             model = pickle.load(pickle_file)
         return model
 
-    model = create_model(percentage_of_outliers=percentage_of_outliers)
+    model = create_model(percentage_of_outliers=percentage_of_outliers,
+                         lscp_n_estimators=lscp_n_estimators,
+                         lscp_neighbors=lscp_neighbors,
+                         lscp_clusters=lscp_clusters)
     model.fit(data[features_columns_list], data[label_column])
 
     with open(output_file_name, 'wb') as file_model:
@@ -49,11 +55,17 @@ def train(data,
     return model
 
 
-def create_model(percentage_of_outliers=0.002):
+def create_model(percentage_of_outliers=0.002,
+                 n_estimators=5,
+                 neighbors=2,
+                 clusters=3):
     """Create a LSCP model.
 
     Args:
         percentage_of_outliers: percentage of fraud on data
+        n_estimators: number of estimators used in the bagging classifier
+        neighbors: number of neighbors used to based the classification
+        clusters: number of clusters used to split the data
 
     Returns:
         model: LSCP model
@@ -63,13 +75,16 @@ def create_model(percentage_of_outliers=0.002):
         create_model.__name__))
 
     bagging_model = \
-        get_model_bagging(percentage_of_outliers=percentage_of_outliers)
+        get_model_bagging(percentage_of_outliers=percentage_of_outliers,
+                          num_estimators=n_estimators)
 
     lof_model = \
-        get_model_lof(percentage_of_outliers=percentage_of_outliers)
+        get_model_lof(percentage_of_outliers=percentage_of_outliers,
+                      num_neighbors=neighbors)
 
     cblof_model = \
-        get_model_cblof(percentage_of_outliers=percentage_of_outliers)
+        get_model_cblof(percentage_of_outliers=percentage_of_outliers,
+                        num_clusters=clusters)
 
     list_of_detectors = [bagging_model, lof_model, cblof_model]
     model = LSCP(detector_list=list_of_detectors,

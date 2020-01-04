@@ -31,7 +31,14 @@ def train(**kwargs):
 
     training_data = features_engineering.generate_new_features(training_data)
 
-    training_data = outlier_detector.identify_outliers(training_data)
+    training_data =\
+        outlier_detector.identify_outliers(
+            training_data,
+            kwargs['lscp_n_estimators'],
+            kwargs['lscp_neighbors'],
+            kwargs['lscp_clusters'],
+            kwargs['knn_neighbors'],
+            kwargs['knn_method'])
 
     visualization.plot_heatmap(training_data)
 
@@ -69,7 +76,11 @@ def train(**kwargs):
         models.cat_boost.train(
             X_train_balanced[features_engineering.features_list],
             y_train_balanced,
-            features_engineering.categorical_features_list)
+            features_engineering.categorical_features_list,
+            kwargs['cat_depth'],
+            kwargs['cat_lr'],
+            kwargs['cat_l2'],
+            kwargs['cat_iter'])
 
     visualization.plot_feature_importance(
         cat_boost_model,

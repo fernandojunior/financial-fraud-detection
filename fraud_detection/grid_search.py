@@ -9,8 +9,60 @@ knn_num_neighbors = [2, 4, 8, 16, 32]
 knn_methods = ['largest', 'mean', 'median']
 # Catboost
 catboost_depth = [2, 4, 8, 16, 32]
-catboost_learning_rate = [0.001, 0.01]
+catboost_learning_rate = [0.0003, 0.001, 0.01]
 catboost_l2_leaf_reg = [2, 4, 8, 16, 32]
+catboost_number_of_iterations = [100, 400, 800]
+
+
+def make_iteration(lscp_n_estimators,
+                   lscp_neighbors,
+                   lscp_clusters,
+                   knn_neighbors,
+                   knn_method,
+                   cat_depth,
+                   cat_lr,
+                   cat_l2,
+                   cat_iter):
+    hyperparam_list = \
+        (f'{lscp_n_estimators},'
+         f'{lscp_neighbors},'
+         f'{lscp_clusters},'
+         f'{knn_neighbors},'
+         f'{knn_method},'
+         f'{cat_depth},'
+         f'{cat_lr},'
+         f'{cat_l2},'
+         f'{cat_iter}')
+
+    command = \
+        f'python3.6 main.py run' \
+        f'--input_train_file' \
+        f'../data/xente_fraud_detection_train.csv' \
+        f'--input_test_file' \
+        f'../data/xente_fraud_detection_test.csv' \
+        f'--output_balanced_train_x_file' \
+        f'../data/balanced_train_x.csv' \
+        f'--output_balanced_train_y_file' \
+        f'../data/balanced_train_y.csv' \
+        f'--output_valid_x_file' \
+        f'../data/valid_x.csv' \
+        f'--output_valid_y_file' \
+        f'../data/valid_y.csv' \
+        f'--output_valid_result_file' \
+        f'../data/validation_{hyperparam_list}.csv' \
+        f'--output_test_result_file' \
+        f'../data/test_predictions_{hyperparam_list}.txt' \
+        f'--lscp_bag_num_of_estimators {lscp_n_estimators}' \
+        f'--lscp_lof_num_neighbors {lscp_neighbors}' \
+        f'--lscp_cblof_num_clusters {lscp_clusters}' \
+        f'--knn_num_neighbors {knn_neighbors}' \
+        f'--knn_method {knn_method}' \
+        f'--catboost_depth {cat_depth}' \
+        f'--catboost_learning_rate {cat_lr}' \
+        f'--catboost_l2_leaf_reg {cat_l2}' \
+        f'--catboost_num_iterations {cat_iter}'
+
+    os.system(command)
 
 
 # Start the grid_search
@@ -22,41 +74,14 @@ for lscp_n_estimators in lscp_bagging_n_estimators:
                     for cat_depth in catboost_depth:
                         for cat_lr in catboost_learning_rate:
                             for cat_l2 in catboost_l2_leaf_reg:
-                                hyperparam_list = \
-                                    (f'{lscp_n_estimators},'
-                                     f'{lscp_neighbors},'
-                                     f'{lscp_clusters},'
-                                     f'{knn_neighbors},'
-                                     f'{knn_method},'
-                                     f'{cat_depth},'
-                                     f'{cat_lr},'
-                                     f'{cat_l2}')
-
-                                command = \
-                                    f'python3.6 main.py run' \
-                                    f'--input_train_file' \
-                                    f'../data/xente_fraud_detection_train.csv' \
-                                    f'--input_test_file' \
-                                    f'../data/xente_fraud_detection_test.csv' \
-                                    f'--output_balanced_train_x_file' \
-                                    f'../data/balanced_train_x.csv' \
-                                    f'--output_balanced_train_y_file' \
-                                    f'../data/balanced_train_y.csv' \
-                                    f'--output_valid_x_file' \
-                                    f'../data/valid_x.csv' \
-                                    f'--output_valid_y_file' \
-                                    f'../data/valid_y.csv' \
-                                    f'--output_valid_result_file' \
-                                    f'../data/validation_{hyperparam_list}.csv' \
-                                    f'--output_test_result_file' \
-                                    f'../data/test_predictions_{hyperparam_list}.txt' \
-                                    f'--lscp_bag_num_of_estimators {lscp_n_estimators}' \
-                                    f'--lscp_lof_num_neighbors {lscp_neighbors}' \
-                                    f'--lscp_cblof_num_clusters {lscp_clusters}' \
-                                    f'--knn_num_neighbors {knn_neighbors}' \
-                                    f'--knn_method {knn_method}' \
-                                    f'--catboost_depth {cat_depth}' \
-                                    f'--catboost_learning_rate {cat_lr}' \
-                                    f'--catboost_l2_leaf_reg {cat_l2}'
-
-                                os.system(command)
+                                for cat_iter in catboost_number_of_iterations:
+                                    make_iteration(
+                                        lscp_n_estimators,
+                                        lscp_neighbors,
+                                        lscp_clusters,
+                                        knn_neighbors,
+                                        knn_method,
+                                        cat_depth,
+                                        cat_lr,
+                                        cat_l2,
+                                        cat_iter)

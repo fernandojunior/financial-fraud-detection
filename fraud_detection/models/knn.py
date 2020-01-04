@@ -10,6 +10,8 @@ def train(data,
           features_columns_list,
           label_column,
           percentage_of_outliers,
+          knn_neighbors,
+          knn_method,
           output_file_name='../data/model_knn'):
     """Fit the KNN model using the training data.
         The model weights are saved in output file.
@@ -19,6 +21,12 @@ def train(data,
         features_columns_list: list of columns to use in the train
         label_column: column name fraud identification
         percentage_of_outliers: percentage of fraud on data
+        knn_neighbors: number of neighbors for k-neighbors queries
+        knn_method:
+            'largest': distance to the kth neighbor as the outlier score
+            'mean': average of all k neighbors as the outlier score
+            'median': median of the distance to k neighbors as the
+            outlier score
         output_file_name: output file name to export IF model
 
     Returns:
@@ -34,7 +42,9 @@ def train(data,
             model = pickle.load(pickle_file)
         return model
 
-    model = create_model(percentage_of_outliers=percentage_of_outliers)
+    model = create_model(percentage_of_outliers=percentage_of_outliers,
+                         num_neighbors=knn_neighbors,
+                         method=knn_method)
     model.fit(data[features_columns_list], data[label_column])
 
     with open(output_file_name, 'wb') as file_model:
@@ -50,7 +60,7 @@ def create_model(percentage_of_outliers=0.002,
 
     Args:
         percentage_of_outliers: percentage of fraud on data
-        num_neighbors: number of neighbors for kneighbors queries
+        num_neighbors: number of neighbors for k-neighbors queries
         method: ’largest’: distance to the kth neighbor as the outlier score
                 ’mean’: average of all k neighbors as the outlier score
                 ’median’: median of the distance to k neighbors

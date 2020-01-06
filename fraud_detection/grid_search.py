@@ -70,8 +70,6 @@ def make_iteration(is_estimators,
 
     print(f'Running the command: {command}')
     os.system(command)
-    import sys
-    sys.exit()
 
     os.system('rm ../data/balanced_train_x.csv')
     os.system('rm ../data/balanced_train_y.csv')

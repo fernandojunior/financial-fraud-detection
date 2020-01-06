@@ -29,6 +29,9 @@ def train(data,
         label_column: column name fraud identification
         percentage_of_outliers: percentage of fraud on data
         output_file_name: output file name to export IF model
+        lscp_n_estimators: number of estimators used in Bagging
+        lscp_neighbors: number of neighbors in LOF
+        lscp_clusters: number of clusters used in CBLOF
 
     Returns:
         model: LSCP model
@@ -44,9 +47,9 @@ def train(data,
         return model
 
     model = create_model(percentage_of_outliers=percentage_of_outliers,
-                         lscp_n_estimators=lscp_n_estimators,
-                         lscp_neighbors=lscp_neighbors,
-                         lscp_clusters=lscp_clusters)
+                         n_estimators=lscp_n_estimators,
+                         neighbors=lscp_neighbors,
+                         clusters=lscp_clusters)
     model.fit(data[features_columns_list], data[label_column])
 
     with open(output_file_name, 'wb') as file_model:

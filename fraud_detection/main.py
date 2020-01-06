@@ -1,7 +1,12 @@
 import sys
 import fire
 
-import models
+import models.isolation_forest
+import models.cat_boost
+import models.knn
+import models.lscp
+import models.oversampler
+
 import outlier_detector
 import features_engineering
 import utils
@@ -17,7 +22,17 @@ def train(**kwargs):
     --output_balanced_train_x_file ../data/balanced_train_x.csv \
     --output_balanced_train_y_file ../data/balanced_train_y.csv \
     --output_valid_x_file ../data/valid_x.csv \
-    --output_valid_y_file ../data/valid_y.csv
+    --output_valid_y_file ../data/valid_y.csv \
+    --isolation_forest_num_estimators (integer) \
+    --lscp_bag_num_of_estimators (integer) \
+    --lscp_lof_num_neighbors (integer) \
+    --lscp_cblof_num_clusters (integer) \
+    --knn_num_neighbors (integer) \
+    --knn_method ['largest', 'mean', 'median'] \
+    --catboost_depth (integer) \
+    --catboost_learning_rate (float) \
+    --catboost_l2_leaf_reg (integer) \
+    --catboost_num_iterations (integer)
     """
     utils.save_log('{0} :: {1}'.format(
         train.__module__,
@@ -34,10 +49,11 @@ def train(**kwargs):
     training_data =\
         outlier_detector.identify_outliers(
             training_data,
-            kwargs['lscp_n_estimators'],
-            kwargs['lscp_neighbors'],
-            kwargs['lscp_clusters'],
-            kwargs['knn_neighbors'],
+            kwargs['isolation_forest_num_estimators'],
+            kwargs['lscp_bag_num_of_estimators'],
+            kwargs['lscp_lof_num_neighbors'],
+            kwargs['lscp_cblof_num_clusters'],
+            kwargs['knn_num_neighbors'],
             kwargs['knn_method'])
 
     visualization.plot_heatmap(training_data)
@@ -77,10 +93,10 @@ def train(**kwargs):
             X_train_balanced[features_engineering.features_list],
             y_train_balanced,
             features_engineering.categorical_features_list,
-            kwargs['cat_depth'],
-            kwargs['cat_lr'],
-            kwargs['cat_l2'],
-            kwargs['cat_iter'])
+            kwargs['catboost_depth'],
+            kwargs['catboost_learning_rate'],
+            kwargs['catboost_l2_leaf_reg'],
+            kwargs['catboost_num_iterations'])
 
     visualization.plot_feature_importance(
         cat_boost_model,

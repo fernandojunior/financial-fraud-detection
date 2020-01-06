@@ -1,4 +1,8 @@
-import models
+import models.isolation_forest
+import models.cat_boost
+import models.knn
+import models.lscp
+import models.oversampler
 import utils
 import features_engineering
 
@@ -23,6 +27,7 @@ def get_percentage_of_fraudulent_transactions(data):
 
 
 def identify_outliers(data,
+                      isolation_forest_num_estimators,
                       lscp_n_estimators,
                       lscp_neighbors,
                       lscp_clusters,
@@ -33,6 +38,13 @@ def identify_outliers(data,
 
     Args:
         data (Pandas dataframe): a matrix dataframe
+        isolation_forest_num_estimators (int): number of estimators used
+        by Isolation Forest
+        lscp_n_estimators (int): number of estimators used by Bagging (LSCP)
+        lscp_neighbors (int): number of neighbors used in LOF (LSCP)
+        lscp_clusters (int): number of clusters used in CBLOF (LSCP)
+        knn_neighbors (int): number of neighbors used by KNN
+        knn_method (string): KNN method to identify the outlier
     Returns:
         data: Dataframe with outliers columns and sum of them
     """
@@ -49,7 +61,8 @@ def identify_outliers(data,
         data,
         features_engineering.numerical_features_list,
         features_engineering.target_label,
-        percent_fraudulent_transactions)
+        percent_fraudulent_transactions,
+        isolation_forest_num_estimators)
 
     data = outliers_with_knn(
         data,
@@ -83,7 +96,8 @@ def identify_outliers(data,
 def outliers_with_isolation_forest(data,
                                    features_columns_list,
                                    label_column: None,
-                                   percentage_of_outliers: None):
+                                   percentage_of_outliers: None,
+                                   num_of_estimators: 2):
     """Usage of Isolation Forest model to predict outliers into the data
 
     Args:
@@ -103,7 +117,8 @@ def outliers_with_isolation_forest(data,
         models.isolation_forest.train(data,
                                       features_columns_list,
                                       label_column,
-                                      percentage_of_outliers)
+                                      percentage_of_outliers,
+                                      num_of_estimators)
 
         predictions = \
             models.isolation_forest.predict(data[features_columns_list])

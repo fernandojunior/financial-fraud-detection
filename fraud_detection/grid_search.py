@@ -76,6 +76,11 @@ def make_iteration(is_estimators,
     os.system('rm ../data/valid_x.csv')
     os.system('rm ../data/valid_y.csv')
 
+    os.system('rm ../data/catBoost_model')
+    os.system('rm ../data/model_if')
+    os.system('rm ../data/model_knn')
+    os.system('rm ../data/model_lscp')
+
 
 # Start the grid_search
 for lscp_n_estimators in lscp_bagging_n_estimators:

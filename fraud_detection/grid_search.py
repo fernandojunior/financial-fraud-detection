@@ -1,19 +1,23 @@
 import os
+import sklearn.model_selection
 
-# LSCP
-lscp_bagging_n_estimators = [2, 4, 8, 16, 32]
-lscp_lof_n_neighbors = [2, 4, 8, 16, 32]
-lscp_cblof_n_clusters = [2, 4, 8, 16, 32]
-# Isolation Forest
-iso_forest_estimators = [2, 4, 8, 16, 32]
-# KNN
-knn_num_neighbors = [2, 4, 8, 16, 32]
-knn_methods = ['largest', 'mean', 'median']
-# Catboost
-catboost_depth = [2, 4, 8, 16, 32]
-catboost_learning_rate = [0.0003, 0.001, 0.01]
-catboost_l2_leaf_reg = [2, 4, 8, 16, 32]
-catboost_number_of_iterations = [100, 400, 800]
+
+param_grid = {
+    # LSCP
+    'lscp_bagging_n_estimators': [2, 4, 8, 16, 32],
+    'lscp_lof_n_neighbors': [2, 4, 8, 16, 32],
+    'lscp_cblof_n_clusters': [2, 4, 8, 16, 32],
+    # Isolation Forest
+    'iso_forest_estimators': [2, 4, 8, 16, 32],
+    # KNN
+    'knn_num_neighbors': [2, 4, 8, 16, 32],
+    'knn_methods': ['largest', 'mean', 'median'],
+    # Catboost
+    'catboost_depth': [2, 4, 8, 16, 32],
+    'catboost_learning_rate': [0.0003, 0.001, 0.01],
+    'catboost_l2_leaf_reg': [2, 4, 8, 16, 32],
+    'catboost_number_of_iterations': [100, 400, 800]
+}
 
 
 def make_iteration(is_estimators,
@@ -83,24 +87,15 @@ def make_iteration(is_estimators,
 
 
 # Start the grid_search
-for lscp_n_estimators in lscp_bagging_n_estimators:
-    for lscp_neighbors in lscp_lof_n_neighbors:
-        for lscp_clusters in lscp_cblof_n_clusters:
-            for knn_neighbors in knn_num_neighbors:
-                for knn_method in knn_methods:
-                    for cat_depth in catboost_depth:
-                        for cat_lr in catboost_learning_rate:
-                            for cat_l2 in catboost_l2_leaf_reg:
-                                for cat_iter in catboost_number_of_iterations:
-                                    for is_estimators in iso_forest_estimators:
-                                        make_iteration(
-                                            is_estimators,
-                                            lscp_n_estimators,
-                                            lscp_neighbors,
-                                            lscp_clusters,
-                                            knn_neighbors,
-                                            knn_method,
-                                            cat_depth,
-                                            cat_lr,
-                                            cat_l2,
-                                            cat_iter)
+for param_combination in sklearn.model_selection.ParameterGrid(param_grid):
+    make_iteration(
+        param_combination['is_estimators'],
+        param_combination['lscp_n_estimators'],
+        param_combination['lscp_neighbors'],
+        param_combination['lscp_clusters'],
+        param_combination['knn_neighbors'],
+        param_combination['knn_method'],
+        param_combination['cat_depth'],
+        param_combination['cat_lr'],
+        param_combination['cat_l2'],
+        param_combination['cat_iter'])

@@ -21,6 +21,10 @@ numerical_features_list = \
     config.feature_column_value + \
     config.others_numerical_columns_list
 
+categorical_features_dims = 0
+
+percent_fraudulent_transactions = 0
+
 
 def generate_new_features(data):
     """Caller multiples functions

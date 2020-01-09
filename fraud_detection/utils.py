@@ -1,7 +1,7 @@
-from pyspark.sql import SparkSession
-import findspark
-import sklearn.model_selection as sklearn
 import logging
+import sklearn.model_selection as sklearn
+import findspark
+from pyspark.sql import SparkSession
 
 import config
 

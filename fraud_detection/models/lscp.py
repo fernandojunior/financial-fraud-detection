@@ -1,10 +1,10 @@
+import pickle
+import os
+import numpy
 from pyod.models.lscp import LSCP
 from pyod.models.feature_bagging import FeatureBagging
 from pyod.models.lof import LOF
 from pyod.models.cblof import CBLOF
-import pickle
-import os
-import numpy
 
 import config
 import utils

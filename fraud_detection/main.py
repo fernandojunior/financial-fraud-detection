@@ -1,7 +1,7 @@
 import sys
 import fire
 
-import models
+from models import cat_boost, oversampler
 import outlier_detector
 import features_engineering
 import utils
@@ -48,7 +48,7 @@ def train(**kwargs):
             test_proportion=0.3)
 
     X_train_balanced, y_train_balanced = \
-        models.oversampler.balance_data_set(
+        oversampler.balance_data_set(
             X_train[features_engineering.features_list],
             y_train,
             features_engineering.categorical_features_dims)
@@ -66,7 +66,7 @@ def train(**kwargs):
         y_name_file=kwargs['output_balanced_train_y_file'])
 
     cat_boost_model = \
-        models.cat_boost.train(
+        cat_boost.train(
             X_train_balanced[features_engineering.features_list],
             y_train_balanced,
             features_engineering.categorical_features_list)
@@ -106,8 +106,8 @@ def validation(**kwargs):
     x_validation_data = \
         x_validation_data[features_engineering.features_list].toPandas()
 
-    predictions = models.cat_boost.predict(data=x_validation_data,
-                                           y_value=y_validation_data)
+    predictions = cat_boost.predict(data=x_validation_data,
+                                    y_value=y_validation_data)
 
     data_validated = x_validation_data
     data_validated['FraudResult'] = \
@@ -151,7 +151,7 @@ def test(**kwargs):
 
     testing_data = testing_data[features_engineering.features_list]
 
-    predictions = models.cat_boost.predict(data=testing_data, y_value=None)
+    predictions = cat_boost.predict(data=testing_data, y_value=None)
 
     testing_data['TransactionId'] = transaction_column
     testing_data['CatBoost'] = predictions
@@ -188,7 +188,7 @@ def run(**kwargs):
     validation(**kwargs)
     test(**kwargs)
 
-    utils.save_log('{0}\n ...Finish...\n'.format(run.__name__, kwargs))
+    utils.save_log('{0}\n ...Finish...\n'.format(run.__name__))
 
 
 def cli():

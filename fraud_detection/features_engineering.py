@@ -4,22 +4,22 @@ from pyspark.sql.functions import (when, col, hour, dayofweek,
 import utils
 import config
 
-target_label = config.target_column_name[0]
+target_label = \
+    config.target_column_name[0]
 
-features_list = config.feature_categorical_to_check_spent_value +\
-    config.others_categorical_columns_list +\
-    config.others_numerical_columns_list +\
+features_list = \
+    config.feature_categorical_to_check_spent_value + \
+    config.others_categorical_columns_list + \
+    config.others_numerical_columns_list + \
     config.feature_column_value
 
-categorical_features_list = config.feature_categorical_to_check_spent_value +\
+categorical_features_list = \
+    config.feature_categorical_to_check_spent_value + \
     config.others_categorical_columns_list
 
-categorical_features_dims = 0
-
-numerical_features_list = config.feature_column_value +\
+numerical_features_list = \
+    config.feature_column_value + \
     config.others_numerical_columns_list
-
-fraudulent_percentage = 0
 
 
 def generate_new_features(data):

@@ -1,10 +1,10 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy
-from catboost import Pool
-import shap
 # Copy value, not memory address
 from copy import deepcopy
+import numpy
+import shap
+from catboost import Pool
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 import utils
 import features_engineering
@@ -69,4 +69,3 @@ def plot_feature_importance(cat_boost_model,
                     shap_values[200, :],
                     x_data_set.iloc[200, :])
     plt.show()
-

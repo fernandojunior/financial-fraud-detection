@@ -1,4 +1,5 @@
 .idea
-src/catboost_info
-src/__pycache__
+fraud_detection/catboost_info
+fraud_detection/__pycache__
+fraud_detection/log_file.log
 *~

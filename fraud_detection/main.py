@@ -2,9 +2,9 @@ import sys
 import fire
 
 from models import cat_boost, oversampler
-import detect_outlier
-import features_engineering as fte
-import utils as ut
+import outlier_detector
+import features_engineering
+import utils
 import visualization
 
 
@@ -19,57 +19,63 @@ def train(**kwargs):
     --output_valid_x_file ../data/valid_x.csv \
     --output_valid_y_file ../data/valid_y.csv
     """
-    ut.save_log(f'{train.__module__} :: '
-                f'{train.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        train.__module__,
+        train.__name__))
 
-    training_data = ut.read_data(kwargs['input_train_file'])
+    training_data = utils.read_data(kwargs['input_train_file'])
 
     if not training_data:
-        ut.save_log(f'{train.__name__} :: '
-                    'Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(train.__name__))
         sys.exit()
 
-    training_data = fte.generate_new_features(training_data)
+    training_data = features_engineering.generate_new_features(training_data)
 
-    training_data = detect_outlier.identify_outliers(training_data)
+    training_data = outlier_detector.identify_outliers(training_data)
 
     visualization.plot_heatmap(training_data)
 
-    fte.update_features_dims(training_data)
+    features_engineering.categorical_features_dims = \
+        features_engineering.update_features_dims(training_data)
 
-    ut.export_pandas_columns_to_txt(training_data[fte.features_list])
+    utils.export_pandas_columns_to_txt(
+        training_data[features_engineering.features_list])
 
     X_train, X_valid, y_train, y_valid = \
-        ut.split_data_train_valid(training_data[fte.features_list],
-                                  training_data[fte.target_label],
-                                  test_proportion=0.3)
+        utils.split_data_train_valid(
+            training_data[features_engineering.features_list],
+            training_data[features_engineering.target_label],
+            test_proportion=0.3)
 
     X_train_balanced, y_train_balanced = \
-        oversampler.balance_data_set(X_train,
-                                     y_train,
-                                     fte.categorical_features_dims)
+        oversampler.balance_data_set(
+            X_train[features_engineering.features_list],
+            y_train,
+            features_engineering.categorical_features_dims)
 
-    ut.export_pandas_dataframe_to_csv(
-        X_data=X_valid,
+    utils.export_pandas_dataframe_to_csv(
+        X_data=X_valid[features_engineering.features_list],
         y_data=y_valid,
         x_name_file=kwargs['output_valid_x_file'],
         y_name_file=kwargs['output_valid_y_file'])
 
-    ut.export_pandas_dataframe_to_csv(
-        X_data=X_train_balanced,
+    utils.export_pandas_dataframe_to_csv(
+        X_data=X_train_balanced[features_engineering.features_list],
         y_data=y_train_balanced,
         x_name_file=kwargs['output_balanced_train_x_file'],
         y_name_file=kwargs['output_balanced_train_y_file'])
 
     cat_boost_model = \
-        cat_boost.train(X_train_balanced[fte.features_list],
-                        y_train_balanced,
-                        fte.categorical_features_list)
+        cat_boost.train(
+            X_train_balanced[features_engineering.features_list],
+            y_train_balanced,
+            features_engineering.categorical_features_list)
 
-    visualization.plot_feature_importance(cat_boost_model,
-                                          X_train_balanced,
-                                          y_train_balanced,
-                                          fte.categorical_features_list)
+    visualization.plot_feature_importance(
+        cat_boost_model,
+        X_train_balanced,
+        y_train_balanced,
+        features_engineering.categorical_features_list)
 
     print('------------ Finish Train ------------')
 
@@ -83,20 +89,22 @@ def validation(**kwargs):
     --output_valid_y_file ../data/valid_y.csv \
     --output_valid_result_file ../data/valid_result.csv
     """
-    ut.save_log(f'{validation.__module__} :: '
-                f'{validation.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        validation.__module__,
+        validation.__name__))
 
-    x_validation_data = ut.read_data(kwargs['output_valid_x_file'])
-    y_validation_data = ut.read_data(kwargs['output_valid_y_file'])
+    x_validation_data = utils.read_data(kwargs['output_valid_x_file'])
+    y_validation_data = utils.read_data(kwargs['output_valid_y_file'])
     if not x_validation_data or not y_validation_data:
-        print(x_validation_data.head(1))
-        ut.save_log(f'{validation.__name__} :: '
-                    'Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(train.__name__))
         sys.exit()
 
     # atualizando colunas
-    fte.features_list = ut.import_pandas_columns_from_txt()
-    x_validation_data = x_validation_data[fte.features_list].toPandas()
+    features_engineering.features_list = \
+        utils.import_pandas_columns_from_txt()
+
+    x_validation_data = \
+        x_validation_data[features_engineering.features_list].toPandas()
 
     predictions = cat_boost.predict(data=x_validation_data,
                                     y_value=y_validation_data)
@@ -106,7 +114,7 @@ def validation(**kwargs):
         y_validation_data.toPandas()
     data_validated['CatBoost'] = predictions
 
-    ut.export_pandas_dataframe_to_csv(
+    utils.export_pandas_dataframe_to_csv(
         X_data=data_validated,
         y_data=None,
         x_name_file=kwargs['output_valid_result_file'],
@@ -123,27 +131,40 @@ def test(**kwargs):
     --input_test_file ../data/xente_fraud_detection_test.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    ut.save_log(f'{test.__module__} :: '
-                f'{test.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        test.__module__,
+        test.__name__))
 
-    testing_data = ut.read_data(kwargs['input_test_file'])
+    testing_data = utils.read_data(kwargs['input_test_file'])
     if not testing_data:
-        ut.save_log(f'{test.__name__} :: '
-                    'Input Data Not Found')
+        utils.save_log('{0} :: Input Data Not Found'.format(test.__name__))
         sys.exit()
 
-    testing_data = fte.generate_new_features(testing_data)
-    testing_data = detect_outlier.identify_outliers(testing_data)
+    testing_data = features_engineering.generate_new_features(testing_data)
+
+    testing_data = outlier_detector.identify_outliers(testing_data)
+    transaction_column = testing_data['TransactionId']
 
     # atualizando colunas
-    fte.features_list = ut.import_pandas_columns_from_txt()
-    testing_data = testing_data[fte.features_list]
+    features_engineering.features_list = \
+        utils.import_pandas_columns_from_txt()
+
+    testing_data = testing_data[features_engineering.features_list]
 
     predictions = cat_boost.predict(data=testing_data, y_value=None)
 
-    ut.save_zindi_predictions(testing_data['TransactionId'],
-                              predictions,
-                              kwargs['output_test_result_file'])
+    testing_data['TransactionId'] = transaction_column
+    testing_data['CatBoost'] = predictions
+
+    utils.export_pandas_dataframe_to_csv(
+        X_data=testing_data,
+        y_data=None,
+        x_name_file='../data/test_result.csv',
+        y_name_file=None)
+
+    utils.save_zindi_predictions(testing_data['TransactionId'],
+                                 testing_data['CatBoost'],
+                                 kwargs['output_test_result_file'])
 
     print('------------ Finish Test ------------')
 
@@ -161,14 +182,13 @@ def run(**kwargs):
     --output_valid_result_file ../data/valid_result.csv \
     --output_test_result_file ../data/xente_output_final.txt
     """
-    ut.save_log(f'{run.__name__}' + ' :: '
-                'args: {}\n'.format(kwargs))
+    utils.save_log('{0} :: kwargs: {1}\n'.format(run.__name__, kwargs))
 
     train(**kwargs)
     validation(**kwargs)
     test(**kwargs)
 
-    ut.save_log(f'{run.__name__}\n ...Finish...')
+    utils.save_log('{0}\n ...Finish...\n'.format(run.__name__))
 
 
 def cli():

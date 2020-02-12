@@ -1,8 +1,9 @@
-from pyspark.sql import SparkSession
-import findspark
-import sklearn.model_selection as sklearn
 import logging
-import config as cfg
+import sklearn.model_selection as sklearn
+import findspark
+from pyspark.sql import SparkSession
+
+import config
 
 logging.basicConfig(filename='log_file.log',
                     level=logging.INFO,
@@ -34,8 +35,9 @@ def read_data(file_name):
     Returns:
         Spark data frame: data set read.
     """
-    save_log(f'{read_data.__module__} :: '
-             f'{read_data.__name__}')
+    save_log('{0} :: {1}'.format(
+        read_data.__module__,
+        read_data.__name__))
 
     data = SPARK.read.csv(file_name,
                           header=True,
@@ -56,29 +58,33 @@ def split_data_train_valid(X_data, y_data, test_proportion=0.3):
     Returns:
         Spark data frame: data set read.
     """
-    save_log(f'{split_data_train_valid.__module__} :: '
-             f'{split_data_train_valid.__name__}')
+    save_log('{0} :: {1}'.format(
+        split_data_train_valid.__module__,
+        split_data_train_valid.__name__))
 
     X_train, X_valid, y_train, y_valid = \
         sklearn.train_test_split(X_data,
                                  y_data,
                                  test_size=test_proportion,
-                                 random_state=cfg.random_seed)
+                                 random_state=config.random_seed)
 
     return X_train, X_valid, y_train, y_valid
 
 
-def export_pandas_columns_to_txt(data):
+def export_pandas_columns_to_txt(
+        data,
+        input_file_name='../data/features_columns.txt'):
     """ Export dataframe columns to txt file
 
     Args:
         - data (pandas data frame): Pandas dataframe file
     """
-    save_log(f'{export_pandas_dataframe_to_csv.__module__} :: '
-             f'{export_pandas_dataframe_to_csv.__name__}')
+    save_log('{0} :: {1}'.format(
+        export_pandas_columns_to_txt.__module__,
+        export_pandas_columns_to_txt.__name__))
 
     columns = data.columns
-    file = open('../data/features_columns.txt', 'w')
+    file = open(input_file_name, 'w')
     for col in columns:
         file.write('{0}\n'.format(col))
     file.close()
@@ -90,6 +96,9 @@ def import_pandas_columns_from_txt(file_name='../data/features_columns.txt'):
     Args:
         - file_name: file path to get column names
     """
+    save_log('{0} :: {1}'.format(
+        import_pandas_columns_from_txt.__module__,
+        import_pandas_columns_from_txt.__name__))
     file_text = open(file_name, "r")
     array_features = []
     for line in file_text:
@@ -110,8 +119,9 @@ def export_pandas_dataframe_to_csv(X_data,
         - x_name_file (str): path to export the first pandas dataframe file
         - y_name_file (str): path to export the second pandas dataframe file
     """
-    save_log(f'{export_pandas_dataframe_to_csv.__module__} :: '
-             f'{export_pandas_dataframe_to_csv.__name__}')
+    save_log('{0} :: {1}'.format(
+        export_pandas_dataframe_to_csv.__module__,
+        export_pandas_dataframe_to_csv.__name__))
 
     X_data.to_csv(x_name_file, index=False, header=True)
     if y_data is not None:
@@ -126,8 +136,9 @@ def save_zindi_predictions(list_of_transactions_id,
     Args:
         - data (pandas data frame): Pandas dataframe file
     """
-    save_log(f'{save_zindi_predictions.__module__} :: '
-             f'{save_zindi_predictions.__name__}')
+    save_log('{0} :: {1}'.format(
+        save_zindi_predictions.__module__,
+        save_zindi_predictions.__name__))
 
     file = open(output_file_name, 'w')
     file.write('TransactionId,FraudResult\n')

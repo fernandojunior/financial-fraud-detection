@@ -1,22 +1,29 @@
 from pyspark.sql.functions import (when, col, hour, dayofweek,
                                    weekofyear, dayofyear)
-import utils as ut
 
-target_label = 'FraudResult'
+import utils
+import config
 
-features_list = ['ProviderId', 'ProductId', 'TransactionId', 'BatchId',
-                 'ProductCategory', 'ChannelId', 'PricingStrategy',
-                 'Value']
+target_label = \
+    config.target_column_name[0]
 
-categorical_features_list = ['ProviderId', 'ProductId', 'TransactionId',
-                             'BatchId', 'ProductCategory', 'ChannelId',
-                             'PricingStrategy']
+features_list = \
+    config.feature_categorical_to_check_spent_value + \
+    config.others_categorical_columns_list + \
+    config.others_numerical_columns_list + \
+    config.feature_column_value
+
+categorical_features_list = \
+    config.feature_categorical_to_check_spent_value + \
+    config.others_categorical_columns_list
+
+numerical_features_list = \
+    config.feature_column_value + \
+    config.others_numerical_columns_list
 
 categorical_features_dims = 0
 
-numerical_features_list = ['Value']
-
-fraudulent_percentage = 0
+percent_fraudulent_transactions = 0
 
 
 def generate_new_features(data):
@@ -29,14 +36,15 @@ def generate_new_features(data):
     Returns:
         data (spark dataframe): a matrix dataframe with new features.
     """
-    ut.save_log(f'{generate_new_features.__module__} :: '
-                f'{generate_new_features.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        generate_new_features.__module__,
+        generate_new_features.__name__))
 
     data = create_feature_is_credit_debit(data)
     data = create_feature_value_category(data)
     data = create_features_from_transaction_timestamp(data)
     data = create_feature_based_on_spent_by_timestamp(data)
-    list_of_categories = ['ProductId', 'ProviderId']
+    list_of_categories = config.feature_categorical_to_check_spent_value
     data = create_features_avg_ratio_value_by_categories(data,
                                                          list_of_categories)
     return data
@@ -50,12 +58,12 @@ def create_feature_is_credit_debit(data):
     Args:
         data (spark data frame): input spark data frame.
     """
-    ut.save_log(f'{create_feature_is_credit_debit.__module__} :: '
-                f'{create_feature_is_credit_debit.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_is_credit_debit.__module__,
+        create_feature_is_credit_debit.__name__))
 
     data = data.withColumn("Operation",
                            when(data.Amount > 0, 1).
-                           when(data.Amount < 0, -1).
                            otherwise(0))
 
     update_list_features("numerical", ["Operation"])
@@ -76,15 +84,15 @@ def create_feature_value_category(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    ut.save_log(f'{create_feature_value_category.__module__} :: '
-                f'{create_feature_value_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_value_category.__module__,
+        create_feature_value_category.__name__))
 
     avg_value = data.agg({'Value': 'avg'}).collect()[0][0]
     data = data. \
         withColumn('ValueStrategy',
-                   when(col('Value') > avg_value * 100, 3).
-                   when(col('Value') > avg_value * 10, 2).
-                   when(col('Value') > avg_value * 2, 1).
+                   when(col('Value') > avg_value * 200, 2).
+                   when(col('Value') > avg_value * 50, 1).
                    otherwise(0))
 
     update_list_features("numerical", ["ValueStrategy"])
@@ -105,22 +113,29 @@ def create_features_from_transaction_timestamp(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    ut.save_log(f'{create_features_from_transaction_timestamp.__module__} :: '
-                f'{create_features_from_transaction_timestamp.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_features_from_transaction_timestamp.__module__,
+        create_features_from_transaction_timestamp.__name__))
 
     data = data.withColumn('TransactionHour',
-                           hour(data['TransactionStartTime']))
+                           hour(data[config.feature_column_timestamp]))
     data = data.withColumn('TransactionDayOfWeek',
-                           dayofweek(data['TransactionStartTime']))
+                           dayofweek(data[config.feature_column_timestamp]))
     data = data.withColumn('TransactionDayOfYear',
-                           dayofyear(data['TransactionStartTime']))
+                           dayofyear(data[config.feature_column_timestamp]))
     data = data.withColumn('TransactionWeekOfYear',
-                           weekofyear(data['TransactionStartTime']))
+                           weekofyear(data[config.feature_column_timestamp]))
+
+    data = data.withColumn('WeekAction',
+                           when(col('TransactionWeekOfYear').
+                                between(50, 52), 1).
+                           otherwise(0))
 
     update_list_features("numerical", ['TransactionHour',
                                        'TransactionDayOfWeek',
                                        'TransactionDayOfYear',
-                                       'TransactionWeekOfYear'])
+                                       'TransactionWeekOfYear',
+                                       'WeekAction'])
 
     return data
 
@@ -131,17 +146,18 @@ def create_feature_based_on_spent_by_timestamp(data):
     Args:
         data (spark dataframe): input spark data frame.
     """
-    ut.save_log(f'{create_feature_based_on_spent_by_timestamp.__module__} :: '
-                f'{create_feature_based_on_spent_by_timestamp.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_based_on_spent_by_timestamp.__module__,
+        create_feature_based_on_spent_by_timestamp.__name__))
 
-    data = data.withColumn('RatioValueSpentByWeek',
+    data = data.withColumn('RatioValueSpentByWeekOfYear',
                            (data['Value'] / data['TransactionWeekOfYear']))
     data = data.withColumn('RatioValueSpentByDayOfWeek',
                            (data['Value'] / data['TransactionDayOfWeek']))
     data = data.withColumn('RatioValueSpentByDayOfYear',
                            (data['Value'] / data['TransactionDayOfYear']))
 
-    update_list_features("numerical", ['RatioValueSpentByWeek',
+    update_list_features("numerical", ['RatioValueSpentByWeekOfYear',
                                        'RatioValueSpentByDayOfWeek',
                                        'RatioValueSpentByDayOfYear'])
 
@@ -156,9 +172,9 @@ def create_features_avg_ratio_value_by_categories(data, list_of_categories):
         data: input spark data frame.
         list_of_categories: features to be inserted on global features list
     """
-    ut.save_log(
-        f'{create_features_avg_ratio_value_by_categories.__module__} :: '
-        f'{create_features_avg_ratio_value_by_categories.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_features_avg_ratio_value_by_categories.__module__,
+        create_features_avg_ratio_value_by_categories.__name__))
 
     for item in list_of_categories:
         data = create_feature_average_value_for_category(data, item)
@@ -179,11 +195,12 @@ def create_feature_average_value_for_category(data, item):
         data (spark data frame): output spark data frame with
         the new feature created.
     """
-    ut.save_log(f'{create_feature_average_value_for_category.__module__} :: '
-                f'{create_feature_average_value_for_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_average_value_for_category.__module__,
+        create_feature_average_value_for_category.__name__))
 
     column_name = 'AverageValuePer{0}'.format(item)
-    aux = data.select([item, 'Value']).\
+    aux = data.select([item, config.feature_column_value[0]]).\
         groupBy(item).\
         mean()
     aux = aux.select(col(item),
@@ -203,14 +220,15 @@ def create_feature_ratio_between_value_and_category(data, item):
         item: type of attribute used to aggregate the data and
         compute the average.
     """
-    ut.save_log(
-        f'{create_feature_ratio_between_value_and_category.__module__} :: '
-        f'{create_feature_ratio_between_value_and_category.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        create_feature_ratio_between_value_and_category.__module__,
+        create_feature_ratio_between_value_and_category.__name__))
 
     column_name = 'AverageValuePer{0}'.format(item)
     ratio_column_name = 'RatioOfAverageValuePer{0}'.format(item)
     data = data.withColumn(ratio_column_name,
-                           (col('Value') - col(column_name)) /
+                           (col(config.feature_column_value[0]) -
+                            col(column_name)) /
                            col(column_name))
     update_list_features("numerical", [ratio_column_name])
     return data
@@ -224,9 +242,9 @@ def update_list_features(list_type, list_column_name):
         list_column_name: list of features name to be added.
             If is a unique value, need be as list as well.
     """
-    ut.save_log(
-        f'{update_list_features.__module__} :: '
-        f'{update_list_features.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        update_list_features.__module__,
+        update_list_features.__name__))
 
     for column_name in list_column_name:
         if list_type == 'categorical':
@@ -242,11 +260,9 @@ def update_features_dims(data):
     Args:
         data: dataframe
     """
-    ut.save_log(f'{update_features_dims.__module__} :: '
-                f'{update_features_dims.__name__}')
+    utils.save_log('{0} :: {1}'.format(
+        update_features_dims.__module__,
+        update_features_dims.__name__))
 
-    global categorical_features_dims
-
-    categorical_features_dims = \
-        [data[features_list].columns.get_loc(i)
-         for i in categorical_features_list]
+    return [data[features_list].columns.get_loc(i)
+            for i in categorical_features_list]

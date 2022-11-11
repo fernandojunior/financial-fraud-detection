@@ -1,6 +1,6 @@
 ## Essential packages: software dependency
 fire>=0.2.1
-pyspark==2.4.4
+pyspark==3.2.2
 pandas==0.24.2
 pandas-ml==0.6.1
 numpy==1.16.2
